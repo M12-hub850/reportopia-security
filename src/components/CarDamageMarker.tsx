@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Canvas as FabricCanvas, Circle, Image } from "fabric";
+import { Canvas as FabricCanvas, Circle, Image, type LoadImageOptions } from "fabric";
 
 interface CarDamageMarkerProps {
   onChange: (markings: string) => void;
@@ -20,23 +20,31 @@ export const CarDamageMarker = ({ onChange, value }: CarDamageMarkerProps) => {
     });
 
     // Load the car diagram image using the new Fabric.js v6 API
-    Image.fromURL("/car-diagram.svg", (img) => {
-      img.scaleToWidth(480); // 0.8 * 600
-      img.scaleToHeight(240); // 0.8 * 300
-      
-      // Center the image
-      const center = fabricCanvas.getCenter();
-      img.set({
-        left: center.left,
-        top: center.top,
-        originX: 'center',
-        originY: 'center',
-        selectable: false,
-        evented: false
-      });
-      
-      fabricCanvas.backgroundImage = img;
-      fabricCanvas.renderAll();
+    const options: LoadImageOptions = {
+      crossOrigin: 'anonymous',
+      signal: undefined
+    };
+
+    Image.fromURL("/car-diagram.svg", {
+      ...options,
+      onload: (img) => {
+        img.scaleToWidth(480); // 0.8 * 600
+        img.scaleToHeight(240); // 0.8 * 300
+        
+        // Center the image
+        const center = fabricCanvas.getCenter();
+        img.set({
+          left: center.left,
+          top: center.top,
+          originX: 'center',
+          originY: 'center',
+          selectable: false,
+          evented: false
+        });
+        
+        fabricCanvas.backgroundImage = img;
+        fabricCanvas.renderAll();
+      }
     });
 
     // Load existing markings if any
