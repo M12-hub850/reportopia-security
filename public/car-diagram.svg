@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="800px" height="400px" viewBox="0 0 800 400" version="1.1" xmlns="http://www.w3.org/2000/svg">
+    <title>Car Diagram</title>
+    <g stroke="black" stroke-width="2" fill="none">
+        <!-- Car body outline -->
+        <path d="M200,200 C200,180 220,160 240,160 L560,160 C580,160 600,180 600,200 L600,240 C600,260 580,280 560,280 L240,280 C220,280 200,260 200,240 Z"/>
+        <!-- Windows -->
+        <path d="M300,160 L320,120 L480,120 L500,160"/>
+        <!-- Wheels -->
+        <circle cx="280" cy="280" r="40"/>
+        <circle cx="520" cy="280" r="40"/>
+        <!-- Details -->
+        <line x1="200" y1="220" x2="600" y2="220"/>
+        <line x1="400" y1="160" x2="400" y2="280"/>
+    </g>
+</svg>

@@ -8,6 +8,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
 import { ReportCard } from "@/components/ReportCard";
+import { CarDamageMarker } from "@/components/CarDamageMarker";
 
 const formSchema = z.object({
   carModel: z.string().min(2, "Car model is required"),
@@ -15,6 +16,7 @@ const formSchema = z.object({
   mileage: z.string().min(1, "Current mileage is required"),
   project: z.string().min(1, "Project location is required"),
   condition: z.string().min(10, "Please provide detailed condition notes"),
+  damageMarks: z.string().optional(),
   carImages: z.array(z.string()).min(1, "At least one car condition image is required"),
   mileageImage: z.string().min(1, "Mileage meter image is required"),
 });
@@ -30,6 +32,7 @@ const CarHandovers = () => {
       mileage: "",
       project: "",
       condition: "",
+      damageMarks: "",
       carImages: [],
       mileageImage: "",
     },
@@ -160,6 +163,23 @@ const CarHandovers = () => {
                         placeholder="Describe the current condition of the vehicle..."
                         className="min-h-[100px]"
                         {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="damageMarks"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Mark Vehicle Damages</FormLabel>
+                    <FormControl>
+                      <CarDamageMarker
+                        value={field.value}
+                        onChange={field.onChange}
                       />
                     </FormControl>
                     <FormMessage />
