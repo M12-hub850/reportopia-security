@@ -35,22 +35,43 @@ const CarHandovers = () => {
     },
   });
 
-  const handleImageUpload = (
-    event: React.ChangeEvent<HTMLInputElement>,
+  const captureImage = async (
     fieldName: keyof Pick<FormSchema, 'carImages' | 'mileageImage'>
   ) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        if (fieldName === "carImages") {
-          const currentImages = form.getValues("carImages");
-          form.setValue("carImages", [...currentImages, reader.result as string]);
-        } else {
-          form.setValue(fieldName, reader.result as string);
-        }
-      };
-      reader.readAsDataURL(file);
+    try {
+      // Create a hidden input element for the camera
+      const input = document.createElement('input');
+      input.type = 'file';
+      input.accept = 'image/*';
+      input.capture = 'environment'; // Use the back camera
+      
+      // Create a promise to handle the file selection
+      const fileSelected = new Promise<File | null>((resolve) => {
+        input.onchange = (e) => {
+          const file = (e.target as HTMLInputElement).files?.[0] || null;
+          resolve(file);
+        };
+      });
+
+      // Trigger the file input
+      input.click();
+
+      // Wait for file selection
+      const file = await fileSelected;
+      if (file) {
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          if (fieldName === "carImages") {
+            const currentImages = form.getValues("carImages");
+            form.setValue("carImages", [...currentImages, reader.result as string]);
+          } else {
+            form.setValue(fieldName, reader.result as string);
+          }
+        };
+        reader.readAsDataURL(file);
+      }
+    } catch (error) {
+      console.error('Error capturing image:', error);
     }
   };
 
@@ -148,14 +169,15 @@ const CarHandovers = () => {
 
               <div className="space-y-4">
                 <div>
-                  <Label htmlFor="carImages">Car Condition Images</Label>
-                  <Input
-                    id="carImages"
-                    type="file"
-                    accept="image/*"
-                    onChange={(e) => handleImageUpload(e, "carImages")}
-                    className="mt-1"
-                  />
+                  <Label>Car Condition Images</Label>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="w-full mt-1"
+                    onClick={() => captureImage("carImages")}
+                  >
+                    Take Car Photo
+                  </Button>
                   <div className="mt-2 flex gap-2 flex-wrap">
                     {form.watch("carImages").map((image, index) => (
                       <img
@@ -169,14 +191,15 @@ const CarHandovers = () => {
                 </div>
 
                 <div>
-                  <Label htmlFor="mileageImage">Mileage Meter Image</Label>
-                  <Input
-                    id="mileageImage"
-                    type="file"
-                    accept="image/*"
-                    onChange={(e) => handleImageUpload(e, "mileageImage")}
-                    className="mt-1"
-                  />
+                  <Label>Mileage Meter Image</Label>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="w-full mt-1"
+                    onClick={() => captureImage("mileageImage")}
+                  >
+                    Take Mileage Photo
+                  </Button>
                   {form.watch("mileageImage") && (
                     <img
                       src={form.watch("mileageImage")}
