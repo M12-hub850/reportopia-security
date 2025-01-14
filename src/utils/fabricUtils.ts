@@ -1,15 +1,11 @@
-import { Canvas as FabricCanvas, Image } from "fabric";
+import { Canvas as FabricCanvas, Image, Circle, Point } from "fabric";
 
 export const setupCarImage = (
   fabricCanvas: FabricCanvas,
   imagePath: string
 ): Promise<void> => {
   return new Promise((resolve) => {
-    Image.fromURL(imagePath, {
-      crossOrigin: 'anonymous',
-      scaleX: 1,
-      scaleY: 1,
-    }).then((img) => {
+    fabric.Image.fromURL(imagePath, (img) => {
       // Scale image to fit canvas while maintaining aspect ratio
       const scale = Math.min(
         (fabricCanvas.width! * 0.9) / img.width!,
@@ -41,7 +37,7 @@ export const addDamageMarker = (
   x: number,
   y: number
 ) => {
-  return new Circle({
+  return new fabric.Circle({
     left: x,
     top: y,
     radius: 10,
