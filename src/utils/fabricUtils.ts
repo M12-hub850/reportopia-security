@@ -5,8 +5,7 @@ export const loadBackgroundImage = async (
   imagePath: string
 ): Promise<void> => {
   return new Promise((resolve) => {
-    FabricImage.fromURL(imagePath, (img) => {
-      // Scale image to fit canvas while maintaining aspect ratio
+    fabric.Image.fromURL(imagePath, (img) => {
       const scale = Math.min(
         (fabricCanvas.width! * 0.9) / img.width!,
         (fabricCanvas.height! * 0.9) / img.height!
@@ -14,7 +13,6 @@ export const loadBackgroundImage = async (
       
       img.scale(scale);
       
-      // Center the image
       const center = fabricCanvas.getCenter();
       img.set({
         left: center.left,
