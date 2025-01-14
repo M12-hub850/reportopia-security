@@ -16,6 +16,8 @@ import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { AuthError } from "@supabase/supabase-js";
+import { Separator } from "@/components/ui/separator";
+import { Github, Mail } from "lucide-react";
 
 const formSchema = z.object({
   email: z.string().email("Please enter a valid email address"),
@@ -71,16 +73,74 @@ export default function SignUp() {
     }
   };
 
+  const handleGoogleSignUp = async () => {
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: `${window.location.origin}/auth/callback`
+        }
+      });
+      if (error) throw error;
+    } catch (error) {
+      console.error("Google signup error:", error);
+      toast.error("Failed to sign up with Google. Please try again.");
+    }
+  };
+
+  const handleGithubSignUp = async () => {
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'github',
+        options: {
+          redirectTo: `${window.location.origin}/auth/callback`
+        }
+      });
+      if (error) throw error;
+    } catch (error) {
+      console.error("GitHub signup error:", error);
+      toast.error("Failed to sign up with GitHub. Please try again.");
+    }
+  };
+
   return (
-    <div className="container flex h-screen w-screen flex-col items-center justify-center">
-      <div className="mx-auto flex w-full flex-col justify-center space-y-6 sm:w-[350px]">
-        <div className="flex flex-col space-y-2 text-center">
-          <h1 className="text-2xl font-semibold tracking-tight">
+    <div className="min-h-screen bg-[#f3f3f3] flex flex-col items-center justify-center p-4 md:p-8">
+      <div className="w-full max-w-md space-y-8 bg-white p-6 md:p-8 rounded-lg shadow-md">
+        <div className="space-y-2 text-center">
+          <h1 className="text-2xl font-semibold tracking-tight text-gray-900">
             Create an account
           </h1>
-          <p className="text-sm text-muted-foreground">
-            Enter your email below to create your account
+          <p className="text-sm text-gray-600">
+            Sign up to get started with our application
           </p>
+        </div>
+
+        <div className="grid grid-cols-2 gap-4">
+          <Button
+            variant="outline"
+            className="w-full"
+            onClick={handleGoogleSignUp}
+            disabled={isLoading}
+          >
+            <Mail className="mr-2 h-4 w-4" />
+            Google
+          </Button>
+          <Button
+            variant="outline"
+            className="w-full"
+            onClick={handleGithubSignUp}
+            disabled={isLoading}
+          >
+            <Github className="mr-2 h-4 w-4" />
+            GitHub
+          </Button>
+        </div>
+
+        <div className="relative my-6">
+          <Separator />
+          <span className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 bg-white px-2 text-sm text-gray-500">
+            Or continue with
+          </span>
         </div>
 
         <Form {...form}>
@@ -95,6 +155,7 @@ export default function SignUp() {
                     <Input
                       type="email"
                       placeholder="name@example.com"
+                      className="bg-gray-50"
                       {...field}
                     />
                   </FormControl>
@@ -109,7 +170,12 @@ export default function SignUp() {
                 <FormItem>
                   <FormLabel>Password</FormLabel>
                   <FormControl>
-                    <Input type="password" placeholder="••••••••" {...field} />
+                    <Input 
+                      type="password" 
+                      placeholder="••••••••"
+                      className="bg-gray-50" 
+                      {...field} 
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -122,23 +188,32 @@ export default function SignUp() {
                 <FormItem>
                   <FormLabel>Confirm Password</FormLabel>
                   <FormControl>
-                    <Input type="password" placeholder="••••••••" {...field} />
+                    <Input 
+                      type="password" 
+                      placeholder="••••••••"
+                      className="bg-gray-50" 
+                      {...field} 
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
-            <Button className="w-full" type="submit" disabled={isLoading}>
+            <Button 
+              className="w-full bg-gray-900 hover:bg-gray-800" 
+              type="submit" 
+              disabled={isLoading}
+            >
               {isLoading ? "Creating account..." : "Sign up"}
             </Button>
           </form>
         </Form>
 
-        <div className="px-8 text-center text-sm text-muted-foreground">
+        <div className="mt-4 text-center text-sm text-gray-600">
           Already have an account?{" "}
           <Button
             variant="link"
-            className="underline underline-offset-4 hover:text-primary"
+            className="text-gray-900 hover:text-gray-700 p-0"
             onClick={() => navigate("/login")}
           >
             Sign in

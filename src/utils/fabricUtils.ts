@@ -1,7 +1,7 @@
-import { Canvas as FabricCanvas, Image as FabricImage, Circle } from "fabric";
+import { Canvas, Image as FabricImage } from "fabric";
 
-export const setupCarImage = (
-  fabricCanvas: FabricCanvas,
+export const loadBackgroundImage = async (
+  fabricCanvas: Canvas,
   imagePath: string
 ): Promise<void> => {
   return new Promise((resolve) => {
@@ -30,41 +30,4 @@ export const setupCarImage = (
       resolve();
     });
   });
-};
-
-export const addDamageMarker = (
-  fabricCanvas: FabricCanvas,
-  x: number,
-  y: number
-) => {
-  return new Circle({
-    left: x,
-    top: y,
-    radius: 10,
-    fill: 'red',
-    opacity: 0.5,
-    selectable: false,
-    evented: false
-  });
-};
-
-interface DamageMarking {
-  left: number;
-  top: number;
-}
-
-export const loadExistingMarkings = (
-  fabricCanvas: FabricCanvas,
-  markingsJson: string
-) => {
-  try {
-    const markings: DamageMarking[] = JSON.parse(markingsJson);
-    markings.forEach((marking) => {
-      const circle = addDamageMarker(fabricCanvas, marking.left, marking.top);
-      fabricCanvas.add(circle);
-    });
-    fabricCanvas.renderAll();
-  } catch (e) {
-    console.error('Error loading markings:', e);
-  }
 };
