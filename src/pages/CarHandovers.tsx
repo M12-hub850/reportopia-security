@@ -1,25 +1,11 @@
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
+import { Form } from "@/components/ui/form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import * as z from "zod";
 import { ReportCard } from "@/components/ReportCard";
-
-const formSchema = z.object({
-  carModel: z.string().min(2, "Car model is required"),
-  plateNumber: z.string().min(1, "Plate number is required"),
-  mileage: z.string().min(1, "Current mileage is required"),
-  project: z.string().min(1, "Project location is required"),
-  condition: z.string().min(10, "Please provide detailed condition notes"),
-  carImages: z.array(z.string()).min(1, "At least one car condition image is required"),
-  mileageImage: z.string().min(1, "Mileage meter image is required"),
-});
-
-type FormSchema = z.infer<typeof formSchema>;
+import { VehicleDetailsForm } from "@/components/VehicleDetailsForm";
+import { VehicleImageCapture } from "@/components/VehicleImageCapture";
+import { formSchema, FormSchema } from "@/types/carHandover";
 
 const CarHandovers = () => {
   const form = useForm<FormSchema>({
@@ -39,13 +25,11 @@ const CarHandovers = () => {
     fieldName: keyof Pick<FormSchema, 'carImages' | 'mileageImage'>
   ) => {
     try {
-      // Create a hidden input element for the camera
       const input = document.createElement('input');
       input.type = 'file';
       input.accept = 'image/*';
-      input.capture = 'environment'; // Use the back camera
+      input.capture = 'environment';
       
-      // Create a promise to handle the file selection
       const fileSelected = new Promise<File | null>((resolve) => {
         input.onchange = (e) => {
           const file = (e.target as HTMLInputElement).files?.[0] || null;
@@ -53,10 +37,8 @@ const CarHandovers = () => {
         };
       });
 
-      // Trigger the file input
       input.click();
 
-      // Wait for file selection
       const file = await fileSelected;
       if (file) {
         const reader = new FileReader();
@@ -77,7 +59,6 @@ const CarHandovers = () => {
 
   const onSubmit = (data: FormSchema) => {
     console.log("Form submitted:", data);
-    // Here you would typically send the data to your backend
   };
 
   return (
@@ -91,125 +72,8 @@ const CarHandovers = () => {
         <ReportCard title="Vehicle Details" subtitle="Enter car information and current status">
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <FormField
-                  control={form.control}
-                  name="carModel"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Car Model</FormLabel>
-                      <FormControl>
-                        <Input placeholder="e.g. Toyota Camry 2022" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="plateNumber"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Plate Number</FormLabel>
-                      <FormControl>
-                        <Input placeholder="e.g. ABC 123" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="mileage"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Current Mileage</FormLabel>
-                      <FormControl>
-                        <Input type="number" placeholder="e.g. 50000" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-
-                <FormField
-                  control={form.control}
-                  name="project"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Project Location</FormLabel>
-                      <FormControl>
-                        <Input placeholder="Enter project name/location" {...field} />
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </div>
-
-              <FormField
-                control={form.control}
-                name="condition"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Vehicle Condition Notes</FormLabel>
-                    <FormControl>
-                      <Textarea 
-                        placeholder="Describe the current condition of the vehicle..."
-                        className="min-h-[100px]"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <div className="space-y-4">
-                <div>
-                  <Label>Car Condition Images</Label>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    className="w-full mt-1"
-                    onClick={() => captureImage("carImages")}
-                  >
-                    Take Car Photo
-                  </Button>
-                  <div className="mt-2 flex gap-2 flex-wrap">
-                    {form.watch("carImages").map((image, index) => (
-                      <img
-                        key={index}
-                        src={image}
-                        alt={`Car condition ${index + 1}`}
-                        className="w-24 h-24 object-cover rounded-md"
-                      />
-                    ))}
-                  </div>
-                </div>
-
-                <div>
-                  <Label>Mileage Meter Image</Label>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    className="w-full mt-1"
-                    onClick={() => captureImage("mileageImage")}
-                  >
-                    Take Mileage Photo
-                  </Button>
-                  {form.watch("mileageImage") && (
-                    <img
-                      src={form.watch("mileageImage")}
-                      alt="Mileage meter"
-                      className="mt-2 w-24 h-24 object-cover rounded-md"
-                    />
-                  )}
-                </div>
-              </div>
-
+              <VehicleDetailsForm form={form} />
+              <VehicleImageCapture form={form} onCaptureImage={captureImage} />
               <Button type="submit" className="w-full">Submit Handover Form</Button>
             </form>
           </Form>
