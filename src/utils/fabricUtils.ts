@@ -1,11 +1,11 @@
-import { Canvas as FabricCanvas, Image, Circle, Point } from "fabric";
+import { Canvas as FabricCanvas, Image as FabricImage, Circle } from "fabric";
 
 export const setupCarImage = (
   fabricCanvas: FabricCanvas,
   imagePath: string
 ): Promise<void> => {
   return new Promise((resolve) => {
-    fabric.Image.fromURL(imagePath, (img) => {
+    FabricImage.fromURL(imagePath, (img) => {
       // Scale image to fit canvas while maintaining aspect ratio
       const scale = Math.min(
         (fabricCanvas.width! * 0.9) / img.width!,
@@ -25,8 +25,7 @@ export const setupCarImage = (
         evented: false
       });
       
-      fabricCanvas.backgroundImage = img;
-      fabricCanvas.renderAll();
+      fabricCanvas.setBackgroundImage(img, fabricCanvas.renderAll.bind(fabricCanvas));
       resolve();
     });
   });
@@ -37,7 +36,7 @@ export const addDamageMarker = (
   x: number,
   y: number
 ) => {
-  return new fabric.Circle({
+  return new Circle({
     left: x,
     top: y,
     radius: 10,
@@ -63,6 +62,7 @@ export const loadExistingMarkings = (
       const circle = addDamageMarker(fabricCanvas, marking.left, marking.top);
       fabricCanvas.add(circle);
     });
+    fabricCanvas.renderAll();
   } catch (e) {
     console.error('Error loading markings:', e);
   }
