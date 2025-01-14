@@ -14,6 +14,8 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
+import { AuthError } from "@supabase/supabase-js";
 
 const formSchema = z.object({
   email: z.string().email("Please enter a valid email address"),
@@ -46,13 +48,24 @@ export default function SignUp() {
   const onSubmit = async (values: z.infer<typeof formSchema>) => {
     try {
       setIsLoading(true);
-      console.log("Form submitted:", values);
-      // Here you would typically make an API call to create the user
-      toast.success("Account created successfully!");
+      console.log("Attempting to sign up user:", values.email);
+      
+      const { data, error } = await supabase.auth.signUp({
+        email: values.email,
+        password: values.password,
+      });
+
+      if (error) {
+        throw error;
+      }
+
+      console.log("Sign up successful:", data);
+      toast.success("Account created successfully! Please check your email to verify your account.");
       navigate("/");
     } catch (error) {
       console.error("Signup error:", error);
-      toast.error("Failed to create account. Please try again.");
+      const authError = error as AuthError;
+      toast.error(authError.message || "Failed to create account. Please try again.");
     } finally {
       setIsLoading(false);
     }
