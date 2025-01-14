@@ -20,26 +20,23 @@ export const CarDamageMarker = ({ onChange, value }: CarDamageMarkerProps) => {
     });
 
     // Load the car diagram image using the new Fabric.js v6 API
-    Image.fromURL("/car-diagram.svg", {
-      crossOrigin: 'anonymous',
-      onload: (img) => {
-        img.scaleToWidth(480); // 0.8 * 600
-        img.scaleToHeight(240); // 0.8 * 300
-        
-        // Center the image
-        const center = fabricCanvas.getCenter();
-        img.set({
-          left: center.left,
-          top: center.top,
-          originX: 'center',
-          originY: 'center',
-          selectable: false,
-          evented: false
-        });
-        
-        fabricCanvas.backgroundImage = img;
-        fabricCanvas.renderAll();
-      }
+    Image.fromURL("/car-diagram.svg", (img) => {
+      img.scaleToWidth(480); // 0.8 * 600
+      img.scaleToHeight(240); // 0.8 * 300
+      
+      // Center the image
+      const center = fabricCanvas.getCenter();
+      img.set({
+        left: center.left,
+        top: center.top,
+        originX: 'center',
+        originY: 'center',
+        selectable: false,
+        evented: false
+      });
+      
+      fabricCanvas.backgroundImage = img;
+      fabricCanvas.renderAll();
     });
 
     if (value) {
