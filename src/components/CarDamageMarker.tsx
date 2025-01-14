@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Canvas as FabricCanvas, Circle } from "fabric";
+import { Canvas as FabricCanvas, Circle, Image } from "fabric";
 
 interface CarDamageMarkerProps {
   onChange: (markings: string) => void;
@@ -19,21 +19,25 @@ export const CarDamageMarker = ({ onChange, value }: CarDamageMarkerProps) => {
       backgroundColor: "#ffffff",
     });
 
-    // Load the car diagram image
-    fabricCanvas.setBackgroundImage(
-      "/car-diagram.svg",
-      () => {
-        fabricCanvas.renderAll();
-      },
-      {
-        scaleX: 0.8,
-        scaleY: 0.8,
+    // Load the car diagram image using the new Fabric.js v6 API
+    Image.fromURL("/car-diagram.svg", (img) => {
+      img.scaleToWidth(480); // 0.8 * 600
+      img.scaleToHeight(240); // 0.8 * 300
+      
+      // Center the image
+      const center = fabricCanvas.getCenter();
+      img.set({
+        left: center.left,
+        top: center.top,
         originX: 'center',
         originY: 'center',
-        left: fabricCanvas.width! / 2,
-        top: fabricCanvas.height! / 2,
-      }
-    );
+        selectable: false,
+        evented: false
+      });
+      
+      fabricCanvas.backgroundImage = img;
+      fabricCanvas.renderAll();
+    });
 
     // Load existing markings if any
     if (value) {
@@ -46,6 +50,8 @@ export const CarDamageMarker = ({ onChange, value }: CarDamageMarkerProps) => {
             radius: 10,
             fill: 'red',
             opacity: 0.5,
+            selectable: false,
+            evented: false
           });
           fabricCanvas.add(circle);
         });
@@ -63,6 +69,8 @@ export const CarDamageMarker = ({ onChange, value }: CarDamageMarkerProps) => {
         radius: 10,
         fill: 'red',
         opacity: 0.5,
+        selectable: false,
+        evented: false
       });
       fabricCanvas.add(circle);
       
