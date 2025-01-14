@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Canvas as FabricCanvas, Circle, Image, type LoadImageOptions } from "fabric";
+import { Canvas as FabricCanvas, Circle, Image } from "fabric";
 
 interface CarDamageMarkerProps {
   onChange: (markings: string) => void;
@@ -20,13 +20,8 @@ export const CarDamageMarker = ({ onChange, value }: CarDamageMarkerProps) => {
     });
 
     // Load the car diagram image using the new Fabric.js v6 API
-    const options: LoadImageOptions = {
-      crossOrigin: 'anonymous',
-      signal: undefined
-    };
-
     Image.fromURL("/car-diagram.svg", {
-      ...options,
+      crossOrigin: 'anonymous',
       onload: (img) => {
         img.scaleToWidth(480); // 0.8 * 600
         img.scaleToHeight(240); // 0.8 * 300
@@ -47,7 +42,6 @@ export const CarDamageMarker = ({ onChange, value }: CarDamageMarkerProps) => {
       }
     });
 
-    // Load existing markings if any
     if (value) {
       try {
         const markings = JSON.parse(value);
@@ -68,7 +62,6 @@ export const CarDamageMarker = ({ onChange, value }: CarDamageMarkerProps) => {
       }
     }
 
-    // Add click handler to mark damages
     fabricCanvas.on('mouse:down', (options) => {
       const pointer = fabricCanvas.getPointer(options.e);
       const circle = new Circle({
