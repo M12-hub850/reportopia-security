@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
-import { Canvas as FabricCanvas, Circle, Image } from "fabric";
+import { Canvas as FabricCanvas, Circle } from "fabric";
+import { setupCarImage, loadExistingMarkings } from "@/utils/fabricUtils";
 
 interface CarDamageMarkerProps {
   onChange: (markings: string) => void;
@@ -19,51 +20,15 @@ export const CarDamageMarker = ({ onChange, value }: CarDamageMarkerProps) => {
       backgroundColor: "#ffffff",
     });
 
-    // Load the car diagram image
-    Image.fromURL("/lovable-uploads/033cd0fe-0aca-4311-8368-645c8967884d.png", (img) => {
-      // Scale image to fit canvas while maintaining aspect ratio
-      const scale = Math.min(
-        (fabricCanvas.width! * 0.9) / img.width!,
-        (fabricCanvas.height! * 0.9) / img.height!
-      );
-      
-      img.scale(scale);
-      
-      // Center the image
-      const center = fabricCanvas.getCenter();
-      img.set({
-        left: center.left,
-        top: center.top,
-        originX: 'center',
-        originY: 'center',
-        selectable: false,
-        evented: false
-      });
-      
-      fabricCanvas.backgroundImage = img;
-      fabricCanvas.renderAll();
+    // Initialize canvas with car image
+    setupCarImage(fabricCanvas, "/car-diagram.svg").then(() => {
+      // Load existing markings if any
+      if (value) {
+        loadExistingMarkings(fabricCanvas, value);
+      }
     });
 
-    if (value) {
-      try {
-        const markings = JSON.parse(value);
-        markings.forEach((marking: any) => {
-          const circle = new Circle({
-            left: marking.left,
-            top: marking.top,
-            radius: 10,
-            fill: 'red',
-            opacity: 0.5,
-            selectable: false,
-            evented: false
-          });
-          fabricCanvas.add(circle);
-        });
-      } catch (e) {
-        console.error('Error loading markings:', e);
-      }
-    }
-
+    // Handle click events for adding damage markers
     fabricCanvas.on('mouse:down', (options) => {
       const pointer = fabricCanvas.getPointer(options.e);
       const circle = new Circle({
@@ -75,6 +40,7 @@ export const CarDamageMarker = ({ onChange, value }: CarDamageMarkerProps) => {
         selectable: false,
         evented: false
       });
+      
       fabricCanvas.add(circle);
       
       // Save all markings
