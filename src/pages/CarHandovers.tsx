@@ -19,8 +19,10 @@ const formSchema = z.object({
   mileageImage: z.string().min(1, "Mileage meter image is required"),
 });
 
+type FormSchema = z.infer<typeof formSchema>;
+
 const CarHandovers = () => {
-  const form = useForm<z.infer<typeof formSchema>>({
+  const form = useForm<FormSchema>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       carModel: "",
@@ -33,7 +35,10 @@ const CarHandovers = () => {
     },
   });
 
-  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>, fieldName: string) => {
+  const handleImageUpload = (
+    event: React.ChangeEvent<HTMLInputElement>,
+    fieldName: keyof Pick<FormSchema, 'carImages' | 'mileageImage'>
+  ) => {
     const file = event.target.files?.[0];
     if (file) {
       const reader = new FileReader();
@@ -49,7 +54,7 @@ const CarHandovers = () => {
     }
   };
 
-  const onSubmit = (data: z.infer<typeof formSchema>) => {
+  const onSubmit = (data: FormSchema) => {
     console.log("Form submitted:", data);
     // Here you would typically send the data to your backend
   };
