@@ -1,5 +1,5 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ClipboardList, Users, Building } from "lucide-react";
+import { ClipboardList, Users, AlertTriangle } from "lucide-react";
 
 const stats = [
   {
@@ -11,14 +11,14 @@ const stats = [
   {
     title: "Monthly Visits",
     value: "86",
-    icon: Building,
+    icon: Users,
     description: "Manager project visits this month",
   },
   {
-    title: "Visitors",
-    value: "156",
-    icon: Users,
-    description: "Visitors recorded this month",
+    title: "Events & Incidents",
+    value: "12",
+    icon: AlertTriangle,
+    description: "Total events and incidents reported",
   },
 ];
 
