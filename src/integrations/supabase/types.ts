@@ -161,15 +161,27 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      get_monthly_visits: {
-        Args: {
-          user_id: string
-        }
-        Returns: {
-          status: Database["public"]["Enums"]["visit_status"]
-          count: number
-        }[]
-      }
+      get_monthly_visits:
+        | {
+            Args: {
+              user_id: string
+            }
+            Returns: {
+              status: Database["public"]["Enums"]["visit_status"]
+              count: number
+            }[]
+          }
+        | {
+            Args: {
+              user_id: string
+              start_date: string
+              end_date: string
+            }
+            Returns: {
+              status: Database["public"]["Enums"]["visit_status"]
+              count: number
+            }[]
+          }
       get_report_counts: {
         Args: {
           p_user_id: string
@@ -181,15 +193,27 @@ export type Database = {
           count: number
         }[]
       }
-      get_weekly_visits: {
-        Args: {
-          user_id: string
-        }
-        Returns: {
-          status: Database["public"]["Enums"]["visit_status"]
-          count: number
-        }[]
-      }
+      get_weekly_visits:
+        | {
+            Args: {
+              user_id: string
+            }
+            Returns: {
+              status: Database["public"]["Enums"]["visit_status"]
+              count: number
+            }[]
+          }
+        | {
+            Args: {
+              user_id: string
+              start_date: string
+              end_date: string
+            }
+            Returns: {
+              status: Database["public"]["Enums"]["visit_status"]
+              count: number
+            }[]
+          }
     }
     Enums: {
       report_type:
