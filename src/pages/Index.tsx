@@ -39,7 +39,7 @@ const Index = () => {
 
         <DashboardStats />
 
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
           <ReportCard
             title="Supervisor Weekly Visits"
             subtitle="Track site inspections and observations"
@@ -78,6 +78,20 @@ const Index = () => {
               </p>
               <Button asChild className="w-full">
                 <Link to="/car-handovers/new">Add New Report</Link>
+              </Button>
+            </div>
+          </ReportCard>
+
+          <ReportCard
+            title="Events & Incidents"
+            subtitle="Record security events and incidents"
+          >
+            <div className="space-y-4">
+              <p className="text-sm text-muted-foreground">
+                Document and track security events and incidents with detailed information.
+              </p>
+              <Button asChild className="w-full">
+                <Link to="/event-incidents">Add New Report</Link>
               </Button>
             </div>
           </ReportCard>

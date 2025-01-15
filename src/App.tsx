@@ -6,6 +6,7 @@ import CarHandovers from "@/pages/CarHandovers";
 import ManagerReports from "@/pages/ManagerReports";
 import NewVehicleHandover from "@/pages/NewVehicleHandover";
 import SupervisorReports from "@/pages/SupervisorReports";
+import EventIncidents from "@/pages/EventIncidents";
 
 function App() {
   return (
@@ -18,6 +19,7 @@ function App() {
         <Route path="/car-handovers/new" element={<NewVehicleHandover />} />
         <Route path="/manager-reports" element={<ManagerReports />} />
         <Route path="/supervisor-reports" element={<SupervisorReports />} />
+        <Route path="/event-incidents" element={<EventIncidents />} />
       </Routes>
     </Router>
   );

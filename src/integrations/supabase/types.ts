@@ -29,13 +29,18 @@ export type Database = {
       }
       reports: {
         Row: {
+          action_taken: string | null
           attendance_rating: string | null
           created_at: string | null
           description: string
           duties_rating: string | null
           id: string
+          incident_date: string | null
+          location: string | null
           photo_url: string
           presence_rating: string | null
+          reporting_person: string | null
+          reporting_time: string | null
           shift: string | null
           staff_name: string | null
           type: Database["public"]["Enums"]["report_type"]
@@ -45,13 +50,18 @@ export type Database = {
           visitor_name: string | null
         }
         Insert: {
+          action_taken?: string | null
           attendance_rating?: string | null
           created_at?: string | null
           description: string
           duties_rating?: string | null
           id?: string
+          incident_date?: string | null
+          location?: string | null
           photo_url: string
           presence_rating?: string | null
+          reporting_person?: string | null
+          reporting_time?: string | null
           shift?: string | null
           staff_name?: string | null
           type: Database["public"]["Enums"]["report_type"]
@@ -61,13 +71,18 @@ export type Database = {
           visitor_name?: string | null
         }
         Update: {
+          action_taken?: string | null
           attendance_rating?: string | null
           created_at?: string | null
           description?: string
           duties_rating?: string | null
           id?: string
+          incident_date?: string | null
+          location?: string | null
           photo_url?: string
           presence_rating?: string | null
+          reporting_person?: string | null
+          reporting_time?: string | null
           shift?: string | null
           staff_name?: string | null
           type?: Database["public"]["Enums"]["report_type"]
@@ -183,6 +198,7 @@ export type Database = {
         | "visitor_log"
         | "vehicle_handover"
         | "full_monthly"
+        | "event_incident"
       visit_status: "completed" | "pending" | "missed" | "other"
     }
     CompositeTypes: {
