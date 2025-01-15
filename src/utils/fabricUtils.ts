@@ -1,12 +1,11 @@
 import { Canvas, Image as FabricImage } from "fabric";
-import { fabric } from "fabric";
 
 export const loadBackgroundImage = async (
   fabricCanvas: Canvas,
   imagePath: string
 ): Promise<void> => {
   return new Promise((resolve) => {
-    FabricImage.fromURL(imagePath, (img) => {
+    fabric.Image.fromURL(imagePath, (img) => {
       const scale = Math.min(
         (fabricCanvas.width! * 0.9) / img.width!,
         (fabricCanvas.height! * 0.9) / img.height!
