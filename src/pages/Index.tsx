@@ -4,15 +4,10 @@ import { Button } from "@/components/ui/button";
 import { DashboardStats } from "@/components/DashboardStats";
 import { ReportCard } from "@/components/ReportCard";
 import { Link } from "react-router-dom";
-import { useState } from "react";
-import { VehicleHandoverSection } from "@/components/VehicleHandoverSection";
-import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 
 const Index = () => {
   const navigate = useNavigate();
-  const [showHandoverForm, setShowHandoverForm] = useState(false);
-  const { toast } = useToast();
 
   // Check if user is authenticated
   useEffect(() => {
@@ -81,19 +76,12 @@ const Index = () => {
               <p className="text-sm text-muted-foreground">
                 Create and manage vehicle handover reports with photos and condition details.
               </p>
-              <Button 
-                className="w-full"
-                onClick={() => setShowHandoverForm(true)}
-              >
-                Add New Report
+              <Button asChild className="w-full">
+                <Link to="/car-handovers/new">Add New Report</Link>
               </Button>
             </div>
           </ReportCard>
         </div>
-
-        {showHandoverForm && (
-          <VehicleHandoverSection onClose={() => setShowHandoverForm(false)} />
-        )}
       </div>
     </div>
   );
