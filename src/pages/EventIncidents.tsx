@@ -57,8 +57,9 @@ export default function EventIncidents() {
       if (error) throw error;
 
       toast({
-        title: "Report Submitted",
-        description: "Event/Incident report has been saved successfully.",
+        title: "Success!",
+        description: "Event/Incident report has been submitted successfully.",
+        variant: "default",
       });
 
       navigate("/");

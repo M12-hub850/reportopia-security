@@ -100,10 +100,16 @@ export function VehicleHandoverSection({ onClose }: VehicleHandoverSectionProps)
 
   const onSubmit = async (data: FormSchema) => {
     try {
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (!user) {
+        throw new Error("No authenticated user found");
+      }
+
       const { error } = await supabase
         .from('vehicle_reports')
         .insert({
-          user_id: (await supabase.auth.getUser()).data.user?.id,
+          user_id: user.id,
           car_model: data.model,
           plate_number: data.plateNumber,
           mileage: parseInt(data.mileage),
@@ -119,8 +125,9 @@ export function VehicleHandoverSection({ onClose }: VehicleHandoverSectionProps)
       if (error) throw error;
 
       toast({
-        title: "Success",
-        description: "Vehicle handover report submitted successfully",
+        title: "Success!",
+        description: "Vehicle handover report has been submitted successfully.",
+        variant: "default",
       });
 
       form.reset();

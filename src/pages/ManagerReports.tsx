@@ -47,7 +47,6 @@ export default function ManagerReports() {
       setIsSubmitting(true);
       console.log("Submitting manager report:", data);
 
-      // Get the current user's ID
       const { data: { user } } = await supabase.auth.getUser();
       
       if (!user) {
@@ -64,14 +63,15 @@ export default function ManagerReports() {
         presence_rating: data.presenceRating,
         description: data.description,
         photo_url: data.photoUrl,
-        user_id: user.id, // Add the user_id field
+        user_id: user.id,
       });
 
       if (error) throw error;
 
       toast({
-        title: "Report Submitted",
-        description: "Manager monthly report has been saved successfully.",
+        title: "Success!",
+        description: "Manager monthly report has been submitted successfully.",
+        variant: "default",
       });
 
       navigate("/");
