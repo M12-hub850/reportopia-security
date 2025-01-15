@@ -90,11 +90,11 @@ const Index = () => {
 
             <ReportCard
               title="Vehicle Handovers"
-              subtitle="Document vehicle transfers and conditions"
+              subtitle="Record vehicle transfers"
             >
               <div className="space-y-4">
                 <p className="text-sm text-muted-foreground">
-                  Create and manage vehicle handover reports with photos and condition details.
+                  Log vehicle transfers with photos and condition details.
                 </p>
                 <Button asChild className="w-full">
                   <Link to="/car-handovers/new">Add New Report</Link>
