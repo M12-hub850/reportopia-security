@@ -21,11 +21,15 @@ export default function SignIn() {
     setLoading(true);
     setError(null);
 
+    console.log("Attempting to sign in with email:", email);
+
     try {
-      const { error } = await supabase.auth.signInWithPassword({
+      const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
+
+      console.log("Sign in response:", { data, error });
 
       if (error) throw error;
       
@@ -34,14 +38,15 @@ export default function SignIn() {
         description: "Signed in successfully.",
       });
 
-      navigate("/car-handovers");
+      navigate("/dashboard");
 
     } catch (error: any) {
+      console.error("Sign in error:", error);
       setError(error.message);
       toast({
         variant: "destructive",
         title: "Error",
-        description: error.message,
+        description: "Please make sure you have signed up first and your credentials are correct.",
       });
     } finally {
       setLoading(false);
@@ -52,9 +57,13 @@ export default function SignIn() {
     try {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: "google",
+        options: {
+          redirectTo: `${window.location.origin}/dashboard`
+        }
       });
       if (error) throw error;
     } catch (error: any) {
+      console.error("Google sign in error:", error);
       setError(error.message);
       toast({
         variant: "destructive",
@@ -68,9 +77,13 @@ export default function SignIn() {
     try {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: "github",
+        options: {
+          redirectTo: `${window.location.origin}/dashboard`
+        }
       });
       if (error) throw error;
     } catch (error: any) {
+      console.error("Github sign in error:", error);
       setError(error.message);
       toast({
         variant: "destructive",
