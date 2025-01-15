@@ -78,6 +78,54 @@ export type Database = {
         }
         Relationships: []
       }
+      report_files: {
+        Row: {
+          created_at: string | null
+          file_name: string
+          file_path: string
+          id: string
+          report_id: string | null
+          report_type: string
+          user_id: string
+          vehicle_report_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          file_name: string
+          file_path: string
+          id?: string
+          report_id?: string | null
+          report_type: string
+          user_id: string
+          vehicle_report_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          file_name?: string
+          file_path?: string
+          id?: string
+          report_id?: string | null
+          report_type?: string
+          user_id?: string
+          vehicle_report_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "report_files_report_id_fkey"
+            columns: ["report_id"]
+            isOneToOne: false
+            referencedRelation: "reports"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "report_files_vehicle_report_id_fkey"
+            columns: ["vehicle_report_id"]
+            isOneToOne: false
+            referencedRelation: "vehicle_reports"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       reports: {
         Row: {
           action_taken: string | null

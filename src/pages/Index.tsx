@@ -8,6 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useForm } from "react-hook-form";
 import { Form } from "@/components/ui/form";
 import { NotificationsDropdown } from "@/components/NotificationsDropdown";
+import { FileTextIcon } from "lucide-react";
 
 const Index = () => {
   const navigate = useNavigate();
@@ -98,6 +99,24 @@ const Index = () => {
                 </p>
                 <Button asChild className="w-full">
                   <Link to="/car-handovers/new">Add New Report</Link>
+                </Button>
+              </div>
+            </ReportCard>
+
+            <ReportCard
+              title="Report Archive"
+              subtitle="Access all reports"
+              className="md:col-span-2 lg:col-span-4"
+            >
+              <div className="flex items-center justify-between">
+                <p className="text-sm text-muted-foreground">
+                  View and download all your submitted reports in PDF format.
+                </p>
+                <Button asChild>
+                  <Link to="/reports">
+                    <FileTextIcon className="h-4 w-4 mr-2" />
+                    View Reports
+                  </Link>
                 </Button>
               </div>
             </ReportCard>
