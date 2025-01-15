@@ -29,31 +29,49 @@ export type Database = {
       }
       reports: {
         Row: {
+          attendance_rating: string | null
           created_at: string | null
           description: string
+          duties_rating: string | null
           id: string
           photo_url: string
+          presence_rating: string | null
+          shift: string | null
+          staff_name: string | null
           type: Database["public"]["Enums"]["report_type"]
+          uniform_rating: string | null
           user_id: string
           visit_purpose: string | null
           visitor_name: string | null
         }
         Insert: {
+          attendance_rating?: string | null
           created_at?: string | null
           description: string
+          duties_rating?: string | null
           id?: string
           photo_url: string
+          presence_rating?: string | null
+          shift?: string | null
+          staff_name?: string | null
           type: Database["public"]["Enums"]["report_type"]
+          uniform_rating?: string | null
           user_id: string
           visit_purpose?: string | null
           visitor_name?: string | null
         }
         Update: {
+          attendance_rating?: string | null
           created_at?: string | null
           description?: string
+          duties_rating?: string | null
           id?: string
           photo_url?: string
+          presence_rating?: string | null
+          shift?: string | null
+          staff_name?: string | null
           type?: Database["public"]["Enums"]["report_type"]
+          uniform_rating?: string | null
           user_id?: string
           visit_purpose?: string | null
           visitor_name?: string | null
