@@ -66,15 +66,56 @@ export type Database = {
         }
         Relationships: []
       }
+      visits: {
+        Row: {
+          created_at: string | null
+          id: string
+          status: Database["public"]["Enums"]["visit_status"]
+          user_id: string
+          visit_date: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          status: Database["public"]["Enums"]["visit_status"]
+          user_id: string
+          visit_date?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          status?: Database["public"]["Enums"]["visit_status"]
+          user_id?: string
+          visit_date?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      get_monthly_visits: {
+        Args: {
+          user_id: string
+        }
+        Returns: {
+          status: Database["public"]["Enums"]["visit_status"]
+          count: number
+        }[]
+      }
+      get_weekly_visits: {
+        Args: {
+          user_id: string
+        }
+        Returns: {
+          status: Database["public"]["Enums"]["visit_status"]
+          count: number
+        }[]
+      }
     }
     Enums: {
-      [_ in never]: never
+      visit_status: "completed" | "pending" | "missed" | "other"
     }
     CompositeTypes: {
       [_ in never]: never
