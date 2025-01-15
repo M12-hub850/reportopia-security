@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -17,20 +17,27 @@ export default function SignIn() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
+  // Check if user is already logged in
+  useEffect(() => {
+    const checkUser = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session) {
+        navigate("/"); // Redirect to dashboard if already logged in
+      }
+    };
+    checkUser();
+  }, [navigate]);
+
   const handleEmailSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError(null);
-
-    console.log("Attempting to sign in with email:", email);
 
     try {
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
-
-      console.log("Sign in response:", { data, error });
 
       if (error) throw error;
       
@@ -39,7 +46,8 @@ export default function SignIn() {
         description: "Signed in successfully.",
       });
 
-      navigate("/dashboard");
+      // Redirect to dashboard/homepage after successful login
+      navigate("/");
 
     } catch (error: any) {
       console.error("Sign in error:", error);
@@ -59,7 +67,7 @@ export default function SignIn() {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: "google",
         options: {
-          redirectTo: `${window.location.origin}/dashboard`
+          redirectTo: `${window.location.origin}/`,
         }
       });
       if (error) throw error;
@@ -79,7 +87,7 @@ export default function SignIn() {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: "github",
         options: {
-          redirectTo: `${window.location.origin}/dashboard`
+          redirectTo: `${window.location.origin}/`,
         }
       });
       if (error) throw error;

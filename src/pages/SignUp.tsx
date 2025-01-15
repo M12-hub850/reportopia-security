@@ -35,10 +35,8 @@ export default function SignUp() {
         description: "Account created successfully. Please sign in.",
       });
 
-      // Redirect to signin page after a short delay
-      setTimeout(() => {
-        navigate("/signin");
-      }, 1500);
+      // Redirect to sign-in page after successful signup
+      navigate("/sign-in");
 
     } catch (error: any) {
       setError(error.message);
@@ -56,6 +54,9 @@ export default function SignUp() {
     try {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: "google",
+        options: {
+          redirectTo: `${window.location.origin}/sign-in`,
+        },
       });
       if (error) throw error;
     } catch (error: any) {
@@ -72,6 +73,9 @@ export default function SignUp() {
     try {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: "github",
+        options: {
+          redirectTo: `${window.location.origin}/sign-in`,
+        },
       });
       if (error) throw error;
     } catch (error: any) {
