@@ -7,6 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { BackButton } from "@/components/BackButton";
 import { SupervisorReportForm } from "@/components/SupervisorReportForm";
 import { supervisorReportSchema, type SupervisorReportFormValues } from "@/types/supervisorReport";
+import { generateReportPDF } from "@/utils/pdfGenerator";
 
 export default function SupervisorReports() {
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -38,7 +39,7 @@ export default function SupervisorReports() {
         throw new Error("No authenticated user found");
       }
 
-      const { error } = await supabase.from("reports").insert({
+      const { data: reportData, error } = await supabase.from("reports").insert({
         type: "supervisor_weekly",
         staff_name: data.staffName,
         shift: data.shift,
@@ -49,16 +50,28 @@ export default function SupervisorReports() {
         description: data.description,
         photo_url: data.photoUrl,
         user_id: user.id,
-      });
+      }).select().single();
 
       if (error) throw error;
+
+      // Generate PDF after successful report submission
+      const pdfUrl = await generateReportPDF(
+        data,
+        "supervisor_weekly",
+        reportData.id,
+        user.id
+      );
+
+      if (!pdfUrl) {
+        console.error("Failed to generate PDF");
+      }
 
       toast({
         title: "Report Submitted",
         description: "Supervisor weekly report has been saved successfully.",
       });
 
-      navigate("/");
+      navigate("/reports");
     } catch (error) {
       console.error("Error submitting report:", error);
       toast({

@@ -1,7 +1,10 @@
 import { BackButton } from "@/components/BackButton";
 import { VehicleHandoverSection } from "@/components/VehicleHandoverSection";
+import { useNavigate } from "react-router-dom";
 
 const NewVehicleHandover = () => {
+  const navigate = useNavigate();
+  
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-6">
       <BackButton />
@@ -10,7 +13,7 @@ const NewVehicleHandover = () => {
           <h1 className="text-4xl font-bold tracking-tight">New Vehicle Handover</h1>
           <p className="text-muted-foreground">Document vehicle transfer and conditions</p>
         </div>
-        <VehicleHandoverSection onClose={() => window.history.back()} />
+        <VehicleHandoverSection onClose={() => navigate("/reports")} />
       </div>
     </div>
   );

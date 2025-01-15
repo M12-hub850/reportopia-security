@@ -9,6 +9,7 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { ManagerReportForm } from "@/components/ManagerReportForm";
 import { BackButton } from "@/components/BackButton";
+import { generateReportPDF } from "@/utils/pdfGenerator";
 
 const formSchema = z.object({
   staffName: z.string().min(1, "Staff name is required"),
@@ -53,7 +54,7 @@ export default function ManagerReports() {
         throw new Error("No authenticated user found");
       }
 
-      const { error } = await supabase.from("reports").insert({
+      const { data: reportData, error } = await supabase.from("reports").insert({
         type: "manager_monthly",
         staff_name: data.staffName,
         shift: data.shift,
@@ -64,9 +65,21 @@ export default function ManagerReports() {
         description: data.description,
         photo_url: data.photoUrl,
         user_id: user.id,
-      });
+      }).select().single();
 
       if (error) throw error;
+
+      // Generate PDF after successful report submission
+      const pdfUrl = await generateReportPDF(
+        data,
+        "manager_monthly",
+        reportData.id,
+        user.id
+      );
+
+      if (!pdfUrl) {
+        console.error("Failed to generate PDF");
+      }
 
       toast({
         title: "Success!",
@@ -74,7 +87,7 @@ export default function ManagerReports() {
         variant: "default",
       });
 
-      navigate("/");
+      navigate("/reports");
     } catch (error) {
       console.error("Error submitting report:", error);
       toast({

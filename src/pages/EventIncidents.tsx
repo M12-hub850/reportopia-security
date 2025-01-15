@@ -8,6 +8,7 @@ import { BackButton } from "@/components/BackButton";
 import { EventIncidentForm } from "@/components/EventIncidentForm";
 import { eventIncidentSchema, type EventIncidentFormValues } from "@/types/eventIncident";
 import { Form } from "@/components/ui/form";
+import { generateReportPDF } from "@/utils/pdfGenerator";
 
 export default function EventIncidents() {
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -40,7 +41,7 @@ export default function EventIncidents() {
         throw new Error("No authenticated user found");
       }
 
-      const { error } = await supabase.from("reports").insert({
+      const { data: reportData, error } = await supabase.from("reports").insert({
         type: "event_incident",
         staff_name: data.guardName,
         shift: data.shift,
@@ -52,9 +53,21 @@ export default function EventIncidents() {
         reporting_person: data.reportingPerson,
         photo_url: data.photoUrl,
         user_id: user.id,
-      });
+      }).select().single();
 
       if (error) throw error;
+
+      // Generate PDF after successful report submission
+      const pdfUrl = await generateReportPDF(
+        data,
+        "event_incident",
+        reportData.id,
+        user.id
+      );
+
+      if (!pdfUrl) {
+        console.error("Failed to generate PDF");
+      }
 
       toast({
         title: "Success!",
@@ -62,7 +75,7 @@ export default function EventIncidents() {
         variant: "default",
       });
 
-      navigate("/");
+      navigate("/reports");
     } catch (error) {
       console.error("Error submitting report:", error);
       toast({
