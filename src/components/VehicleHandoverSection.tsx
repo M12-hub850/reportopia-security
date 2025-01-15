@@ -22,11 +22,27 @@ export function VehicleHandoverSection({ onClose }: VehicleHandoverSectionProps)
   const form = useForm<FormSchema>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      carModel: "",
+      serialNumber: "",
       plateNumber: "",
+      model: "",
+      type: "",
+      brand: "",
       mileage: "",
-      project: "",
-      condition: "",
+      location: "",
+      contents: {
+        spareTire: false,
+        jackHandle: false,
+        safetyKit: false,
+        fireExtinguisher: false,
+        dashCam: false,
+      },
+      observations: [],
+      receiverName: "",
+      receiverPhone: "",
+      receiverId: "",
+      supervisorName: "",
+      date: new Date().toISOString().split('T')[0],
+      time: new Date().toTimeString().split(' ')[0].slice(0, 5),
       carImages: [],
       mileageImage: "",
     },
@@ -52,7 +68,6 @@ export function VehicleHandoverSection({ onClose }: VehicleHandoverSectionProps)
 
       const file = await fileSelected;
       if (file) {
-        // Upload to Supabase Storage
         const fileName = `${Date.now()}-${file.name}`;
         const { data: uploadData, error: uploadError } = await supabase.storage
           .from('vehicle_images')
@@ -89,11 +104,14 @@ export function VehicleHandoverSection({ onClose }: VehicleHandoverSectionProps)
         .from('vehicle_reports')
         .insert({
           user_id: (await supabase.auth.getUser()).data.user?.id,
-          car_model: data.carModel,
+          car_model: data.model,
           plate_number: data.plateNumber,
           mileage: parseInt(data.mileage),
-          project: data.project,
-          condition: data.condition,
+          project: data.location,
+          condition: JSON.stringify({
+            contents: data.contents,
+            observations: data.observations,
+          }),
           car_images: data.carImages,
           mileage_image: data.mileageImage,
         });
@@ -105,11 +123,9 @@ export function VehicleHandoverSection({ onClose }: VehicleHandoverSectionProps)
         description: "Vehicle handover report submitted successfully",
       });
 
-      // Reset form and close
       form.reset();
       onClose();
 
-      // Refresh data
       await queryClient.invalidateQueries({ queryKey: ['vehicleReports'] });
     } catch (error) {
       console.error('Error submitting report:', error);

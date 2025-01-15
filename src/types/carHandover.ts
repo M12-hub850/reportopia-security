@@ -1,11 +1,27 @@
 import * as z from "zod";
 
 export const formSchema = z.object({
-  carModel: z.string().min(2, "Car model is required"),
+  serialNumber: z.string().min(1, "Serial number is required"),
   plateNumber: z.string().min(1, "Plate number is required"),
+  model: z.string().min(1, "Model is required"),
+  type: z.string().min(1, "Type is required"),
+  brand: z.string().min(1, "Brand is required"),
   mileage: z.string().min(1, "Current mileage is required"),
-  project: z.string().min(1, "Project location is required"),
-  condition: z.string().min(10, "Please provide detailed condition notes"),
+  location: z.string().min(1, "Location is required"),
+  contents: z.object({
+    spareTire: z.boolean().default(false),
+    jackHandle: z.boolean().default(false),
+    safetyKit: z.boolean().default(false),
+    fireExtinguisher: z.boolean().default(false),
+    dashCam: z.boolean().default(false),
+  }),
+  observations: z.array(z.string()).default([]),
+  receiverName: z.string().min(1, "Receiver name is required"),
+  receiverPhone: z.string().min(1, "Receiver phone is required"),
+  receiverId: z.string().min(1, "Receiver ID is required"),
+  supervisorName: z.string().min(1, "Supervisor name is required"),
+  date: z.string().min(1, "Date is required"),
+  time: z.string().min(1, "Time is required"),
   carImages: z.array(z.string()).min(1, "At least one car condition image is required"),
   mileageImage: z.string().min(1, "Mileage meter image is required"),
 });
