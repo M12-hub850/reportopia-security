@@ -47,6 +47,13 @@ export default function ManagerReports() {
       setIsSubmitting(true);
       console.log("Submitting manager report:", data);
 
+      // Get the current user's ID
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (!user) {
+        throw new Error("No authenticated user found");
+      }
+
       const { error } = await supabase.from("reports").insert({
         type: "manager_monthly",
         staff_name: data.staffName,
@@ -57,6 +64,7 @@ export default function ManagerReports() {
         presence_rating: data.presenceRating,
         description: data.description,
         photo_url: data.photoUrl,
+        user_id: user.id, // Add the user_id field
       });
 
       if (error) throw error;
