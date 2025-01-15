@@ -68,18 +68,12 @@ export default function ManagerReports() {
         user_id: user.id,
       }).select().single();
 
-      if (reportError) throw reportError;
+      if (reportError) {
+        console.error("Error creating report:", reportError);
+        throw reportError;
+      }
 
-      // Create a corresponding visit record
-      const { error: visitError } = await supabase.from("visits").insert({
-        user_id: user.id,
-        status: 'completed',
-        visit_date: new Date().toISOString(),
-      });
-
-      if (visitError) throw visitError;
-
-      console.log("Visit record created successfully");
+      console.log("Report created successfully:", reportData);
 
       // Generate PDF after successful report submission
       const pdfUrl = await generateReportPDF(
@@ -91,7 +85,41 @@ export default function ManagerReports() {
 
       if (!pdfUrl) {
         console.error("Failed to generate PDF");
+        throw new Error("Failed to generate PDF");
       }
+
+      console.log("PDF generated successfully:", pdfUrl);
+
+      // Create a corresponding visit record for monthly visit
+      const { error: visitError } = await supabase.from("visits").insert({
+        user_id: user.id,
+        status: 'completed',
+        visit_date: new Date().toISOString(),
+        type: 'manager_monthly' // Add this to differentiate between visit types
+      });
+
+      if (visitError) {
+        console.error("Error creating visit record:", visitError);
+        throw visitError;
+      }
+
+      console.log("Visit record created successfully");
+
+      // Store report file metadata
+      const { error: fileError } = await supabase.from("report_files").insert({
+        user_id: user.id,
+        report_type: "manager_monthly",
+        file_name: `manager_monthly_${reportData.id}.pdf`,
+        file_path: `${reportData.id}.pdf`,
+        report_id: reportData.id
+      });
+
+      if (fileError) {
+        console.error("Error storing file metadata:", fileError);
+        throw fileError;
+      }
+
+      console.log("File metadata stored successfully");
 
       // Create notification for the new report
       const { error: notificationError } = await supabase.from("notifications").insert({
