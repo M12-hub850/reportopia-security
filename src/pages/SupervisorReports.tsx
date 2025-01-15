@@ -2,34 +2,19 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import * as z from "zod";
-import { Form } from "@/components/ui/form";
-import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { ManagerReportForm } from "@/components/ManagerReportForm";
 import { BackButton } from "@/components/BackButton";
-
-const formSchema = z.object({
-  staffName: z.string().min(1, "Staff name is required"),
-  shift: z.string().min(1, "Shift information is required"),
-  attendanceRating: z.string().min(1, "Attendance rating is required"),
-  dutiesRating: z.string().min(1, "Duties rating is required"),
-  uniformRating: z.string().min(1, "Uniform rating is required"),
-  presenceRating: z.string().min(1, "Presence rating is required"),
-  description: z.string().min(1, "Description is required"),
-  photoUrl: z.string().min(1, "Photo is required"),
-});
-
-type FormValues = z.infer<typeof formSchema>;
+import { SupervisorReportForm } from "@/components/SupervisorReportForm";
+import { supervisorReportSchema, type SupervisorReportFormValues } from "@/types/supervisorReport";
 
 export default function SupervisorReports() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
 
-  const form = useForm<FormValues>({
-    resolver: zodResolver(formSchema),
+  const form = useForm<SupervisorReportFormValues>({
+    resolver: zodResolver(supervisorReportSchema),
     defaultValues: {
       staffName: "",
       shift: "",
@@ -42,7 +27,7 @@ export default function SupervisorReports() {
     },
   });
 
-  const onSubmit = async (data: FormValues) => {
+  const handleSubmit = async (data: SupervisorReportFormValues) => {
     try {
       setIsSubmitting(true);
       console.log("Submitting supervisor report:", data);
@@ -96,24 +81,12 @@ export default function SupervisorReports() {
         </p>
       </div>
 
-      <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-          <ManagerReportForm form={form} />
-          
-          <div className="flex justify-end gap-4">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => navigate("/")}
-            >
-              Cancel
-            </Button>
-            <Button type="submit" disabled={isSubmitting}>
-              {isSubmitting ? "Submitting..." : "Submit Report"}
-            </Button>
-          </div>
-        </form>
-      </Form>
+      <SupervisorReportForm
+        form={form}
+        onSubmit={handleSubmit}
+        isSubmitting={isSubmitting}
+        onCancel={() => navigate("/")}
+      />
     </div>
   );
 }
