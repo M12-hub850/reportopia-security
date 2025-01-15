@@ -54,7 +54,8 @@ export default function ManagerReports() {
         throw new Error("No authenticated user found");
       }
 
-      const { data: reportData, error } = await supabase.from("reports").insert({
+      // Create the report
+      const { data: reportData, error: reportError } = await supabase.from("reports").insert({
         type: "manager_monthly",
         staff_name: data.staffName,
         shift: data.shift,
@@ -67,7 +68,18 @@ export default function ManagerReports() {
         user_id: user.id,
       }).select().single();
 
-      if (error) throw error;
+      if (reportError) throw reportError;
+
+      // Create a corresponding visit record
+      const { error: visitError } = await supabase.from("visits").insert({
+        user_id: user.id,
+        status: 'completed',
+        visit_date: new Date().toISOString(),
+      });
+
+      if (visitError) throw visitError;
+
+      console.log("Visit record created successfully");
 
       // Generate PDF after successful report submission
       const pdfUrl = await generateReportPDF(
@@ -79,6 +91,19 @@ export default function ManagerReports() {
 
       if (!pdfUrl) {
         console.error("Failed to generate PDF");
+      }
+
+      // Create notification for the new report
+      const { error: notificationError } = await supabase.from("notifications").insert({
+        user_id: user.id,
+        type: "report_submitted",
+        title: "Monthly Report Submitted",
+        message: `Monthly report for ${data.staffName} has been submitted successfully.`,
+        report_id: reportData.id
+      });
+
+      if (notificationError) {
+        console.error("Error creating notification:", notificationError);
       }
 
       toast({
