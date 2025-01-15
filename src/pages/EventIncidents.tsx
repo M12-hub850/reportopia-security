@@ -7,6 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { BackButton } from "@/components/BackButton";
 import { EventIncidentForm } from "@/components/EventIncidentForm";
 import { eventIncidentSchema, type EventIncidentFormValues } from "@/types/eventIncident";
+import { Form } from "@/components/ui/form";
 
 export default function EventIncidents() {
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -74,21 +75,23 @@ export default function EventIncidents() {
   };
 
   return (
-    <div className="container max-w-4xl py-6">
-      <div className="mb-6">
-        <BackButton />
-        <h1 className="text-3xl font-bold mt-4">Record of Events and Incidents</h1>
-        <p className="text-muted-foreground">
-          Document events and incidents that occur during security operations
-        </p>
-      </div>
+    <Form {...form}>
+      <div className="container max-w-4xl py-6">
+        <div className="mb-6">
+          <BackButton />
+          <h1 className="text-3xl font-bold mt-4">Record of Events and Incidents</h1>
+          <p className="text-muted-foreground">
+            Document events and incidents that occur during security operations
+          </p>
+        </div>
 
-      <EventIncidentForm
-        form={form}
-        onSubmit={handleSubmit}
-        isSubmitting={isSubmitting}
-        onCancel={() => navigate("/")}
-      />
-    </div>
+        <EventIncidentForm
+          form={form}
+          onSubmit={handleSubmit}
+          isSubmitting={isSubmitting}
+          onCancel={() => navigate("/")}
+        />
+      </div>
+    </Form>
   );
 }
