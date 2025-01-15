@@ -35,6 +35,8 @@ export type Database = {
           photo_url: string
           type: Database["public"]["Enums"]["report_type"]
           user_id: string
+          visit_purpose: string | null
+          visitor_name: string | null
         }
         Insert: {
           created_at?: string | null
@@ -43,6 +45,8 @@ export type Database = {
           photo_url: string
           type: Database["public"]["Enums"]["report_type"]
           user_id: string
+          visit_purpose?: string | null
+          visitor_name?: string | null
         }
         Update: {
           created_at?: string | null
@@ -51,6 +55,8 @@ export type Database = {
           photo_url?: string
           type?: Database["public"]["Enums"]["report_type"]
           user_id?: string
+          visit_purpose?: string | null
+          visitor_name?: string | null
         }
         Relationships: []
       }
