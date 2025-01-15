@@ -236,6 +236,7 @@ export type Database = {
           created_at: string | null
           id: string
           status: Database["public"]["Enums"]["visit_status"]
+          type: string | null
           user_id: string
           visit_date: string | null
         }
@@ -243,6 +244,7 @@ export type Database = {
           created_at?: string | null
           id?: string
           status: Database["public"]["Enums"]["visit_status"]
+          type?: string | null
           user_id: string
           visit_date?: string | null
         }
@@ -250,6 +252,7 @@ export type Database = {
           created_at?: string | null
           id?: string
           status?: Database["public"]["Enums"]["visit_status"]
+          type?: string | null
           user_id?: string
           visit_date?: string | null
         }
