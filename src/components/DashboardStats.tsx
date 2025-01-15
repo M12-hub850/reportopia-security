@@ -40,7 +40,7 @@ export function DashboardStats() {
       const { count, error } = await supabase
         .from('reports')
         .select('*', { count: 'exact', head: true })
-        .eq('type', 'incident')
+        .eq('type', 'event_incident')  // Changed from 'incident' to 'event_incident'
         .eq('user_id', user?.id);
       if (error) throw error;
       console.log("Incidents count:", count);
