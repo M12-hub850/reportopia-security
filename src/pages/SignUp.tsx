@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 import { Github, Mail } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
+import { BackButton } from "@/components/BackButton";
 
 export default function SignUp() {
   const navigate = useNavigate();
@@ -85,6 +86,7 @@ export default function SignUp() {
 
   return (
     <div className="min-h-screen bg-[#F1F1F1] flex items-center justify-center p-4">
+      <BackButton />
       <Card className="w-full max-w-md bg-white shadow-lg animate-fadeIn">
         <CardHeader className="space-y-1">
           <CardTitle className="text-2xl text-center font-bold">

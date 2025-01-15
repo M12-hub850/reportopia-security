@@ -6,6 +6,7 @@ import { ReportCard } from "@/components/ReportCard";
 import { VehicleDetailsForm } from "@/components/VehicleDetailsForm";
 import { VehicleImageCapture } from "@/components/VehicleImageCapture";
 import { formSchema, FormSchema } from "@/types/carHandover";
+import { BackButton } from "@/components/BackButton";
 
 const CarHandovers = () => {
   const form = useForm<FormSchema>({
@@ -63,6 +64,7 @@ const CarHandovers = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-6">
+      <BackButton />
       <div className="max-w-3xl mx-auto space-y-6">
         <div className="flex flex-col gap-2">
           <h1 className="text-4xl font-bold tracking-tight">Car Handover Form</h1>

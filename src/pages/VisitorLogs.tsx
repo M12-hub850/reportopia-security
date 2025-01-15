@@ -4,6 +4,7 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
 import { VisitorLogForm } from "@/components/VisitorLogForm";
+import { BackButton } from "@/components/BackButton";
 
 export default function VisitorLogs() {
   const { toast } = useToast();
@@ -53,6 +54,7 @@ export default function VisitorLogs() {
 
   return (
     <div className="container mx-auto p-6 space-y-6">
+      <BackButton />
       <h1 className="text-3xl font-bold">Visitor Logs</h1>
       
       {reports && (
