@@ -5,6 +5,7 @@ import SignUp from "@/pages/SignUp";
 import CarHandovers from "@/pages/CarHandovers";
 import ManagerReports from "@/pages/ManagerReports";
 import NewVehicleHandover from "@/pages/NewVehicleHandover";
+import SupervisorReports from "@/pages/SupervisorReports";
 
 function App() {
   return (
@@ -16,6 +17,7 @@ function App() {
         <Route path="/car-handovers" element={<CarHandovers />} />
         <Route path="/car-handovers/new" element={<NewVehicleHandover />} />
         <Route path="/manager-reports" element={<ManagerReports />} />
+        <Route path="/supervisor-reports" element={<SupervisorReports />} />
       </Routes>
     </Router>
   );
