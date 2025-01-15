@@ -27,6 +27,33 @@ export type Database = {
         }
         Relationships: []
       }
+      reports: {
+        Row: {
+          created_at: string | null
+          description: string
+          id: string
+          photo_url: string
+          type: Database["public"]["Enums"]["report_type"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          description: string
+          id?: string
+          photo_url: string
+          type: Database["public"]["Enums"]["report_type"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          description?: string
+          id?: string
+          photo_url?: string
+          type?: Database["public"]["Enums"]["report_type"]
+          user_id?: string
+        }
+        Relationships: []
+      }
       vehicle_reports: {
         Row: {
           car_images: string[]
@@ -104,6 +131,17 @@ export type Database = {
           count: number
         }[]
       }
+      get_report_counts: {
+        Args: {
+          p_user_id: string
+          p_start_date: string
+          p_end_date: string
+        }
+        Returns: {
+          report_type: Database["public"]["Enums"]["report_type"]
+          count: number
+        }[]
+      }
       get_weekly_visits: {
         Args: {
           user_id: string
@@ -115,6 +153,12 @@ export type Database = {
       }
     }
     Enums: {
+      report_type:
+        | "supervisor_weekly"
+        | "manager_monthly"
+        | "visitor_log"
+        | "vehicle_handover"
+        | "full_monthly"
       visit_status: "completed" | "pending" | "missed" | "other"
     }
     CompositeTypes: {
