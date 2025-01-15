@@ -3,6 +3,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import CarHandovers from "@/pages/CarHandovers";
 import SignUp from "@/pages/SignUp";
 import SignIn from "@/pages/SignIn";
+import Index from "@/pages/Index";
 import { Toaster } from "@/components/ui/toaster";
 
 function App() {
@@ -10,7 +11,7 @@ function App() {
     <TooltipProvider>
       <BrowserRouter>
         <Routes>
-          <Route path="/" element={<SignUp />} />
+          <Route path="/" element={<Index />} />
           <Route path="/car-handovers" element={<CarHandovers />} />
           <Route path="/signup" element={<SignUp />} />
           <Route path="/signin" element={<SignIn />} />

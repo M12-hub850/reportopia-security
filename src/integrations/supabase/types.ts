@@ -27,6 +27,45 @@ export type Database = {
         }
         Relationships: []
       }
+      vehicle_reports: {
+        Row: {
+          car_images: string[]
+          car_model: string
+          condition: string
+          created_at: string
+          id: string
+          mileage: number
+          mileage_image: string
+          plate_number: string
+          project: string
+          user_id: string
+        }
+        Insert: {
+          car_images: string[]
+          car_model: string
+          condition: string
+          created_at?: string
+          id?: string
+          mileage: number
+          mileage_image: string
+          plate_number: string
+          project: string
+          user_id: string
+        }
+        Update: {
+          car_images?: string[]
+          car_model?: string
+          condition?: string
+          created_at?: string
+          id?: string
+          mileage?: number
+          mileage_image?: string
+          plate_number?: string
+          project?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
