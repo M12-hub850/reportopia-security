@@ -6,9 +6,11 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 import { Github, Mail } from "lucide-react";
+import { useToast } from "@/components/ui/use-toast";
 
 export default function SignUp() {
   const navigate = useNavigate();
+  const { toast } = useToast();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [email, setEmail] = useState("");
@@ -27,11 +29,23 @@ export default function SignUp() {
 
       if (error) throw error;
       
-      // Show success message
-      console.log("Signup successful!");
-      navigate("/car-handovers");
+      toast({
+        title: "Success!",
+        description: "Account created successfully. Please sign in.",
+      });
+
+      // Redirect to signin page after a short delay
+      setTimeout(() => {
+        navigate("/signin");
+      }, 1500);
+
     } catch (error: any) {
       setError(error.message);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: error.message,
+      });
     } finally {
       setLoading(false);
     }
@@ -45,6 +59,11 @@ export default function SignUp() {
       if (error) throw error;
     } catch (error: any) {
       setError(error.message);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: error.message,
+      });
     }
   };
 
@@ -56,6 +75,11 @@ export default function SignUp() {
       if (error) throw error;
     } catch (error: any) {
       setError(error.message);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: error.message,
+      });
     }
   };
 
