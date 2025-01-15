@@ -11,10 +11,11 @@ function App() {
     <TooltipProvider>
       <BrowserRouter>
         <Routes>
-          <Route path="/" element={<Index />} />
+          <Route path="/" element={<SignUp />} />
           <Route path="/car-handovers" element={<CarHandovers />} />
           <Route path="/signup" element={<SignUp />} />
           <Route path="/signin" element={<SignIn />} />
+          <Route path="/dashboard" element={<Index />} />
         </Routes>
       </BrowserRouter>
       <Toaster />

@@ -56,20 +56,6 @@ const Index = () => {
               </Button>
             </div>
           </ReportCard>
-
-          <ReportCard
-            title="Company Cars Handover"
-            subtitle="Manage vehicle transfers"
-          >
-            <div className="space-y-4">
-              <p className="text-sm text-muted-foreground">
-                Track and manage company vehicle handover documentation.
-              </p>
-              <Button asChild className="w-full">
-                <Link to="/car-handovers">View Forms</Link>
-              </Button>
-            </div>
-          </ReportCard>
         </div>
       </div>
     </div>
