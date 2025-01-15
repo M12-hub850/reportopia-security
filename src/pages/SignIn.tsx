@@ -42,11 +42,11 @@ export default function SignIn() {
 
     } catch (error: any) {
       console.error("Sign in error:", error);
-      setError(error.message);
+      setError("Wrong credentials");
       toast({
         variant: "destructive",
         title: "Error",
-        description: "Please make sure you have signed up first and your credentials are correct.",
+        description: "Wrong credentials",
       });
     } finally {
       setLoading(false);
@@ -64,7 +64,7 @@ export default function SignIn() {
       if (error) throw error;
     } catch (error: any) {
       console.error("Google sign in error:", error);
-      setError(error.message);
+      setError("Authentication failed");
       toast({
         variant: "destructive",
         title: "Error",
@@ -84,7 +84,7 @@ export default function SignIn() {
       if (error) throw error;
     } catch (error: any) {
       console.error("Github sign in error:", error);
-      setError(error.message);
+      setError("Authentication failed");
       toast({
         variant: "destructive",
         title: "Error",
