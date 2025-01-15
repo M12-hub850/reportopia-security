@@ -53,21 +53,26 @@ const Index = () => {
           </ReportCard>
 
           <ReportCard
-            title="Visitors Log"
-            subtitle="Track visitor activity"
+            title="Vehicle Handovers"
+            subtitle="Document vehicle transfers and conditions"
           >
             <div className="space-y-4">
               <p className="text-sm text-muted-foreground">
-                Record and analyze visitor activities and patterns.
+                Create and manage vehicle handover reports with photos and condition details.
               </p>
-              <Button asChild className="w-full">
-                <Link to="/visitor-logs">Add New Report</Link>
+              <Button 
+                className="w-full"
+                onClick={() => setShowHandoverForm(true)}
+              >
+                Add New Report
               </Button>
             </div>
           </ReportCard>
         </div>
 
-        <VehicleHandoverSection />
+        {showHandoverForm && (
+          <VehicleHandoverSection onClose={() => setShowHandoverForm(false)} />
+        )}
       </div>
     </div>
   );

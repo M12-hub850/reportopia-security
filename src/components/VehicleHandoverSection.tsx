@@ -11,8 +11,11 @@ import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useQueryClient } from "@tanstack/react-query";
 
-export function VehicleHandoverSection() {
-  const [showForm, setShowForm] = useState(false);
+interface VehicleHandoverSectionProps {
+  onClose: () => void;
+}
+
+export function VehicleHandoverSection({ onClose }: VehicleHandoverSectionProps) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -102,9 +105,9 @@ export function VehicleHandoverSection() {
         description: "Vehicle handover report submitted successfully",
       });
 
-      // Reset form and hide it
+      // Reset form and close
       form.reset();
-      setShowForm(false);
+      onClose();
 
       // Refresh data
       await queryClient.invalidateQueries({ queryKey: ['vehicleReports'] });
@@ -117,27 +120,6 @@ export function VehicleHandoverSection() {
       });
     }
   };
-
-  if (!showForm) {
-    return (
-      <ReportCard
-        title="Vehicle Handovers"
-        subtitle="Document vehicle transfers and conditions"
-      >
-        <div className="space-y-4">
-          <p className="text-sm text-muted-foreground">
-            Create and manage vehicle handover reports with photos and condition details.
-          </p>
-          <Button 
-            className="w-full"
-            onClick={() => setShowForm(true)}
-          >
-            Add New Report
-          </Button>
-        </div>
-      </ReportCard>
-    );
-  }
 
   return (
     <ReportCard
@@ -153,7 +135,7 @@ export function VehicleHandoverSection() {
               type="button" 
               variant="outline" 
               className="w-full"
-              onClick={() => setShowForm(false)}
+              onClick={onClose}
             >
               Cancel
             </Button>
