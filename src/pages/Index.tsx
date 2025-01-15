@@ -41,20 +41,6 @@ const Index = () => {
 
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
           <ReportCard
-            title="Supervisor Weekly Visits"
-            subtitle="Track site inspections and observations"
-          >
-            <div className="space-y-4">
-              <p className="text-sm text-muted-foreground">
-                Create and manage weekly site visit reports from supervisors.
-              </p>
-              <Button asChild className="w-full">
-                <Link to="/supervisor-reports">Add New Report</Link>
-              </Button>
-            </div>
-          </ReportCard>
-
-          <ReportCard
             title="Manager Monthly Visits"
             subtitle="Monitor project performance"
           >
@@ -69,15 +55,15 @@ const Index = () => {
           </ReportCard>
 
           <ReportCard
-            title="Vehicle Handovers"
-            subtitle="Document vehicle transfers and conditions"
+            title="Supervisor Weekly Visits"
+            subtitle="Track site inspections and observations"
           >
             <div className="space-y-4">
               <p className="text-sm text-muted-foreground">
-                Create and manage vehicle handover reports with photos and condition details.
+                Create and manage weekly site visit reports from supervisors.
               </p>
               <Button asChild className="w-full">
-                <Link to="/car-handovers/new">Add New Report</Link>
+                <Link to="/supervisor-reports">Add New Report</Link>
               </Button>
             </div>
           </ReportCard>
@@ -92,6 +78,20 @@ const Index = () => {
               </p>
               <Button asChild className="w-full">
                 <Link to="/event-incidents">Add New Report</Link>
+              </Button>
+            </div>
+          </ReportCard>
+
+          <ReportCard
+            title="Vehicle Handovers"
+            subtitle="Document vehicle transfers and conditions"
+          >
+            <div className="space-y-4">
+              <p className="text-sm text-muted-foreground">
+                Create and manage vehicle handover reports with photos and condition details.
+              </p>
+              <Button asChild className="w-full">
+                <Link to="/car-handovers/new">Add New Report</Link>
               </Button>
             </div>
           </ReportCard>
