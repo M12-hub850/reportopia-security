@@ -1,5 +1,4 @@
 import jsPDF from 'jspdf';
-import html2canvas from 'html2canvas';
 import { supabase } from '@/integrations/supabase/client';
 
 export async function generateReportPDF(
@@ -25,18 +24,18 @@ export async function generateReportPDF(
         pdf.text(`${key}:`, 20, yPosition);
         yPosition += 10;
         Object.entries(value as object).forEach(([subKey, subValue]) => {
-          pdf.text(`  ${subKey}: ${subValue}`, 30, yPosition);
+          pdf.text(`  ${subKey}: ${String(subValue)}`, 30, yPosition);
           yPosition += 10;
         });
       } else {
-        pdf.text(`${key}: ${value}`, 20, yPosition);
+        pdf.text(`${key}: ${String(value)}`, 20, yPosition);
         yPosition += 10;
       }
     });
 
     // Generate PDF file
     const pdfBlob = pdf.output('blob');
-    const fileName = `${userId}/${reportType}_${reportId}.pdf`;
+    const fileName = `${reportType}_${reportId}.pdf`;
 
     // Upload to Supabase Storage
     const { data: uploadData, error: uploadError } = await supabase.storage
@@ -51,27 +50,25 @@ export async function generateReportPDF(
       return null;
     }
 
-    // Get public URL
-    const { data: { publicUrl } } = supabase.storage
-      .from('report_pdfs')
-      .getPublicUrl(fileName);
-
     // Store reference in report_files table
     const { error: dbError } = await supabase
       .from('report_files')
       .insert({
         user_id: userId,
         report_type: reportType,
-        file_name: fileName.split('/').pop(),
+        file_name: fileName,
         file_path: fileName,
-        report_id: reportType !== 'vehicle_handover' ? reportId : null,
-        vehicle_report_id: reportType === 'vehicle_handover' ? reportId : null,
+        report_id: reportId
       });
 
     if (dbError) {
       console.error('Error storing PDF reference:', dbError);
       return null;
     }
+
+    const { data: { publicUrl } } = supabase.storage
+      .from('report_pdfs')
+      .getPublicUrl(fileName);
 
     console.log('PDF generated and stored successfully:', publicUrl);
     return publicUrl;
