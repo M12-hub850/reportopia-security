@@ -3,7 +3,6 @@ import Index from "@/pages/Index";
 import SignIn from "@/pages/SignIn";
 import SignUp from "@/pages/SignUp";
 import CarHandovers from "@/pages/CarHandovers";
-import VisitorLogs from "@/pages/VisitorLogs";
 
 function App() {
   return (
@@ -13,7 +12,6 @@ function App() {
         <Route path="/sign-in" element={<SignIn />} />
         <Route path="/sign-up" element={<SignUp />} />
         <Route path="/car-handovers" element={<CarHandovers />} />
-        <Route path="/visitor-logs" element={<VisitorLogs />} />
       </Routes>
     </Router>
   );
