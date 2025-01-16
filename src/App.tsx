@@ -7,6 +7,9 @@ import SupervisorReports from "./pages/SupervisorReports";
 import EventIncidents from "./pages/EventIncidents";
 import NewVehicleHandover from "./pages/NewVehicleHandover";
 import ReportView from "./pages/ReportView";
+import Settings from "./pages/Settings";
+import Help from "./pages/Help";
+import About from "./pages/About";
 
 function App() {
   return (
@@ -20,6 +23,9 @@ function App() {
         <Route path="/event-incidents" element={<EventIncidents />} />
         <Route path="/car-handovers/new" element={<NewVehicleHandover />} />
         <Route path="/reports" element={<ReportView />} />
+        <Route path="/settings" element={<Settings />} />
+        <Route path="/help" element={<Help />} />
+        <Route path="/about" element={<About />} />
       </Routes>
     </Router>
   );

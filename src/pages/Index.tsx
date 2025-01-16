@@ -7,8 +7,8 @@ import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useForm } from "react-hook-form";
 import { Form } from "@/components/ui/form";
-import { NotificationsDropdown } from "@/components/NotificationsDropdown";
 import { FileTextIcon } from "lucide-react";
+import { MainNav } from "@/components/MainNav";
 
 const Index = () => {
   const navigate = useNavigate();
@@ -34,19 +34,18 @@ const Index = () => {
 
   return (
     <Form {...form}>
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-6">
-        <div className="max-w-7xl mx-auto space-y-6">
-          <div className="flex justify-between items-center">
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
+        <MainNav />
+        <div className="p-6">
+          <div className="max-w-7xl mx-auto space-y-6">
             <div className="flex flex-col gap-2">
               <h1 className="text-4xl font-bold tracking-tight">Security Monitoring Dashboard</h1>
               <p className="text-muted-foreground">Monitor and manage your security operations reports</p>
             </div>
-            <NotificationsDropdown />
-          </div>
 
-          <DashboardStats />
+            <DashboardStats />
 
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
             <ReportCard
               title="Manager Monthly Visits"
               subtitle="Monitor project performance"
@@ -120,6 +119,7 @@ const Index = () => {
                 </Button>
               </div>
             </ReportCard>
+            </div>
           </div>
         </div>
       </div>
