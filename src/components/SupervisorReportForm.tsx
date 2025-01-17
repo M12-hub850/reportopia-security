@@ -1,12 +1,11 @@
 import { UseFormReturn } from "react-hook-form";
-import { SupervisorReportFormValues } from "@/types/supervisorReport";
 import { Form } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
 import { ManagerReportForm } from "@/components/ManagerReportForm";
 
 interface SupervisorReportFormProps {
-  form: UseFormReturn<SupervisorReportFormValues>;
-  onSubmit: (data: SupervisorReportFormValues) => Promise<void>;
+  form: UseFormReturn<any>;
+  onSubmit: (data: any) => Promise<void>;
   isSubmitting: boolean;
   onCancel: () => void;
 }

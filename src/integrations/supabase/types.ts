@@ -192,6 +192,50 @@ export type Database = {
         }
         Relationships: []
       }
+      staff_entries: {
+        Row: {
+          attendance_rating: string | null
+          created_at: string | null
+          duties_rating: string | null
+          id: string
+          presence_rating: string | null
+          report_id: string
+          shift: string
+          staff_name: string
+          uniform_rating: string | null
+        }
+        Insert: {
+          attendance_rating?: string | null
+          created_at?: string | null
+          duties_rating?: string | null
+          id?: string
+          presence_rating?: string | null
+          report_id: string
+          shift: string
+          staff_name: string
+          uniform_rating?: string | null
+        }
+        Update: {
+          attendance_rating?: string | null
+          created_at?: string | null
+          duties_rating?: string | null
+          id?: string
+          presence_rating?: string | null
+          report_id?: string
+          shift?: string
+          staff_name?: string
+          uniform_rating?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "staff_entries_report_id_fkey"
+            columns: ["report_id"]
+            isOneToOne: false
+            referencedRelation: "reports"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       vehicle_reports: {
         Row: {
           car_images: string[]

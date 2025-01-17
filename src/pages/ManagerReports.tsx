@@ -11,13 +11,17 @@ import { ManagerReportForm } from "@/components/ManagerReportForm";
 import { BackButton } from "@/components/BackButton";
 import { generateReportPDF } from "@/utils/pdfGenerator";
 
-const formSchema = z.object({
+const staffEntrySchema = z.object({
   staffName: z.string().min(1, "Staff name is required"),
   shift: z.string().min(1, "Shift information is required"),
   attendanceRating: z.string().min(1, "Attendance rating is required"),
   dutiesRating: z.string().min(1, "Duties rating is required"),
   uniformRating: z.string().min(1, "Uniform rating is required"),
   presenceRating: z.string().min(1, "Presence rating is required"),
+});
+
+const formSchema = z.object({
+  staffEntries: z.array(staffEntrySchema).min(1, "At least one staff entry is required"),
   description: z.string().min(1, "Description is required"),
   photoUrl: z.string().min(1, "Photo is required"),
 });
@@ -32,12 +36,7 @@ export default function ManagerReports() {
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      staffName: "",
-      shift: "",
-      attendanceRating: "",
-      dutiesRating: "",
-      uniformRating: "",
-      presenceRating: "",
+      staffEntries: [],
       description: "",
       photoUrl: "",
     },
@@ -54,15 +53,9 @@ export default function ManagerReports() {
         throw new Error("No authenticated user found");
       }
 
-      // Create the report
+      // Create the main report
       const { data: reportData, error: reportError } = await supabase.from("reports").insert({
         type: "manager_monthly",
-        staff_name: data.staffName,
-        shift: data.shift,
-        attendance_rating: data.attendanceRating,
-        duties_rating: data.dutiesRating,
-        uniform_rating: data.uniformRating,
-        presence_rating: data.presenceRating,
         description: data.description,
         photo_url: data.photoUrl,
         user_id: user.id,
@@ -73,11 +66,29 @@ export default function ManagerReports() {
         throw reportError;
       }
 
-      console.log("Report created successfully:", reportData);
+      // Create staff entries
+      const staffEntriesData = data.staffEntries.map(entry => ({
+        report_id: reportData.id,
+        staff_name: entry.staffName,
+        shift: entry.shift,
+        attendance_rating: entry.attendanceRating,
+        duties_rating: entry.dutiesRating,
+        uniform_rating: entry.uniformRating,
+        presence_rating: entry.presenceRating,
+      }));
 
-      // Generate PDF after successful report submission
+      const { error: staffEntriesError } = await supabase
+        .from("staff_entries")
+        .insert(staffEntriesData);
+
+      if (staffEntriesError) {
+        console.error("Error creating staff entries:", staffEntriesError);
+        throw staffEntriesError;
+      }
+
+      // Generate PDF
       const pdfUrl = await generateReportPDF(
-        data,
+        { ...data, id: reportData.id },
         "manager_monthly",
         reportData.id,
         user.id
@@ -88,14 +99,12 @@ export default function ManagerReports() {
         throw new Error("Failed to generate PDF");
       }
 
-      console.log("PDF generated successfully:", pdfUrl);
-
-      // Create a corresponding visit record for monthly visit
+      // Create visit record
       const { error: visitError } = await supabase.from("visits").insert({
         user_id: user.id,
         status: 'completed',
         visit_date: new Date().toISOString(),
-        type: 'manager_monthly' // Add this to differentiate between visit types
+        type: 'manager_monthly'
       });
 
       if (visitError) {
@@ -103,30 +112,12 @@ export default function ManagerReports() {
         throw visitError;
       }
 
-      console.log("Visit record created successfully");
-
-      // Store report file metadata
-      const { error: fileError } = await supabase.from("report_files").insert({
-        user_id: user.id,
-        report_type: "manager_monthly",
-        file_name: `manager_monthly_${reportData.id}.pdf`,
-        file_path: `${reportData.id}.pdf`,
-        report_id: reportData.id
-      });
-
-      if (fileError) {
-        console.error("Error storing file metadata:", fileError);
-        throw fileError;
-      }
-
-      console.log("File metadata stored successfully");
-
-      // Create notification for the new report
+      // Create notification
       const { error: notificationError } = await supabase.from("notifications").insert({
         user_id: user.id,
         type: "report_submitted",
         title: "Monthly Report Submitted",
-        message: `Monthly report for ${data.staffName} has been submitted successfully.`,
+        message: `Monthly report with ${data.staffEntries.length} staff entries has been submitted successfully.`,
         report_id: reportData.id
       });
 
