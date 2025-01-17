@@ -4,10 +4,10 @@ import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Skeleton } from "@/components/ui/skeleton";
-import { DatePickerWithRange } from "@/components/ui/date-range-picker";
 import { addDays, startOfDay, endOfDay } from "date-fns";
 import { useState } from "react";
 import { DateRange } from "react-day-picker";
+import { DateRangeFilter } from "./DateRangeFilter";
 
 export function DashboardStats() {
   const navigate = useNavigate();
@@ -94,7 +94,7 @@ export function DashboardStats() {
   return (
     <div className="space-y-4">
       <div className="flex justify-end">
-        <DatePickerWithRange date={dateRange} onDateChange={setDateRange} />
+        <DateRangeFilter date={dateRange} onDateChange={setDateRange} />
       </div>
       <div className="grid gap-4 md:grid-cols-3">
         {stats.map((stat) => (

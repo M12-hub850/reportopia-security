@@ -5,6 +5,9 @@ import { Card } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
 import { FileIcon, DownloadIcon } from 'lucide-react';
+import { DateRange } from 'react-day-picker';
+import { addDays, startOfDay, endOfDay } from 'date-fns';
+import { DateRangeFilter } from '@/components/DateRangeFilter';
 
 interface ReportFile {
   id: string;
@@ -18,16 +21,24 @@ export default function ReportView() {
   const [reports, setReports] = useState<ReportFile[]>([]);
   const [loading, setLoading] = useState(true);
   const { toast } = useToast();
+  const [dateRange, setDateRange] = useState<DateRange | undefined>({
+    from: startOfDay(addDays(new Date(), -30)), // Default to last 30 days
+    to: endOfDay(new Date())
+  });
 
   useEffect(() => {
     fetchReports();
-  }, []);
+  }, [dateRange]);
 
   const fetchReports = async () => {
     try {
+      if (!dateRange?.from || !dateRange?.to) return;
+
       const { data, error } = await supabase
         .from('report_files')
         .select('*')
+        .gte('created_at', dateRange.from.toISOString())
+        .lte('created_at', dateRange.to.toISOString())
         .order('created_at', { ascending: false });
 
       if (error) throw error;
@@ -81,11 +92,15 @@ export default function ReportView() {
         </p>
       </div>
 
+      <div className="mb-6">
+        <DateRangeFilter date={dateRange} onDateChange={setDateRange} />
+      </div>
+
       {loading ? (
         <div className="text-center py-8">Loading reports...</div>
       ) : reports.length === 0 ? (
         <Card className="p-8 text-center text-muted-foreground">
-          No reports found
+          No reports found in the selected date range
         </Card>
       ) : (
         <div className="space-y-4">
