@@ -1,13 +1,10 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ClipboardList, Users, AlertTriangle } from "lucide-react";
-import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Skeleton } from "@/components/ui/skeleton";
 
 export function DashboardStats() {
-  const navigate = useNavigate();
-
   console.log("Fetching dashboard stats...");
 
   const { data: weeklyVisits, isLoading: weeklyLoading } = useQuery({
@@ -54,22 +51,19 @@ export function DashboardStats() {
       title: "Weekly Visits",
       value: weeklyLoading ? "..." : weeklyVisits?.toString() || "0",
       icon: ClipboardList,
-      description: "Supervisor site visits this week",
-      path: "/supervisor-reports"
+      description: "Supervisor site visits this week"
     },
     {
       title: "Monthly Visits",
       value: monthlyLoading ? "..." : monthlyVisits?.toString() || "0",
       icon: Users,
-      description: "Manager project visits this month",
-      path: "/manager-reports"
+      description: "Manager project visits this month"
     },
     {
       title: "Events & Incidents",
       value: incidentsLoading ? "..." : incidents?.toString() || "0",
       icon: AlertTriangle,
-      description: "Total events and incidents",
-      path: "/event-incidents"
+      description: "Total events and incidents"
     },
   ];
 
@@ -78,8 +72,7 @@ export function DashboardStats() {
       {stats.map((stat) => (
         <Card 
           key={stat.title} 
-          className="animate-fadeIn backdrop-blur-sm bg-white/50 border-2 transition-all duration-300 hover:shadow-lg hover:scale-105 cursor-pointer"
-          onClick={() => navigate(stat.path)}
+          className="animate-fadeIn backdrop-blur-sm bg-white/50 border-2"
         >
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">{stat.title}</CardTitle>
