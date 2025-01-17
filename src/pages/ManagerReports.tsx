@@ -99,12 +99,12 @@ export default function ManagerReports() {
         throw new Error("Failed to generate PDF");
       }
 
-      // Create visit record
+      // Create visit record with completed status and manager_monthly type
       const { error: visitError } = await supabase.from("visits").insert({
         user_id: user.id,
         status: 'completed',
+        type: 'manager_monthly',
         visit_date: new Date().toISOString(),
-        type: 'manager_monthly'
       });
 
       if (visitError) {
