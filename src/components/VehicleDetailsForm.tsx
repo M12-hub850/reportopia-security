@@ -4,12 +4,48 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { UseFormReturn } from "react-hook-form";
 import { FormSchema } from "@/types/carHandover";
 import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { MapPin } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
 interface VehicleDetailsFormProps {
   form: UseFormReturn<FormSchema>;
 }
 
 export function VehicleDetailsForm({ form }: VehicleDetailsFormProps) {
+  const { toast } = useToast();
+
+  const getCurrentLocation = () => {
+    if ("geolocation" in navigator) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const { latitude, longitude } = position.coords;
+          const locationString = `${latitude.toFixed(6)}, ${longitude.toFixed(6)}`;
+          form.setValue("location", locationString);
+          
+          toast({
+            title: "Location Updated",
+            description: "Your current location has been set.",
+          });
+        },
+        (error) => {
+          console.error("Error getting location:", error);
+          toast({
+            title: "Location Error",
+            description: "Unable to get your current location. Please enter it manually.",
+            variant: "destructive",
+          });
+        }
+      );
+    } else {
+      toast({
+        title: "Location Not Supported",
+        description: "Your browser doesn't support geolocation. Please enter location manually.",
+        variant: "destructive",
+      });
+    }
+  };
+
   return (
     <div className="space-y-6">
       <Card className="p-4">
@@ -105,9 +141,20 @@ export function VehicleDetailsForm({ form }: VehicleDetailsFormProps) {
             render={({ field }) => (
               <FormItem>
                 <FormLabel>Location</FormLabel>
-                <FormControl>
-                  <Input placeholder="Enter location" {...field} />
-                </FormControl>
+                <div className="flex gap-2">
+                  <FormControl>
+                    <Input placeholder="Enter location" {...field} />
+                  </FormControl>
+                  <Button 
+                    type="button" 
+                    variant="outline" 
+                    size="icon"
+                    onClick={getCurrentLocation}
+                    title="Get current location"
+                  >
+                    <MapPin className="h-4 w-4" />
+                  </Button>
+                </div>
                 <FormMessage />
               </FormItem>
             )}
