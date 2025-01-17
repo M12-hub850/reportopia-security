@@ -17,15 +17,22 @@ export default function SignIn() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
-  // Check if user is already logged in
   useEffect(() => {
-    const checkUser = async () => {
+    const checkSession = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (session) {
-        navigate("/dashboard"); // Redirect to dashboard if already logged in
+        navigate("/dashboard");
       }
     };
-    checkUser();
+    checkSession();
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === 'SIGNED_IN' && session) {
+        navigate("/dashboard");
+      }
+    });
+
+    return () => subscription.unsubscribe();
   }, [navigate]);
 
   const handleEmailSignIn = async (e: React.FormEvent) => {
@@ -34,28 +41,25 @@ export default function SignIn() {
     setError(null);
 
     try {
-      const { data, error } = await supabase.auth.signInWithPassword({
+      const { error: signInError } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
 
-      if (error) throw error;
-      
+      if (signInError) throw signInError;
+
       toast({
         title: "Success!",
         description: "Signed in successfully.",
       });
 
-      // Redirect to dashboard after successful login
-      navigate("/dashboard");
-
     } catch (error: any) {
       console.error("Sign in error:", error);
-      setError("Wrong credentials");
+      setError(error.message);
       toast({
         variant: "destructive",
         title: "Error",
-        description: "Wrong credentials",
+        description: error.message,
       });
     } finally {
       setLoading(false);
@@ -73,7 +77,7 @@ export default function SignIn() {
       if (error) throw error;
     } catch (error: any) {
       console.error("Google sign in error:", error);
-      setError("Authentication failed");
+      setError(error.message);
       toast({
         variant: "destructive",
         title: "Error",
@@ -93,7 +97,7 @@ export default function SignIn() {
       if (error) throw error;
     } catch (error: any) {
       console.error("Github sign in error:", error);
-      setError("Authentication failed");
+      setError(error.message);
       toast({
         variant: "destructive",
         title: "Error",

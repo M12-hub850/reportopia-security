@@ -16,15 +16,18 @@ const Index = () => {
 
   useEffect(() => {
     const checkUser = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) {
+      const { data: { session }, error } = await supabase.auth.getSession();
+      if (error || !session) {
+        console.log("No active session, redirecting to sign-in");
         navigate("/sign-in");
+        return;
       }
     };
     checkUser();
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      if (!session) {
+      if (event === 'SIGNED_OUT' || !session) {
+        console.log("Auth state changed: signed out");
         navigate("/sign-in");
       }
     });
