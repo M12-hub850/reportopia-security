@@ -22,7 +22,7 @@ export default function SignIn() {
     const checkUser = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (session) {
-        navigate("/"); // Redirect to dashboard if already logged in
+        navigate("/dashboard"); // Redirect to dashboard if already logged in
       }
     };
     checkUser();
@@ -46,8 +46,8 @@ export default function SignIn() {
         description: "Signed in successfully.",
       });
 
-      // Redirect to dashboard/homepage after successful login
-      navigate("/");
+      // Redirect to dashboard after successful login
+      navigate("/dashboard");
 
     } catch (error: any) {
       console.error("Sign in error:", error);
@@ -67,7 +67,7 @@ export default function SignIn() {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: "google",
         options: {
-          redirectTo: `${window.location.origin}/`,
+          redirectTo: `${window.location.origin}/dashboard`,
         }
       });
       if (error) throw error;
@@ -87,7 +87,7 @@ export default function SignIn() {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: "github",
         options: {
-          redirectTo: `${window.location.origin}/`,
+          redirectTo: `${window.location.origin}/dashboard`,
         }
       });
       if (error) throw error;
@@ -179,7 +179,7 @@ export default function SignIn() {
               <Button
                 variant="link"
                 className="text-gray-900 hover:text-gray-800 p-0"
-                onClick={() => navigate("/signup")}
+                onClick={() => navigate("/sign-up")}
               >
                 Sign up
               </Button>
