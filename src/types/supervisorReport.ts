@@ -8,7 +8,7 @@ export const supervisorReportSchema = z.object({
   uniformRating: z.string().min(1, "Uniform rating is required"),
   presenceRating: z.string().min(1, "Presence rating is required"),
   description: z.string().min(1, "Description is required"),
-  photoUrl: z.string().min(1, "Photo is required"),
+  photoUrl: z.string().min(1, "Photo evidence is required"),
 });
 
 export type SupervisorReportFormValues = z.infer<typeof supervisorReportSchema>;

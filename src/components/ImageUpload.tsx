@@ -7,9 +7,10 @@ interface ImageUploadProps {
   value: string;
   onChange: (url: string) => void;
   bucket: string;
+  required?: boolean;
 }
 
-export function ImageUpload({ value, onChange, bucket }: ImageUploadProps) {
+export function ImageUpload({ value, onChange, bucket, required = true }: ImageUploadProps) {
   const [isUploading, setIsUploading] = useState(false);
   const { toast } = useToast();
 
@@ -59,15 +60,18 @@ export function ImageUpload({ value, onChange, bucket }: ImageUploadProps) {
         onChange={handleUpload}
         className="hidden"
         id="image-upload"
+        required={required && !value}
       />
       <div className="flex items-center gap-4">
         <Button
           type="button"
-          variant="outline"
+          variant={value ? "outline" : "default"}
           onClick={() => document.getElementById("image-upload")?.click()}
           disabled={isUploading}
+          className={!value && required ? "border-red-500" : ""}
         >
-          {isUploading ? "Uploading..." : "Upload Image"}
+          {isUploading ? "Uploading..." : value ? "Change Image" : "Upload Image"}
+          {required && !value && " (Required)"}
         </Button>
         {value && (
           <img
