@@ -12,7 +12,6 @@ const CarHandovers = () => {
   const form = useForm<FormSchema>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      serialNumber: "",
       plateNumber: "",
       model: "",
       type: "",
