@@ -72,12 +72,12 @@ export function IncidentDescriptionSection({ form }: IncidentDescriptionSectionP
         name="photoUrl"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>Photo Evidence (Optional)</FormLabel>
             <FormControl>
               <ImageUpload
                 value={field.value}
                 onChange={field.onChange}
                 bucket="report_photos"
+                required={true}
               />
             </FormControl>
             <FormMessage />
