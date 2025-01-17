@@ -39,6 +39,8 @@ export function VehicleHandoverSection({ onClose }: VehicleHandoverSectionProps)
       receiverName: "",
       receiverPhone: "",
       receiverId: "",
+      receiverIdImage: "",
+      drivingLicenseImage: "",
       supervisorName: "",
       date: new Date().toISOString().split('T')[0],
       time: new Date().toTimeString().split(' ')[0].slice(0, 5),
@@ -119,6 +121,8 @@ export function VehicleHandoverSection({ onClose }: VehicleHandoverSectionProps)
           }),
           car_images: data.carImages,
           mileage_image: data.mileageImage,
+          receiver_id_image: data.receiverIdImage,
+          driving_license_image: data.drivingLicenseImage,
         });
 
       if (error) throw error;

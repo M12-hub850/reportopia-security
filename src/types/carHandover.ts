@@ -18,6 +18,8 @@ export const formSchema = z.object({
   receiverName: z.string().min(1, "Receiver name is required"),
   receiverPhone: z.string().min(1, "Receiver phone is required"),
   receiverId: z.string().min(1, "Receiver ID is required"),
+  receiverIdImage: z.string().min(1, "Receiver ID image is required"),
+  drivingLicenseImage: z.string().min(1, "Driving license image is required"),
   supervisorName: z.string().min(1, "Supervisor name is required"),
   date: z.string().min(1, "Date is required"),
   time: z.string().min(1, "Time is required"),

@@ -3,6 +3,7 @@ import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { UseFormReturn } from "react-hook-form";
 import { FormSchema } from "@/types/carHandover";
+import { ImageUpload } from "@/components/ImageUpload";
 
 interface HandoverDetailsProps {
   form: UseFormReturn<FormSchema>;
@@ -49,6 +50,42 @@ export function HandoverDetails({ form }: HandoverDetailsProps) {
               <FormLabel>Receiver ID</FormLabel>
               <FormControl>
                 <Input placeholder="Enter receiver's ID" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="receiverIdImage"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Receiver ID Image</FormLabel>
+              <FormControl>
+                <ImageUpload
+                  value={field.value}
+                  onChange={field.onChange}
+                  bucket="vehicle_images"
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="drivingLicenseImage"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Driving License Image</FormLabel>
+              <FormControl>
+                <ImageUpload
+                  value={field.value}
+                  onChange={field.onChange}
+                  bucket="vehicle_images"
+                />
               </FormControl>
               <FormMessage />
             </FormItem>

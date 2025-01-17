@@ -198,11 +198,13 @@ export type Database = {
           car_model: string
           condition: string
           created_at: string
+          driving_license_image: string | null
           id: string
           mileage: number
           mileage_image: string
           plate_number: string
           project: string
+          receiver_id_image: string | null
           user_id: string
         }
         Insert: {
@@ -210,11 +212,13 @@ export type Database = {
           car_model: string
           condition: string
           created_at?: string
+          driving_license_image?: string | null
           id?: string
           mileage: number
           mileage_image: string
           plate_number: string
           project: string
+          receiver_id_image?: string | null
           user_id: string
         }
         Update: {
@@ -222,11 +226,13 @@ export type Database = {
           car_model?: string
           condition?: string
           created_at?: string
+          driving_license_image?: string | null
           id?: string
           mileage?: number
           mileage_image?: string
           plate_number?: string
           project?: string
+          receiver_id_image?: string | null
           user_id?: string
         }
         Relationships: []
