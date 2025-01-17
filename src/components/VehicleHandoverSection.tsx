@@ -22,7 +22,6 @@ export function VehicleHandoverSection({ onClose }: VehicleHandoverSectionProps)
   const form = useForm<FormSchema>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      serialNumber: "",
       plateNumber: "",
       model: "",
       type: "",

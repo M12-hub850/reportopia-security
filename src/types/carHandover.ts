@@ -1,7 +1,6 @@
 import * as z from "zod";
 
 export const formSchema = z.object({
-  serialNumber: z.string().min(1, "Serial number is required"),
   plateNumber: z.string().min(1, "Plate number is required"),
   model: z.string().min(1, "Model is required"),
   type: z.string().min(1, "Type is required"),

@@ -51,20 +51,6 @@ export function VehicleInformation({ form }: VehicleInformationProps) {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <FormField
           control={form.control}
-          name="serialNumber"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Serial Number</FormLabel>
-              <FormControl>
-                <Input placeholder="Enter serial number" {...field} />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
           name="plateNumber"
           render={({ field }) => (
             <FormItem>
