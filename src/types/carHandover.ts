@@ -13,6 +13,8 @@ export const formSchema = z.object({
     safetyKit: z.boolean(),
     fireExtinguisher: z.boolean(),
     dashCam: z.boolean(),
+    other: z.boolean(),
+    otherSpecification: z.string().optional(),
   }),
   observations: z.array(z.string()),
   receiverName: z.string().min(1, "Receiver name is required"),

@@ -34,6 +34,8 @@ export function VehicleHandoverSection({ onClose }: VehicleHandoverSectionProps)
         safetyKit: false,
         fireExtinguisher: false,
         dashCam: false,
+        other: false,
+        otherSpecification: "",
       },
       observations: [],
       receiverName: "",
