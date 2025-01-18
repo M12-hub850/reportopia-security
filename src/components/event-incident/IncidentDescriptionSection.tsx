@@ -9,12 +9,17 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { ImageUpload } from "@/components/ImageUpload";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { translations } from "@/translations";
 
 interface IncidentDescriptionSectionProps {
   form: UseFormReturn<any>;
 }
 
 export function IncidentDescriptionSection({ form }: IncidentDescriptionSectionProps) {
+  const { language } = useLanguage();
+  const t = translations[language].reports.incidents;
+
   return (
     <div className="mt-4 space-y-4">
       <FormField
@@ -22,10 +27,10 @@ export function IncidentDescriptionSection({ form }: IncidentDescriptionSectionP
         name="description"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>Description of the Incident or Event</FormLabel>
+            <FormLabel>{t.description}</FormLabel>
             <FormControl>
               <Textarea
-                placeholder="Enter detailed description"
+                placeholder={t.descriptionPlaceholder}
                 className="min-h-[100px]"
                 {...field}
               />
@@ -40,10 +45,10 @@ export function IncidentDescriptionSection({ form }: IncidentDescriptionSectionP
         name="actionTaken"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>Action Taken</FormLabel>
+            <FormLabel>{t.actionTaken}</FormLabel>
             <FormControl>
               <Textarea
-                placeholder="Describe actions taken"
+                placeholder={t.actionTakenPlaceholder}
                 className="min-h-[100px]"
                 {...field}
               />
@@ -58,9 +63,9 @@ export function IncidentDescriptionSection({ form }: IncidentDescriptionSectionP
         name="reportingPerson"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>Name of the Reporting Person</FormLabel>
+            <FormLabel>{t.reportingPerson}</FormLabel>
             <FormControl>
-              <Input placeholder="Enter name of reporting person" {...field} />
+              <Input placeholder={t.reportingPersonPlaceholder} {...field} />
             </FormControl>
             <FormMessage />
           </FormItem>
@@ -72,6 +77,7 @@ export function IncidentDescriptionSection({ form }: IncidentDescriptionSectionP
         name="photoUrl"
         render={({ field }) => (
           <FormItem>
+            <FormLabel>{t.photoEvidence}</FormLabel>
             <FormControl>
               <ImageUpload
                 value={field.value}

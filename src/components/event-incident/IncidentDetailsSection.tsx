@@ -14,24 +14,29 @@ import { Button } from "@/components/ui/button";
 import { CalendarIcon } from "lucide-react";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { translations } from "@/translations";
 
 interface IncidentDetailsSectionProps {
   form: UseFormReturn<any>;
 }
 
 export function IncidentDetailsSection({ form }: IncidentDetailsSectionProps) {
+  const { language } = useLanguage();
+  const t = translations[language].reports.incidents;
+
   return (
     <Card className="p-4">
-      <h3 className="font-semibold mb-4">Incident Details</h3>
+      <h3 className="font-semibold mb-4">{t.incidentDetails}</h3>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <FormField
           control={form.control}
           name="location"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Location</FormLabel>
+              <FormLabel>{t.location}</FormLabel>
               <FormControl>
-                <Input placeholder="Enter incident location" {...field} />
+                <Input placeholder={t.locationPlaceholder} {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -43,7 +48,7 @@ export function IncidentDetailsSection({ form }: IncidentDetailsSectionProps) {
           name="incidentDate"
           render={({ field }) => (
             <FormItem className="flex flex-col">
-              <FormLabel>Date</FormLabel>
+              <FormLabel>{t.date}</FormLabel>
               <Popover>
                 <PopoverTrigger asChild>
                   <FormControl>
@@ -57,7 +62,7 @@ export function IncidentDetailsSection({ form }: IncidentDetailsSectionProps) {
                       {field.value ? (
                         format(field.value, "PPP")
                       ) : (
-                        <span>Pick a date</span>
+                        <span>{t.pickDate}</span>
                       )}
                       <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
                     </Button>
@@ -85,11 +90,11 @@ export function IncidentDetailsSection({ form }: IncidentDetailsSectionProps) {
           name="reportingTime"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Time of Reporting</FormLabel>
+              <FormLabel>{t.reportingTime}</FormLabel>
               <FormControl>
                 <Input
                   type="time"
-                  placeholder="Enter reporting time"
+                  placeholder={t.timePlaceholder}
                   {...field}
                   onChange={(e) => {
                     const timeValue = e.target.value;
