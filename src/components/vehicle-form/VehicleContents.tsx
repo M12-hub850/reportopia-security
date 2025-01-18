@@ -14,11 +14,11 @@ interface VehicleContentsProps {
 export function VehicleContents({ form }: VehicleContentsProps) {
   const showOtherSpecification = form.watch("contents.other");
   const { language } = useLanguage();
-  const t = translations[language].reports.vehicles;
+  const t = translations[language].reports.vehicles.contents;
 
   return (
     <Card className="p-4">
-      <h3 className="font-semibold mb-4">{t.contents}</h3>
+      <h3 className="font-semibold mb-4">{t.title}</h3>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <FormField
           control={form.control}

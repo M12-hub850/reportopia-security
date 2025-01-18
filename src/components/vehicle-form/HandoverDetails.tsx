@@ -13,7 +13,7 @@ interface HandoverDetailsProps {
 
 export function HandoverDetails({ form }: HandoverDetailsProps) {
   const { language } = useLanguage();
-  const t = translations[language].reports.vehicles;
+  const t = translations[language].reports.vehicles.handover;
 
   return (
     <Card className="p-4">

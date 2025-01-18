@@ -32,36 +32,46 @@ export const reportsTranslations = {
         dashCam: "Dash Cam",
         other: "Other",
         otherSpecification: "Other Specification",
+        otherSpecificationPlaceholder: "Please specify other contents",
         observations: "Observations",
         addObservation: "Add Observation"
       },
       handover: {
-        title: "Handover Details",
+        receiverInfo: "Receiver Information",
         receiverName: "Receiver Name",
         receiverNamePlaceholder: "Enter receiver's name",
         receiverPhone: "Receiver Phone",
         receiverPhonePlaceholder: "Enter receiver's phone",
         receiverId: "Receiver ID",
         receiverIdPlaceholder: "Enter receiver's ID number",
+        receiverIdImage: "Receiver ID Image",
+        drivingLicenseImage: "Driving License Image",
         supervisorName: "Supervisor Name",
         supervisorNamePlaceholder: "Enter supervisor's name",
         date: "Date",
         time: "Time"
       },
-      images: {
-        title: "Vehicle Images",
-        carImages: "Car Images",
-        addCarImage: "Add Car Image",
-        mileageImage: "Mileage Image",
-        captureMileageImage: "Capture Mileage Image",
-        receiverIdImage: "Receiver ID Image",
-        captureReceiverId: "Capture Receiver ID",
-        drivingLicenseImage: "Driving License Image",
-        captureDrivingLicense: "Capture Driving License"
-      },
       submit: "Submit Report",
       cancel: "Cancel",
       errorMessage: "Please fill in all required fields"
+    },
+    manager: {
+      staffAssessment: "Staff Assessment",
+      additionalInfo: "Additional Information",
+      description: "Description",
+      descriptionPlaceholder: "Enter additional details",
+      photoEvidence: "Photo Evidence"
+    },
+    supervisor: {
+      title: "Supervisor Report",
+      subtitle: "Document supervision activities"
+    },
+    incidents: {
+      title: "Incident Report",
+      subtitle: "Document security incidents",
+      guardInfo: "Guard Information",
+      description: "Incident Description",
+      details: "Incident Details"
     }
   },
   ar: {
@@ -97,36 +107,46 @@ export const reportsTranslations = {
         dashCam: "كاميرا السيارة",
         other: "أخرى",
         otherSpecification: "تحديد أخرى",
+        otherSpecificationPlaceholder: "يرجى تحديد المحتويات الأخرى",
         observations: "ملاحظات",
         addObservation: "إضافة ملاحظة"
       },
       handover: {
-        title: "تفاصيل التسليم",
+        receiverInfo: "معلومات المستلم",
         receiverName: "اسم المستلم",
         receiverNamePlaceholder: "أدخل اسم المستلم",
         receiverPhone: "هاتف المستلم",
         receiverPhonePlaceholder: "أدخل رقم هاتف المستلم",
         receiverId: "هوية المستلم",
         receiverIdPlaceholder: "أدخل رقم هوية المستلم",
+        receiverIdImage: "صورة هوية المستلم",
+        drivingLicenseImage: "صورة رخصة القيادة",
         supervisorName: "اسم المشرف",
         supervisorNamePlaceholder: "أدخل اسم المشرف",
         date: "التاريخ",
         time: "الوقت"
       },
-      images: {
-        title: "صور المركبة",
-        carImages: "صور السيارة",
-        addCarImage: "إضافة صورة للسيارة",
-        mileageImage: "صورة العداد",
-        captureMileageImage: "التقاط صورة العداد",
-        receiverIdImage: "صورة هوية المستلم",
-        captureReceiverId: "التقاط صورة الهوية",
-        drivingLicenseImage: "صورة رخصة القيادة",
-        captureDrivingLicense: "التقاط صورة الرخصة"
-      },
       submit: "إرسال التقرير",
       cancel: "إلغاء",
       errorMessage: "يرجى ملء جميع الحقول المطلوبة"
+    },
+    manager: {
+      staffAssessment: "تقييم الموظفين",
+      additionalInfo: "معلومات إضافية",
+      description: "الوصف",
+      descriptionPlaceholder: "أدخل تفاصيل إضافية",
+      photoEvidence: "صور توثيقية"
+    },
+    supervisor: {
+      title: "تقرير المشرف",
+      subtitle: "توثيق أنشطة الإشراف"
+    },
+    incidents: {
+      title: "تقرير الحادث",
+      subtitle: "توثيق الحوادث الأمنية",
+      guardInfo: "معلومات الحارس",
+      description: "وصف الحادث",
+      details: "تفاصيل الحادث"
     }
   }
 };
