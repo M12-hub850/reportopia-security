@@ -85,6 +85,10 @@ export const translations = {
         description: "Description",
         descriptionPlaceholder: "Enter detailed observations and comments",
         photoEvidence: "Photo Evidence",
+        successMessage: "Manager report submitted successfully",
+        errorMessage: "Failed to submit manager report",
+        notificationTitle: "Monthly Report Submitted",
+        notificationMessage: "Monthly report submitted with {count} staff assessments"
       },
       supervisor: {
         title: "Supervisor Weekly Report",
@@ -97,7 +101,9 @@ export const translations = {
           duties: "Duties Rating",
           uniform: "Uniform Rating",
           presence: "Presence Rating"
-        }
+        },
+        successMessage: "Supervisor report submitted successfully",
+        errorMessage: "Failed to submit supervisor report"
       },
       incidents: {
         title: "Events and Incidents",
@@ -106,7 +112,9 @@ export const translations = {
         incidentDetails: "Incident Details",
         description: "Description",
         actionTaken: "Action Taken",
-        reportingPerson: "Reporting Person"
+        reportingPerson: "Reporting Person",
+        successMessage: "Event/incident report submitted successfully",
+        errorMessage: "Failed to submit event/incident report"
       },
       vehicles: {
         title: "Vehicle Handover Form",
@@ -119,7 +127,9 @@ export const translations = {
         mileage: "Mileage",
         location: "Location",
         contents: "Vehicle Contents",
-        observations: "Observations"
+        observations: "Observations",
+        successMessage: "Vehicle handover report submitted successfully",
+        errorMessage: "Failed to submit vehicle handover report"
       }
     }
   },
@@ -209,6 +219,10 @@ export const translations = {
         description: "الوصف",
         descriptionPlaceholder: "أدخل الملاحظات والتعليقات التفصيلية",
         photoEvidence: "الصور التوثيقية",
+        successMessage: "تم تقديم تقرير المدير بنجاح",
+        errorMessage: "فشل في تقديم تقرير المدير",
+        notificationTitle: "تم تقديم التقرير الشهري",
+        notificationMessage: "تم تقديم التقرير الشهري مع {count} تقييمات للموظفين"
       },
       supervisor: {
         title: "تقرير المشرف الأسبوعي",
@@ -221,7 +235,9 @@ export const translations = {
           duties: "تقييم الواجبات",
           uniform: "تقييم الزي الرسمي",
           presence: "تقييم التواجد"
-        }
+        },
+        successMessage: "تم تقديم تقرير المشرف بنجاح",
+        errorMessage: "فشل في تقديم تقرير المشرف"
       },
       incidents: {
         title: "الأحداث والحوادث",
@@ -230,7 +246,9 @@ export const translations = {
         incidentDetails: "تفاصيل الحادث",
         description: "الوصف",
         actionTaken: "الإجراء المتخذ",
-        reportingPerson: "الشخص المبلغ"
+        reportingPerson: "الشخص المبلغ",
+        successMessage: "تم تقديم تقرير الحادث بنجاح",
+        errorMessage: "فشل في تقديم تقرير الحادث"
       },
       vehicles: {
         title: "نموذج تسليم المركبة",
@@ -243,7 +261,9 @@ export const translations = {
         mileage: "المسافة المقطوعة",
         location: "الموقع",
         contents: "محتويات المركبة",
-        observations: "الملاحظات"
+        observations: "الملاحظات",
+        successMessage: "تم تقديم تقرير تسليم المركبة بنجاح",
+        errorMessage: "فشل في تقديم تقرير تسليم المركبة"
       }
     }
   }
