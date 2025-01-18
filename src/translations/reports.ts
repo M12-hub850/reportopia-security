@@ -50,28 +50,52 @@ export const reportsTranslations = {
         supervisorNamePlaceholder: "Enter supervisor's name",
         date: "Date",
         time: "Time"
-      },
-      submit: "Submit Report",
-      cancel: "Cancel",
-      errorMessage: "Please fill in all required fields"
-    },
-    manager: {
-      staffAssessment: "Staff Assessment",
-      additionalInfo: "Additional Information",
-      description: "Description",
-      descriptionPlaceholder: "Enter additional details",
-      photoEvidence: "Photo Evidence"
-    },
-    supervisor: {
-      title: "Supervisor Report",
-      subtitle: "Document supervision activities"
+      }
     },
     incidents: {
       title: "Incident Report",
       subtitle: "Document security incidents",
       guardInfo: "Guard Information",
-      description: "Incident Description",
-      details: "Incident Details"
+      guardName: "Guard Name",
+      guardNamePlaceholder: "Enter guard name",
+      shift: "Shift",
+      shiftPlaceholder: "Enter shift information",
+      location: "Location",
+      locationPlaceholder: "Enter incident location",
+      date: "Date",
+      pickDate: "Pick a date",
+      reportingTime: "Reporting Time",
+      timePlaceholder: "Select time",
+      description: "Description",
+      descriptionPlaceholder: "Enter incident description",
+      actionTaken: "Action Taken",
+      actionTakenPlaceholder: "Describe actions taken",
+      reportingPerson: "Reporting Person",
+      reportingPersonPlaceholder: "Enter name of person reporting",
+      photoEvidence: "Photo Evidence",
+      incidentDetails: "Incident Details",
+      details: "Details",
+      successMessage: "Incident report submitted successfully",
+      errorMessage: "Failed to submit incident report"
+    },
+    manager: {
+      title: "Manager Monthly Report",
+      subtitle: "Monthly staff assessment report",
+      staffAssessment: "Staff Assessment",
+      additionalInfo: "Additional Information",
+      description: "Description",
+      descriptionPlaceholder: "Enter additional details",
+      photoEvidence: "Photo Evidence",
+      notificationTitle: "Manager Report Submitted",
+      notificationMessage: "Manager report submitted with {count} staff entries",
+      successMessage: "Manager report submitted successfully",
+      errorMessage: "Failed to submit manager report"
+    },
+    supervisor: {
+      title: "Supervisor Report",
+      subtitle: "Document supervision activities",
+      successMessage: "Supervisor report submitted successfully",
+      errorMessage: "Failed to submit supervisor report"
     }
   },
   ar: {
@@ -125,28 +149,52 @@ export const reportsTranslations = {
         supervisorNamePlaceholder: "أدخل اسم المشرف",
         date: "التاريخ",
         time: "الوقت"
-      },
-      submit: "إرسال التقرير",
-      cancel: "إلغاء",
-      errorMessage: "يرجى ملء جميع الحقول المطلوبة"
-    },
-    manager: {
-      staffAssessment: "تقييم الموظفين",
-      additionalInfo: "معلومات إضافية",
-      description: "الوصف",
-      descriptionPlaceholder: "أدخل تفاصيل إضافية",
-      photoEvidence: "صور توثيقية"
-    },
-    supervisor: {
-      title: "تقرير المشرف",
-      subtitle: "توثيق أنشطة الإشراف"
+      }
     },
     incidents: {
       title: "تقرير الحادث",
       subtitle: "توثيق الحوادث الأمنية",
       guardInfo: "معلومات الحارس",
-      description: "وصف الحادث",
-      details: "تفاصيل الحادث"
+      guardName: "اسم الحارس",
+      guardNamePlaceholder: "أدخل اسم الحارس",
+      shift: "المناوبة",
+      shiftPlaceholder: "أدخل معلومات المناوبة",
+      location: "الموقع",
+      locationPlaceholder: "أدخل موقع الحادث",
+      date: "التاريخ",
+      pickDate: "اختر تاريخاً",
+      reportingTime: "وقت التبليغ",
+      timePlaceholder: "اختر الوقت",
+      description: "الوصف",
+      descriptionPlaceholder: "أدخل وصف الحادث",
+      actionTaken: "الإجراء المتخذ",
+      actionTakenPlaceholder: "صف الإجراءات المتخذة",
+      reportingPerson: "الشخص المبلغ",
+      reportingPersonPlaceholder: "أدخل اسم الشخص المبلغ",
+      photoEvidence: "الأدلة المصورة",
+      incidentDetails: "تفاصيل الحادث",
+      details: "التفاصيل",
+      successMessage: "تم تقديم تقرير الحادث بنجاح",
+      errorMessage: "فشل في تقديم تقرير الحادث"
+    },
+    manager: {
+      title: "تقرير المدير الشهري",
+      subtitle: "تقرير تقييم الموظفين الشهري",
+      staffAssessment: "تقييم الموظفين",
+      additionalInfo: "معلومات إضافية",
+      description: "الوصف",
+      descriptionPlaceholder: "أدخل تفاصيل إضافية",
+      photoEvidence: "الأدلة المصورة",
+      notificationTitle: "تم تقديم تقرير المدير",
+      notificationMessage: "تم تقديم تقرير المدير مع {count} إدخالات للموظفين",
+      successMessage: "تم تقديم تقرير المدير بنجاح",
+      errorMessage: "فشل في تقديم تقرير المدير"
+    },
+    supervisor: {
+      title: "تقرير المشرف",
+      subtitle: "توثيق أنشطة الإشراف",
+      successMessage: "تم تقديم تقرير المشرف بنجاح",
+      errorMessage: "فشل في تقديم تقرير المشرف"
     }
   }
 };
