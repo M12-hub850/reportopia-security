@@ -9,11 +9,15 @@ import { EventIncidentForm } from "@/components/EventIncidentForm";
 import { eventIncidentSchema, type EventIncidentFormValues } from "@/types/eventIncident";
 import { Form } from "@/components/ui/form";
 import { generateReportPDF } from "@/utils/pdfGenerator";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { translations } from "@/translations";
 
 export default function EventIncidents() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
+  const { language } = useLanguage();
+  const t = translations[language].reports.incidents;
 
   const form = useForm<EventIncidentFormValues>({
     resolver: zodResolver(eventIncidentSchema),
@@ -69,9 +73,8 @@ export default function EventIncidents() {
       }
 
       toast({
-        title: "Success!",
-        description: "Event/Incident report has been submitted successfully.",
-        variant: "default",
+        title: translations[language].common.success,
+        description: t.successMessage,
       });
 
       form.reset();
@@ -79,8 +82,8 @@ export default function EventIncidents() {
       console.error("Error submitting report:", error);
       toast({
         variant: "destructive",
-        title: "Error",
-        description: "Failed to submit report. Please try again.",
+        title: translations[language].common.error,
+        description: t.errorMessage,
       });
     } finally {
       setIsSubmitting(false);
@@ -91,9 +94,9 @@ export default function EventIncidents() {
     <div className="container max-w-4xl py-6">
       <div className="mb-6">
         <BackButton />
-        <h1 className="text-3xl font-bold mt-4">Events and Incidents</h1>
+        <h1 className="text-3xl font-bold mt-4">{t.title}</h1>
         <p className="text-muted-foreground">
-          Record events and incidents
+          {t.subtitle}
         </p>
       </div>
 

@@ -8,11 +8,15 @@ import { BackButton } from "@/components/BackButton";
 import { SupervisorReportForm } from "@/components/SupervisorReportForm";
 import { supervisorReportSchema, type SupervisorReportFormValues } from "@/types/supervisorReport";
 import { generateReportPDF } from "@/utils/pdfGenerator";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { translations } from "@/translations";
 
 export default function SupervisorReports() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
+  const { language } = useLanguage();
+  const t = translations[language].reports.supervisor;
 
   const form = useForm<SupervisorReportFormValues>({
     resolver: zodResolver(supervisorReportSchema),
@@ -54,7 +58,6 @@ export default function SupervisorReports() {
 
       if (error) throw error;
 
-      // Generate PDF after successful report submission
       const pdfUrl = await generateReportPDF(
         data,
         "supervisor_weekly",
@@ -67,8 +70,8 @@ export default function SupervisorReports() {
       }
 
       toast({
-        title: "Report Submitted",
-        description: "Supervisor weekly report has been saved successfully.",
+        title: translations[language].common.success,
+        description: t.successMessage,
       });
 
       navigate("/reports");
@@ -76,8 +79,8 @@ export default function SupervisorReports() {
       console.error("Error submitting report:", error);
       toast({
         variant: "destructive",
-        title: "Error",
-        description: "Failed to submit report. Please try again.",
+        title: translations[language].common.error,
+        description: t.errorMessage,
       });
     } finally {
       setIsSubmitting(false);
@@ -88,9 +91,9 @@ export default function SupervisorReports() {
     <div className="container max-w-4xl py-6">
       <div className="mb-6">
         <BackButton />
-        <h1 className="text-3xl font-bold mt-4">Supervisor Weekly Report</h1>
+        <h1 className="text-3xl font-bold mt-4">{t.title}</h1>
         <p className="text-muted-foreground">
-          Complete the weekly assessment for security staff performance
+          {t.subtitle}
         </p>
       </div>
 

@@ -10,6 +10,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { ManagerReportForm } from "@/components/ManagerReportForm";
 import { BackButton } from "@/components/BackButton";
 import { generateReportPDF } from "@/utils/pdfGenerator";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { translations } from "@/translations";
 
 const staffEntrySchema = z.object({
   staffName: z.string().min(1, "Staff name is required"),
@@ -32,6 +34,8 @@ export default function ManagerReports() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
   const navigate = useNavigate();
+  const { language } = useLanguage();
+  const t = translations[language].reports.manager;
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -53,7 +57,6 @@ export default function ManagerReports() {
         throw new Error("No authenticated user found");
       }
 
-      // Create the main report
       const { data: reportData, error: reportError } = await supabase.from("reports").insert({
         type: "manager_monthly",
         description: data.description,
@@ -66,7 +69,6 @@ export default function ManagerReports() {
         throw reportError;
       }
 
-      // Create staff entries
       const staffEntriesData = data.staffEntries.map(entry => ({
         report_id: reportData.id,
         staff_name: entry.staffName,
@@ -86,7 +88,6 @@ export default function ManagerReports() {
         throw staffEntriesError;
       }
 
-      // Generate PDF
       const pdfUrl = await generateReportPDF(
         { ...data, id: reportData.id },
         "manager_monthly",
@@ -99,7 +100,6 @@ export default function ManagerReports() {
         throw new Error("Failed to generate PDF");
       }
 
-      // Create visit record with completed status and manager_monthly type
       const { error: visitError } = await supabase.from("visits").insert({
         user_id: user.id,
         status: 'completed',
@@ -112,12 +112,11 @@ export default function ManagerReports() {
         throw visitError;
       }
 
-      // Create notification
       const { error: notificationError } = await supabase.from("notifications").insert({
         user_id: user.id,
         type: "report_submitted",
-        title: "Monthly Report Submitted",
-        message: `Monthly report with ${data.staffEntries.length} staff entries has been submitted successfully.`,
+        title: t.notificationTitle,
+        message: t.notificationMessage.replace('{count}', data.staffEntries.length.toString()),
         report_id: reportData.id
       });
 
@@ -126,9 +125,8 @@ export default function ManagerReports() {
       }
 
       toast({
-        title: "Success!",
-        description: "Manager monthly report has been submitted successfully.",
-        variant: "default",
+        title: translations[language].common.success,
+        description: t.successMessage,
       });
 
       navigate("/reports");
@@ -136,8 +134,8 @@ export default function ManagerReports() {
       console.error("Error submitting report:", error);
       toast({
         variant: "destructive",
-        title: "Error",
-        description: "Failed to submit report. Please try again.",
+        title: translations[language].common.error,
+        description: t.errorMessage,
       });
     } finally {
       setIsSubmitting(false);
@@ -148,9 +146,9 @@ export default function ManagerReports() {
     <div className="container max-w-4xl py-6">
       <div className="mb-6">
         <BackButton />
-        <h1 className="text-3xl font-bold mt-4">Manager Monthly Report</h1>
+        <h1 className="text-3xl font-bold mt-4">{t.title}</h1>
         <p className="text-muted-foreground">
-          Complete the monthly assessment for security staff performance
+          {t.subtitle}
         </p>
       </div>
 
@@ -164,10 +162,10 @@ export default function ManagerReports() {
               variant="outline"
               onClick={() => navigate("/")}
             >
-              Cancel
+              {translations[language].common.cancel}
             </Button>
             <Button type="submit" disabled={isSubmitting}>
-              {isSubmitting ? "Submitting..." : "Submit Report"}
+              {isSubmitting ? translations[language].common.loading : translations[language].common.submit}
             </Button>
           </div>
         </form>
