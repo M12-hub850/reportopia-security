@@ -26,10 +26,13 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { useToast } from "@/components/ui/use-toast";
 
 export function MainNav() {
   const navigate = useNavigate();
-  const [language, setLanguage] = useState<"en" | "ar">("en");
+  const { language, setLanguage } = useLanguage();
+  const { toast } = useToast();
 
   const handleSignOut = async () => {
     try {
@@ -40,10 +43,21 @@ export function MainNav() {
     }
   };
 
-  const handleLanguageChange = (lang: "en" | "ar") => {
-    setLanguage(lang);
-    // Here you would implement the actual language change logic
-    console.log("Language changed to:", lang);
+  const handleLanguageChange = async (lang: "en" | "ar") => {
+    try {
+      await setLanguage(lang);
+      toast({
+        title: "Language Updated",
+        description: `The application language has been changed to ${lang === "en" ? "English" : "Arabic"}`,
+      });
+    } catch (error) {
+      console.error("Error changing language:", error);
+      toast({
+        title: "Error",
+        description: "Failed to update language preference",
+        variant: "destructive",
+      });
+    }
   };
 
   return (
@@ -71,7 +85,7 @@ export function MainNav() {
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className="justify-start">
                   <Globe className="mr-2 h-4 w-4" />
-                  Language
+                  {language === "en" ? "English" : "العربية"}
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent>
@@ -79,7 +93,7 @@ export function MainNav() {
                   English
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => handleLanguageChange("ar")}>
-                  Arabic
+                  العربية
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -114,7 +128,7 @@ export function MainNav() {
               English
             </DropdownMenuItem>
             <DropdownMenuItem onClick={() => handleLanguageChange("ar")}>
-              Arabic
+              العربية
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
