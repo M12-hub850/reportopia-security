@@ -10,31 +10,36 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card } from "@/components/ui/card";
 import { ImageUpload } from "@/components/ImageUpload";
 import { StaffEntriesList } from "@/components/StaffEntriesList";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { translations } from "@/translations";
 
 interface ManagerReportFormProps {
   form: UseFormReturn<any>;
 }
 
 export function ManagerReportForm({ form }: ManagerReportFormProps) {
+  const { language } = useLanguage();
+  const t = translations[language].reports.manager;
+
   return (
     <div className="space-y-6">
       <Card className="p-4">
-        <h3 className="font-semibold mb-4">Staff Assessment</h3>
+        <h3 className="font-semibold mb-4">{t.staffAssessment}</h3>
         <StaffEntriesList form={form} maxEntries={8} />
       </Card>
 
       <Card className="p-4">
-        <h3 className="font-semibold mb-4">Additional Information</h3>
+        <h3 className="font-semibold mb-4">{t.additionalInfo}</h3>
         <div className="space-y-4">
           <FormField
             control={form.control}
             name="description"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Description</FormLabel>
+                <FormLabel>{t.description}</FormLabel>
                 <FormControl>
                   <Textarea
-                    placeholder="Enter detailed observations and comments"
+                    placeholder={t.descriptionPlaceholder}
                     className="min-h-[100px]"
                     {...field}
                   />
@@ -49,7 +54,7 @@ export function ManagerReportForm({ form }: ManagerReportFormProps) {
             name="photoUrl"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Photo Evidence</FormLabel>
+                <FormLabel>{t.photoEvidence}</FormLabel>
                 <FormControl>
                   <ImageUpload
                     value={field.value}
