@@ -3,8 +3,11 @@ import { ClipboardList, Users, AlertTriangle } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { translations } from "@/translations";
 
 export function DashboardStats() {
+  const { language } = useLanguage();
   console.log("Fetching dashboard stats...");
 
   const { data: weeklyVisits, isLoading: weeklyLoading } = useQuery({
@@ -46,24 +49,26 @@ export function DashboardStats() {
     }
   });
 
+  const t = translations[language].dashboard.stats;
+
   const stats = [
     {
-      title: "Weekly Visits",
+      title: t.weeklyVisits.title,
       value: weeklyLoading ? "..." : weeklyVisits?.toString() || "0",
       icon: ClipboardList,
-      description: "Supervisor site visits this week"
+      description: t.weeklyVisits.description
     },
     {
-      title: "Monthly Visits",
+      title: t.monthlyVisits.title,
       value: monthlyLoading ? "..." : monthlyVisits?.toString() || "0",
       icon: Users,
-      description: "Manager project visits this month"
+      description: t.monthlyVisits.description
     },
     {
-      title: "Events & Incidents",
+      title: t.incidents.title,
       value: incidentsLoading ? "..." : incidents?.toString() || "0",
       icon: AlertTriangle,
-      description: "Total events and incidents"
+      description: t.incidents.description
     },
   ];
 

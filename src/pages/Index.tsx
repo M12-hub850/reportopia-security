@@ -9,10 +9,14 @@ import { useForm } from "react-hook-form";
 import { Form } from "@/components/ui/form";
 import { FileTextIcon } from "lucide-react";
 import { MainNav } from "@/components/MainNav";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { translations } from "@/translations";
 
 const Index = () => {
   const navigate = useNavigate();
   const form = useForm();
+  const { language } = useLanguage();
+  const t = translations[language].dashboard;
 
   useEffect(() => {
     const checkUser = async () => {
@@ -42,86 +46,86 @@ const Index = () => {
         <div className="p-6">
           <div className="max-w-7xl mx-auto space-y-6">
             <div className="flex flex-col gap-2">
-              <h1 className="text-4xl font-bold tracking-tight">Security Monitoring Dashboard</h1>
-              <p className="text-muted-foreground">Monitor and manage your security operations reports</p>
+              <h1 className="text-4xl font-bold tracking-tight">{t.title}</h1>
+              <p className="text-muted-foreground">{t.subtitle}</p>
             </div>
 
             <DashboardStats />
 
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-            <ReportCard
-              title="Manager Monthly Visits"
-              subtitle="Monitor project performance"
-            >
-              <div className="space-y-4">
-                <p className="text-sm text-muted-foreground">
-                  Create and track monthly project visit reports and analytics.
-                </p>
-                <Button asChild className="w-full">
-                  <Link to="/manager-reports">Add New Report</Link>
-                </Button>
-              </div>
-            </ReportCard>
+              <ReportCard
+                title={t.cards.managerVisits.title}
+                subtitle={t.cards.managerVisits.subtitle}
+              >
+                <div className="space-y-4">
+                  <p className="text-sm text-muted-foreground">
+                    {t.cards.managerVisits.description}
+                  </p>
+                  <Button asChild className="w-full">
+                    <Link to="/manager-reports">{t.cards.managerVisits.action}</Link>
+                  </Button>
+                </div>
+              </ReportCard>
 
-            <ReportCard
-              title="Supervisor Weekly Visits"
-              subtitle="Track site inspections and observations"
-            >
-              <div className="space-y-4">
-                <p className="text-sm text-muted-foreground">
-                  Create and manage weekly site visit reports from supervisors.
-                </p>
-                <Button asChild className="w-full">
-                  <Link to="/supervisor-reports">Add New Report</Link>
-                </Button>
-              </div>
-            </ReportCard>
+              <ReportCard
+                title={t.cards.supervisorVisits.title}
+                subtitle={t.cards.supervisorVisits.subtitle}
+              >
+                <div className="space-y-4">
+                  <p className="text-sm text-muted-foreground">
+                    {t.cards.supervisorVisits.description}
+                  </p>
+                  <Button asChild className="w-full">
+                    <Link to="/supervisor-reports">{t.cards.supervisorVisits.action}</Link>
+                  </Button>
+                </div>
+              </ReportCard>
 
-            <ReportCard
-              title="Events & Incidents"
-              subtitle="Record security events and incidents"
-            >
-              <div className="space-y-4">
-                <p className="text-sm text-muted-foreground">
-                  Document and track security events and incidents with detailed information.
-                </p>
-                <Button asChild className="w-full">
-                  <Link to="/event-incidents">Add New Report</Link>
-                </Button>
-              </div>
-            </ReportCard>
+              <ReportCard
+                title={t.cards.incidents.title}
+                subtitle={t.cards.incidents.subtitle}
+              >
+                <div className="space-y-4">
+                  <p className="text-sm text-muted-foreground">
+                    {t.cards.incidents.description}
+                  </p>
+                  <Button asChild className="w-full">
+                    <Link to="/event-incidents">{t.cards.incidents.action}</Link>
+                  </Button>
+                </div>
+              </ReportCard>
 
-            <ReportCard
-              title="Vehicle Handovers"
-              subtitle="Record vehicle transfers"
-            >
-              <div className="space-y-4">
-                <p className="text-sm text-muted-foreground">
-                  Log vehicle transfers with photos and condition details.
-                </p>
-                <Button asChild className="w-full">
-                  <Link to="/car-handovers/new">Add New Report</Link>
-                </Button>
-              </div>
-            </ReportCard>
+              <ReportCard
+                title={t.cards.vehicles.title}
+                subtitle={t.cards.vehicles.subtitle}
+              >
+                <div className="space-y-4">
+                  <p className="text-sm text-muted-foreground">
+                    {t.cards.vehicles.description}
+                  </p>
+                  <Button asChild className="w-full">
+                    <Link to="/car-handovers/new">{t.cards.vehicles.action}</Link>
+                  </Button>
+                </div>
+              </ReportCard>
 
-            <ReportCard
-              title="Report Archive"
-              subtitle="Access all reports"
-              className="md:col-span-2 lg:col-span-4"
-            >
-              <div className="flex items-center justify-between">
-                <p className="text-sm text-muted-foreground">
-                  View and download all your submitted reports in PDF format.
-                </p>
-                <Button asChild>
-                  <Link to="/reports">
-                    <FileTextIcon className="h-4 w-4 mr-2" />
-                    View Reports
-                  </Link>
-                </Button>
-              </div>
-            </ReportCard>
+              <ReportCard
+                title={t.cards.archive.title}
+                subtitle={t.cards.archive.subtitle}
+                className="md:col-span-2 lg:col-span-4"
+              >
+                <div className="flex items-center justify-between">
+                  <p className="text-sm text-muted-foreground">
+                    {t.cards.archive.description}
+                  </p>
+                  <Button asChild>
+                    <Link to="/reports">
+                      <FileTextIcon className="h-4 w-4 mr-2" />
+                      {t.cards.archive.action}
+                    </Link>
+                  </Button>
+                </div>
+              </ReportCard>
             </div>
           </div>
         </div>
