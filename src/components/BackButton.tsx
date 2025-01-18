@@ -9,7 +9,7 @@ export const BackButton = () => {
     <Button
       variant="ghost"
       size="icon"
-      className="absolute top-4 left-4"
+      className="ml-4 mt-4"
       onClick={() => navigate("/")}
       aria-label="Back to Dashboard"
     >
