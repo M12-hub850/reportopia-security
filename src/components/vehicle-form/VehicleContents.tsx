@@ -4,6 +4,8 @@ import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { UseFormReturn } from "react-hook-form";
 import { FormSchema } from "@/types/carHandover";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { translations } from "@/translations";
 
 interface VehicleContentsProps {
   form: UseFormReturn<FormSchema>;
@@ -11,10 +13,12 @@ interface VehicleContentsProps {
 
 export function VehicleContents({ form }: VehicleContentsProps) {
   const showOtherSpecification = form.watch("contents.other");
+  const { language } = useLanguage();
+  const t = translations[language].reports.vehicles;
 
   return (
     <Card className="p-4">
-      <h3 className="font-semibold mb-4">Vehicle Contents</h3>
+      <h3 className="font-semibold mb-4">{t.contents}</h3>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <FormField
           control={form.control}
@@ -27,7 +31,7 @@ export function VehicleContents({ form }: VehicleContentsProps) {
                   onCheckedChange={field.onChange}
                 />
               </FormControl>
-              <FormLabel>Spare Tire</FormLabel>
+              <FormLabel>{t.spareTire}</FormLabel>
             </FormItem>
           )}
         />
@@ -43,7 +47,7 @@ export function VehicleContents({ form }: VehicleContentsProps) {
                   onCheckedChange={field.onChange}
                 />
               </FormControl>
-              <FormLabel>Jack Handle</FormLabel>
+              <FormLabel>{t.jackHandle}</FormLabel>
             </FormItem>
           )}
         />
@@ -59,7 +63,7 @@ export function VehicleContents({ form }: VehicleContentsProps) {
                   onCheckedChange={field.onChange}
                 />
               </FormControl>
-              <FormLabel>Safety Kit</FormLabel>
+              <FormLabel>{t.safetyKit}</FormLabel>
             </FormItem>
           )}
         />
@@ -75,7 +79,7 @@ export function VehicleContents({ form }: VehicleContentsProps) {
                   onCheckedChange={field.onChange}
                 />
               </FormControl>
-              <FormLabel>Fire Extinguisher</FormLabel>
+              <FormLabel>{t.fireExtinguisher}</FormLabel>
             </FormItem>
           )}
         />
@@ -91,7 +95,7 @@ export function VehicleContents({ form }: VehicleContentsProps) {
                   onCheckedChange={field.onChange}
                 />
               </FormControl>
-              <FormLabel>Dash Camera</FormLabel>
+              <FormLabel>{t.dashCam}</FormLabel>
             </FormItem>
           )}
         />
@@ -107,7 +111,7 @@ export function VehicleContents({ form }: VehicleContentsProps) {
                   onCheckedChange={field.onChange}
                 />
               </FormControl>
-              <FormLabel>Other</FormLabel>
+              <FormLabel>{t.other}</FormLabel>
             </FormItem>
           )}
         />
@@ -122,7 +126,7 @@ export function VehicleContents({ form }: VehicleContentsProps) {
               <FormItem>
                 <FormControl>
                   <Input
-                    placeholder="Please specify other contents..."
+                    placeholder={t.otherSpecificationPlaceholder}
                     {...field}
                   />
                 </FormControl>

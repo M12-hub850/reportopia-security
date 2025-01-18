@@ -4,24 +4,29 @@ import { Card } from "@/components/ui/card";
 import { UseFormReturn } from "react-hook-form";
 import { FormSchema } from "@/types/carHandover";
 import { ImageUpload } from "@/components/ImageUpload";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { translations } from "@/translations";
 
 interface HandoverDetailsProps {
   form: UseFormReturn<FormSchema>;
 }
 
 export function HandoverDetails({ form }: HandoverDetailsProps) {
+  const { language } = useLanguage();
+  const t = translations[language].reports.vehicles;
+
   return (
     <Card className="p-4">
-      <h3 className="font-semibold mb-4">Handover Details</h3>
+      <h3 className="font-semibold mb-4">{t.receiverInfo}</h3>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <FormField
           control={form.control}
           name="receiverName"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Receiver Name</FormLabel>
+              <FormLabel>{t.receiverName}</FormLabel>
               <FormControl>
-                <Input placeholder="Enter receiver's name" {...field} />
+                <Input placeholder={t.receiverNamePlaceholder} {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -33,9 +38,9 @@ export function HandoverDetails({ form }: HandoverDetailsProps) {
           name="receiverPhone"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Receiver Phone</FormLabel>
+              <FormLabel>{t.receiverPhone}</FormLabel>
               <FormControl>
-                <Input placeholder="Enter receiver's phone" {...field} />
+                <Input placeholder={t.receiverPhonePlaceholder} {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -47,9 +52,9 @@ export function HandoverDetails({ form }: HandoverDetailsProps) {
           name="receiverId"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Receiver ID</FormLabel>
+              <FormLabel>{t.receiverId}</FormLabel>
               <FormControl>
-                <Input placeholder="Enter receiver's ID" {...field} />
+                <Input placeholder={t.receiverIdPlaceholder} {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -61,7 +66,7 @@ export function HandoverDetails({ form }: HandoverDetailsProps) {
           name="receiverIdImage"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Receiver ID Image</FormLabel>
+              <FormLabel>{t.receiverIdImage}</FormLabel>
               <FormControl>
                 <ImageUpload
                   value={field.value}
@@ -79,7 +84,7 @@ export function HandoverDetails({ form }: HandoverDetailsProps) {
           name="drivingLicenseImage"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Driving License Image</FormLabel>
+              <FormLabel>{t.drivingLicenseImage}</FormLabel>
               <FormControl>
                 <ImageUpload
                   value={field.value}
@@ -97,9 +102,9 @@ export function HandoverDetails({ form }: HandoverDetailsProps) {
           name="supervisorName"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Supervisor Name</FormLabel>
+              <FormLabel>{t.supervisorName}</FormLabel>
               <FormControl>
-                <Input placeholder="Enter supervisor's name" {...field} />
+                <Input placeholder={t.supervisorNamePlaceholder} {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -111,7 +116,7 @@ export function HandoverDetails({ form }: HandoverDetailsProps) {
           name="date"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Date</FormLabel>
+              <FormLabel>{t.date}</FormLabel>
               <FormControl>
                 <Input type="date" {...field} />
               </FormControl>
@@ -125,7 +130,7 @@ export function HandoverDetails({ form }: HandoverDetailsProps) {
           name="time"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Time</FormLabel>
+              <FormLabel>{t.time}</FormLabel>
               <FormControl>
                 <Input type="time" {...field} />
               </FormControl>

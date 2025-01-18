@@ -6,6 +6,8 @@ import { Card } from "@/components/ui/card";
 import { UseFormReturn } from "react-hook-form";
 import { FormSchema } from "@/types/carHandover";
 import { useToast } from "@/hooks/use-toast";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { translations } from "@/translations";
 
 interface VehicleInformationProps {
   form: UseFormReturn<FormSchema>;
@@ -13,6 +15,8 @@ interface VehicleInformationProps {
 
 export function VehicleInformation({ form }: VehicleInformationProps) {
   const { toast } = useToast();
+  const { language } = useLanguage();
+  const t = translations[language].reports.vehicles;
 
   const getCurrentLocation = () => {
     if ("geolocation" in navigator) {
@@ -23,23 +27,23 @@ export function VehicleInformation({ form }: VehicleInformationProps) {
           form.setValue("location", locationString);
           
           toast({
-            title: "Location Updated",
-            description: "Your current location has been set.",
+            title: t.locationUpdated,
+            description: t.locationUpdatedDesc,
           });
         },
         (error) => {
           console.error("Error getting location:", error);
           toast({
-            title: "Location Error",
-            description: "Unable to get your current location. Please enter it manually.",
+            title: t.locationError,
+            description: t.locationErrorDesc,
             variant: "destructive",
           });
         }
       );
     } else {
       toast({
-        title: "Location Not Supported",
-        description: "Your browser doesn't support geolocation. Please enter location manually.",
+        title: t.locationNotSupported,
+        description: t.locationNotSupportedDesc,
         variant: "destructive",
       });
     }
@@ -47,16 +51,16 @@ export function VehicleInformation({ form }: VehicleInformationProps) {
 
   return (
     <Card className="p-4">
-      <h3 className="font-semibold mb-4">Vehicle Information</h3>
+      <h3 className="font-semibold mb-4">{t.vehicleInfo}</h3>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <FormField
           control={form.control}
           name="plateNumber"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Plate Number</FormLabel>
+              <FormLabel>{t.plateNumber}</FormLabel>
               <FormControl>
-                <Input placeholder="Enter plate number" {...field} />
+                <Input placeholder={t.plateNumberPlaceholder} {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -68,9 +72,9 @@ export function VehicleInformation({ form }: VehicleInformationProps) {
           name="model"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Model</FormLabel>
+              <FormLabel>{t.model}</FormLabel>
               <FormControl>
-                <Input placeholder="Enter model" {...field} />
+                <Input placeholder={t.modelPlaceholder} {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -82,9 +86,9 @@ export function VehicleInformation({ form }: VehicleInformationProps) {
           name="type"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Type</FormLabel>
+              <FormLabel>{t.type}</FormLabel>
               <FormControl>
-                <Input placeholder="Enter vehicle type" {...field} />
+                <Input placeholder={t.typePlaceholder} {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -96,9 +100,9 @@ export function VehicleInformation({ form }: VehicleInformationProps) {
           name="brand"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Brand</FormLabel>
+              <FormLabel>{t.brand}</FormLabel>
               <FormControl>
-                <Input placeholder="Enter brand" {...field} />
+                <Input placeholder={t.brandPlaceholder} {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -110,9 +114,9 @@ export function VehicleInformation({ form }: VehicleInformationProps) {
           name="mileage"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Current Mileage</FormLabel>
+              <FormLabel>{t.mileage}</FormLabel>
               <FormControl>
-                <Input type="number" placeholder="Enter mileage" {...field} />
+                <Input type="number" placeholder={t.mileagePlaceholder} {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -124,17 +128,17 @@ export function VehicleInformation({ form }: VehicleInformationProps) {
           name="location"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Location</FormLabel>
+              <FormLabel>{t.location}</FormLabel>
               <div className="flex gap-2">
                 <FormControl>
-                  <Input placeholder="Enter location" {...field} />
+                  <Input placeholder={t.locationPlaceholder} {...field} />
                 </FormControl>
                 <Button 
                   type="button" 
                   variant="outline" 
                   size="icon"
                   onClick={getCurrentLocation}
-                  title="Get current location"
+                  title={t.getCurrentLocation}
                 >
                   <MapPin className="h-4 w-4" />
                 </Button>
