@@ -1,5 +1,31 @@
 export const translations = {
   en: {
+    common: {
+      cancel: "Cancel",
+      submit: "Submit",
+      loading: "Loading...",
+      success: "Success!",
+      error: "Error",
+      back: "Back",
+      save: "Save",
+      delete: "Delete",
+      edit: "Edit",
+      view: "View",
+      noData: "No data available",
+    },
+    auth: {
+      signIn: "Sign In",
+      signUp: "Sign Up",
+      signOut: "Sign Out",
+      email: "Email",
+      password: "Password",
+      createAccount: "Create an Account",
+      alreadyHaveAccount: "Already have an account?",
+      dontHaveAccount: "Don't have an account?",
+      continueWith: "Or continue with",
+      googleSignIn: "Sign in with Google",
+      githubSignIn: "Sign in with Github",
+    },
     dashboard: {
       title: "Security Monitoring Dashboard",
       subtitle: "Monitor and manage your security operations reports",
@@ -49,9 +75,81 @@ export const translations = {
           action: "View Reports"
         }
       }
+    },
+    reports: {
+      manager: {
+        title: "Manager Monthly Report",
+        subtitle: "Complete the monthly assessment for security staff performance",
+        staffAssessment: "Staff Assessment",
+        additionalInfo: "Additional Information",
+        description: "Description",
+        descriptionPlaceholder: "Enter detailed observations and comments",
+        photoEvidence: "Photo Evidence",
+      },
+      supervisor: {
+        title: "Supervisor Weekly Report",
+        subtitle: "Complete the weekly assessment for security staff performance",
+        staffInfo: "Staff Information",
+        staffName: "Staff Name",
+        shift: "Shift",
+        ratings: {
+          attendance: "Attendance Rating",
+          duties: "Duties Rating",
+          uniform: "Uniform Rating",
+          presence: "Presence Rating"
+        }
+      },
+      incidents: {
+        title: "Events and Incidents",
+        subtitle: "Record events and incidents",
+        guardInfo: "Guard Information",
+        incidentDetails: "Incident Details",
+        description: "Description",
+        actionTaken: "Action Taken",
+        reportingPerson: "Reporting Person"
+      },
+      vehicles: {
+        title: "Vehicle Handover Form",
+        subtitle: "Document vehicle transfers and conditions",
+        vehicleInfo: "Vehicle Information",
+        plateNumber: "Plate Number",
+        model: "Model",
+        type: "Type",
+        brand: "Brand",
+        mileage: "Mileage",
+        location: "Location",
+        contents: "Vehicle Contents",
+        observations: "Observations"
+      }
     }
   },
   ar: {
+    common: {
+      cancel: "إلغاء",
+      submit: "إرسال",
+      loading: "جاري التحميل...",
+      success: "تم بنجاح!",
+      error: "خطأ",
+      back: "رجوع",
+      save: "حفظ",
+      delete: "حذف",
+      edit: "تعديل",
+      view: "عرض",
+      noData: "لا توجد بيانات متاحة",
+    },
+    auth: {
+      signIn: "تسجيل الدخول",
+      signUp: "إنشاء حساب",
+      signOut: "تسجيل الخروج",
+      email: "البريد الإلكتروني",
+      password: "كلمة المرور",
+      createAccount: "إنشاء حساب جديد",
+      alreadyHaveAccount: "لديك حساب بالفعل؟",
+      dontHaveAccount: "ليس لديك حساب؟",
+      continueWith: "أو المتابعة باستخدام",
+      googleSignIn: "تسجيل الدخول باستخدام جوجل",
+      githubSignIn: "تسجيل الدخول باستخدام جيثب",
+    },
     dashboard: {
       title: "لوحة مراقبة الأمن",
       subtitle: "مراقبة وإدارة تقارير عمليات الأمن",
@@ -100,6 +198,52 @@ export const translations = {
           description: "عرض وتحميل جميع تقاريرك بتنسيق PDF.",
           action: "عرض التقارير"
         }
+      }
+    },
+    reports: {
+      manager: {
+        title: "تقرير المدير الشهري",
+        subtitle: "إكمال التقييم الشهري لأداء موظفي الأمن",
+        staffAssessment: "تقييم الموظفين",
+        additionalInfo: "معلومات إضافية",
+        description: "الوصف",
+        descriptionPlaceholder: "أدخل الملاحظات والتعليقات التفصيلية",
+        photoEvidence: "الصور التوثيقية",
+      },
+      supervisor: {
+        title: "تقرير المشرف الأسبوعي",
+        subtitle: "إكمال التقييم الأسبوعي لأداء موظفي الأمن",
+        staffInfo: "معلومات الموظف",
+        staffName: "اسم الموظف",
+        shift: "المناوبة",
+        ratings: {
+          attendance: "تقييم الحضور",
+          duties: "تقييم الواجبات",
+          uniform: "تقييم الزي الرسمي",
+          presence: "تقييم التواجد"
+        }
+      },
+      incidents: {
+        title: "الأحداث والحوادث",
+        subtitle: "تسجيل الأحداث والحوادث",
+        guardInfo: "معلومات الحارس",
+        incidentDetails: "تفاصيل الحادث",
+        description: "الوصف",
+        actionTaken: "الإجراء المتخذ",
+        reportingPerson: "الشخص المبلغ"
+      },
+      vehicles: {
+        title: "نموذج تسليم المركبة",
+        subtitle: "توثيق عمليات نقل المركبات وحالتها",
+        vehicleInfo: "معلومات المركبة",
+        plateNumber: "رقم اللوحة",
+        model: "الموديل",
+        type: "النوع",
+        brand: "الماركة",
+        mileage: "المسافة المقطوعة",
+        location: "الموقع",
+        contents: "محتويات المركبة",
+        observations: "الملاحظات"
       }
     }
   }
