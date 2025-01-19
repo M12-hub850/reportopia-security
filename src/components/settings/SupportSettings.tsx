@@ -14,9 +14,13 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { translations } from "@/translations";
 
 export function SupportSettings() {
   const [showContactDialog, setShowContactDialog] = useState(false);
+  const { language } = useLanguage();
+  const t = translations[language].common;
 
   return (
     <>
@@ -24,10 +28,10 @@ export function SupportSettings() {
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <HelpCircle className="h-5 w-5" />
-            Help & Support
+            {t.helpAndSupport}
           </CardTitle>
           <CardDescription>
-            Get help with using the application
+            {t.helpAndSupportDescription}
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -36,7 +40,7 @@ export function SupportSettings() {
             className="w-full"
             onClick={() => setShowContactDialog(true)}
           >
-            Contact Support
+            {t.contactSupport}
           </Button>
         </CardContent>
       </Card>
@@ -44,7 +48,7 @@ export function SupportSettings() {
       <Dialog open={showContactDialog} onOpenChange={setShowContactDialog}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Contact Support</DialogTitle>
+            <DialogTitle>{t.contactSupport}</DialogTitle>
           </DialogHeader>
           <div className="space-y-4">
             <div className="flex items-center gap-2">
