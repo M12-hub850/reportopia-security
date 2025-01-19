@@ -30,11 +30,13 @@ export const commonTranslations = {
     changePassword: "Change Password",
     newPassword: "New Password",
     confirmPassword: "Confirm New Password",
+    passwordDescription: "Enter your new password below", // Added missing translation
     updateProfile: "Update Profile",
     updating: "Updating...",
     profilePicture: "Profile Picture",
     uploadPicture: "Upload Picture",
     support: "Support",
+    submit: "Submit", // Added missing translation
   },
   ar: {
     menu: "القائمة",
@@ -67,10 +69,12 @@ export const commonTranslations = {
     changePassword: "تغيير كلمة المرور",
     newPassword: "كلمة المرور الجديدة",
     confirmPassword: "تأكيد كلمة المرور الجديدة",
+    passwordDescription: "أدخل كلمة المرور الجديدة أدناه", // Added missing translation
     updateProfile: "تحديث الملف الشخصي",
     updating: "جاري التحديث...",
     profilePicture: "الصورة الشخصية",
     uploadPicture: "رفع صورة",
     support: "الدعم",
+    submit: "إرسال", // Added missing translation
   },
 };
