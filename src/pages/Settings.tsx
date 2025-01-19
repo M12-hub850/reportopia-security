@@ -2,7 +2,7 @@ import { MainNav } from "@/components/MainNav";
 import { BackButton } from "@/components/BackButton";
 import { Button } from "@/components/ui/button";
 import { useLanguage } from "@/contexts/LanguageContext";
-import { Globe, Bell, HelpCircle, User } from "lucide-react";
+import { Globe, Bell, HelpCircle, User, Mail, Phone } from "lucide-react";
 import {
   Card,
   CardContent,
@@ -10,6 +10,12 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -19,13 +25,14 @@ import {
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { useState } from "react";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 
 export default function Settings() {
   const { language, setLanguage } = useLanguage();
   const { toast } = useToast();
   const [emailNotifications, setEmailNotifications] = useState(true);
   const [pushNotifications, setPushNotifications] = useState(true);
+  const [showContactDialog, setShowContactDialog] = useState(false);
 
   const handleLanguageChange = async (lang: "en" | "ar") => {
     try {
@@ -152,7 +159,7 @@ export default function Settings() {
                 <Button 
                   variant="outline" 
                   className="w-full"
-                  onClick={() => window.location.href = 'mailto:marwan.s@gfsp.com.sa'}
+                  onClick={() => setShowContactDialog(true)}
                 >
                   Contact Support
                 </Button>
@@ -161,6 +168,28 @@ export default function Settings() {
           </div>
         </div>
       </div>
+
+      <Dialog open={showContactDialog} onOpenChange={setShowContactDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Contact Support</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="flex items-center gap-2">
+              <Phone className="h-4 w-4" />
+              <a href="tel:+966548431829" className="text-primary hover:underline">
+                +966 54 843 1829
+              </a>
+            </div>
+            <div className="flex items-center gap-2">
+              <Mail className="h-4 w-4" />
+              <a href="mailto:marwan.s@gfsp.com.sa" className="text-primary hover:underline">
+                marwan.s@gfsp.com.sa
+              </a>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
