@@ -15,25 +15,27 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { useToast } from "@/hooks/use-toast";
+import { translations } from "@/translations";
 
 export function LanguageSettings() {
   const { language, setLanguage } = useLanguage();
   const { toast } = useToast();
+  const t = translations[language].common;
 
   const handleLanguageChange = async (lang: "en" | "ar") => {
     try {
       await setLanguage(lang);
       toast({
-        title: "Language Updated",
-        description: `The application language has been changed to ${
-          lang === "en" ? "English" : "Arabic"
-        }`,
+        title: t.success,
+        description: lang === "en" 
+          ? "The application language has been changed to English"
+          : "تم تغيير لغة التطبيق إلى العربية",
       });
     } catch (error) {
       console.error("Error changing language:", error);
       toast({
-        title: "Error",
-        description: "Failed to update language preference",
+        title: t.error,
+        description: t.languageUpdateError,
         variant: "destructive",
       });
     }
@@ -44,10 +46,10 @@ export function LanguageSettings() {
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Globe className="h-5 w-5" />
-          Language
+          {t.language}
         </CardTitle>
         <CardDescription>
-          Choose your preferred language for the application
+          {t.languageDescription}
         </CardDescription>
       </CardHeader>
       <CardContent>

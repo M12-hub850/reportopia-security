@@ -13,12 +13,16 @@ import {
 import { ProfilePicture } from "./ProfilePicture";
 import { PersonalInfo } from "./PersonalInfo";
 import { PasswordManagement } from "./PasswordManagement";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { translations } from "@/translations";
 
 export function AccountSettings() {
   const [isLoading, setIsLoading] = useState(false);
   const [avatarUrl, setAvatarUrl] = useState("");
   const [showPasswordDialog, setShowPasswordDialog] = useState(false);
   const { toast } = useToast();
+  const { language } = useLanguage();
+  const t = translations[language].common;
   const [formData, setFormData] = useState({
     fullName: "",
     email: "",
@@ -187,10 +191,10 @@ export function AccountSettings() {
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <User className="h-5 w-5" />
-          Account
+          {t.account}
         </CardTitle>
         <CardDescription>
-          Manage your account settings and preferences
+          {t.accountDescription}
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
@@ -209,7 +213,7 @@ export function AccountSettings() {
             onClick={updateProfile}
             disabled={isLoading}
           >
-            {isLoading ? "Updating..." : "Update Profile"}
+            {isLoading ? t.updating : t.updateProfile}
           </Button>
           <PasswordManagement
             showDialog={showPasswordDialog}
