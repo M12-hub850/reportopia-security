@@ -35,9 +35,9 @@ export async function generateReportPDF(
 
     // Generate PDF file
     const pdfBlob = pdf.output('blob');
-    const fileName = `${reportType}_${reportId}.pdf`;
+    const fileName = `${userId}/${reportType}_${reportId}.pdf`;
 
-    // Upload to Supabase Storage
+    // Upload to Supabase Storage with user-specific folder
     const { data: uploadData, error: uploadError } = await supabase.storage
       .from('report_pdfs')
       .upload(fileName, pdfBlob, {
@@ -56,7 +56,7 @@ export async function generateReportPDF(
       .insert({
         user_id: userId,
         report_type: reportType,
-        file_name: fileName,
+        file_name: fileName.split('/').pop() || '',
         file_path: fileName,
         report_id: reportId
       });
