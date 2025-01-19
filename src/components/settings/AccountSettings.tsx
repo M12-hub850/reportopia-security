@@ -1,9 +1,6 @@
 import { useState, useEffect } from "react";
-import { User, Camera, Lock } from "lucide-react";
+import { User } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { ImageUpload } from "@/components/ImageUpload";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import {
@@ -13,26 +10,19 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { ProfilePicture } from "./ProfilePicture";
+import { PersonalInfo } from "./PersonalInfo";
+import { PasswordManagement } from "./PasswordManagement";
 
 export function AccountSettings() {
   const [isLoading, setIsLoading] = useState(false);
   const [avatarUrl, setAvatarUrl] = useState("");
-  const { toast } = useToast();
   const [showPasswordDialog, setShowPasswordDialog] = useState(false);
+  const { toast } = useToast();
   const [formData, setFormData] = useState({
     fullName: "",
     email: "",
     phone: "",
-    currentPassword: "",
     newPassword: "",
     confirmPassword: "",
   });
@@ -136,7 +126,6 @@ export function AccountSettings() {
       setShowPasswordDialog(false);
       setFormData(prev => ({
         ...prev,
-        currentPassword: "",
         newPassword: "",
         confirmPassword: "",
       }));
@@ -164,58 +153,14 @@ export function AccountSettings() {
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
-        <div className="flex flex-col items-center space-y-4">
-          <Avatar className="h-24 w-24">
-            <AvatarImage src={avatarUrl} />
-            <AvatarFallback>
-              <Camera className="h-8 w-8 text-muted-foreground" />
-            </AvatarFallback>
-          </Avatar>
-          <ImageUpload
-            value={avatarUrl}
-            onChange={setAvatarUrl}
-            bucket="profile_pictures"
-            required={false}
-          />
-        </div>
-
-        <div className="space-y-4">
-          <div>
-            <Label htmlFor="fullName">Full Name</Label>
-            <Input
-              id="fullName"
-              name="fullName"
-              value={formData.fullName}
-              onChange={handleInputChange}
-              placeholder="Enter your full name"
-            />
-          </div>
-
-          <div>
-            <Label htmlFor="email">Email Address</Label>
-            <Input
-              id="email"
-              name="email"
-              type="email"
-              value={formData.email}
-              onChange={handleInputChange}
-              placeholder="Enter your email"
-              disabled
-            />
-          </div>
-
-          <div>
-            <Label htmlFor="phone">Phone Number</Label>
-            <Input
-              id="phone"
-              name="phone"
-              value={formData.phone}
-              onChange={handleInputChange}
-              placeholder="Enter your phone number"
-            />
-          </div>
-        </div>
-
+        <ProfilePicture 
+          avatarUrl={avatarUrl} 
+          onAvatarChange={setAvatarUrl} 
+        />
+        <PersonalInfo 
+          formData={formData} 
+          onChange={handleInputChange} 
+        />
         <div className="flex flex-col gap-4">
           <Button
             variant="outline"
@@ -225,52 +170,14 @@ export function AccountSettings() {
           >
             {isLoading ? "Updating..." : "Update Profile"}
           </Button>
-
-          <Dialog open={showPasswordDialog} onOpenChange={setShowPasswordDialog}>
-            <DialogTrigger asChild>
-              <Button variant="outline" className="w-full">
-                <Lock className="mr-2 h-4 w-4" />
-                Change Password
-              </Button>
-            </DialogTrigger>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>Change Password</DialogTitle>
-                <DialogDescription>
-                  Enter your new password below
-                </DialogDescription>
-              </DialogHeader>
-              <div className="space-y-4">
-                <div>
-                  <Label htmlFor="newPassword">New Password</Label>
-                  <Input
-                    id="newPassword"
-                    name="newPassword"
-                    type="password"
-                    value={formData.newPassword}
-                    onChange={handleInputChange}
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="confirmPassword">Confirm New Password</Label>
-                  <Input
-                    id="confirmPassword"
-                    name="confirmPassword"
-                    type="password"
-                    value={formData.confirmPassword}
-                    onChange={handleInputChange}
-                  />
-                </div>
-                <Button
-                  className="w-full"
-                  onClick={updatePassword}
-                  disabled={isLoading}
-                >
-                  {isLoading ? "Updating..." : "Update Password"}
-                </Button>
-              </div>
-            </DialogContent>
-          </Dialog>
+          <PasswordManagement
+            showDialog={showPasswordDialog}
+            onOpenChange={setShowPasswordDialog}
+            formData={formData}
+            onChange={handleInputChange}
+            onUpdatePassword={updatePassword}
+            isLoading={isLoading}
+          />
         </div>
       </CardContent>
     </Card>

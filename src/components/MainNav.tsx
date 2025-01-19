@@ -1,4 +1,5 @@
 import { useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
 import {
   Sheet,
   SheetContent,
@@ -8,7 +9,7 @@ import {
 } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Menu, Settings } from "lucide-react";
+import { Menu, Settings, User } from "lucide-react";
 import { NotificationsDropdown } from "./NotificationsDropdown";
 import { supabase } from "@/integrations/supabase/client";
 import {
@@ -20,6 +21,30 @@ import {
 
 export function MainNav() {
   const navigate = useNavigate();
+  const [avatarUrl, setAvatarUrl] = useState<string>("");
+
+  useEffect(() => {
+    fetchProfile();
+  }, []);
+
+  const fetchProfile = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("avatar_url")
+        .eq("id", user.id)
+        .single();
+
+      if (profile?.avatar_url) {
+        setAvatarUrl(profile.avatar_url);
+      }
+    } catch (error) {
+      console.error("Error fetching profile:", error);
+    }
+  };
 
   const handleSignOut = async () => {
     try {
@@ -51,22 +76,22 @@ export function MainNav() {
         </SheetContent>
       </Sheet>
 
-      {/* Desktop Navigation */}
       <div className="hidden md:flex items-center gap-4">
         <Button variant="ghost" onClick={() => navigate("/settings")}>
           <Settings className="h-4 w-4" />
         </Button>
       </div>
 
-      {/* Profile and Notifications */}
       <div className="flex items-center gap-4">
         <NotificationsDropdown />
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="ghost" className="relative h-8 w-8 rounded-full">
               <Avatar className="h-8 w-8">
-                <AvatarImage src="/placeholder.svg" alt="Profile" />
-                <AvatarFallback>U</AvatarFallback>
+                <AvatarImage src={avatarUrl} />
+                <AvatarFallback>
+                  <User className="h-4 w-4" />
+                </AvatarFallback>
               </Avatar>
             </Button>
           </DropdownMenuTrigger>
