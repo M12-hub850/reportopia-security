@@ -12,18 +12,23 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
   const [language, setLanguageState] = useState<"en" | "ar">("en");
 
   useEffect(() => {
-    // Get initial language preference from Supabase
+    // Get initial language preference from Supabase and set direction
     const fetchLanguagePreference = async () => {
+      console.log("LanguageContext: Fetching initial language preference");
       const { data: { session } } = await supabase.auth.getSession();
       if (session?.user) {
         const { data, error } = await supabase
           .from('profiles')
           .select('preferred_language')
           .eq('id', session.user.id)
-          .single();
+          .maybeSingle();
 
-        if (!error && data) {
+        if (!error && data?.preferred_language) {
+          console.log("LanguageContext: Setting initial language to", data.preferred_language);
           setLanguageState(data.preferred_language as "en" | "ar");
+          // Set initial direction
+          document.documentElement.dir = data.preferred_language === "ar" ? "rtl" : "ltr";
+          document.documentElement.lang = data.preferred_language;
         }
       }
     };
@@ -31,7 +36,15 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
     fetchLanguagePreference();
   }, []);
 
+  // Update direction whenever language changes
+  useEffect(() => {
+    console.log("LanguageContext: Language changed to", language);
+    document.documentElement.dir = language === "ar" ? "rtl" : "ltr";
+    document.documentElement.lang = language;
+  }, [language]);
+
   const setLanguage = async (newLang: "en" | "ar") => {
+    console.log("LanguageContext: Setting language to", newLang);
     const { data: { session } } = await supabase.auth.getSession();
     if (session?.user) {
       const { error } = await supabase
@@ -41,10 +54,8 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
 
       if (!error) {
         setLanguageState(newLang);
-        // Update document direction based on language
-        document.dir = newLang === "ar" ? "rtl" : "ltr";
       } else {
-        console.error("Error updating language preference:", error);
+        console.error("LanguageContext: Error updating language preference:", error);
       }
     }
   };
