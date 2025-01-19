@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { User, Camera, Lock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ImageUpload } from "@/components/ImageUpload";
@@ -37,14 +37,53 @@ export function AccountSettings() {
     confirmPassword: "",
   });
 
+  useEffect(() => {
+    fetchProfile();
+  }, []);
+
+  const fetchProfile = async () => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const { data: profile, error } = await supabase
+        .from("profiles")
+        .select("*")
+        .eq("id", user.id)
+        .single();
+
+      if (error) throw error;
+
+      if (profile) {
+        setFormData(prev => ({
+          ...prev,
+          fullName: profile.full_name || "",
+          email: user.email || "",
+          phone: profile.phone || "",
+        }));
+        setAvatarUrl(profile.avatar_url || "");
+      }
+    } catch (error) {
+      console.error("Error fetching profile:", error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to load profile",
+      });
+    }
+  };
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    setFormData(prev => ({ ...prev, [name]: value }));
   };
 
   const updateProfile = async () => {
     try {
       setIsLoading(true);
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) throw new Error("No user found");
+
       const { error } = await supabase
         .from("profiles")
         .update({
@@ -52,7 +91,7 @@ export function AccountSettings() {
           phone: formData.phone,
           avatar_url: avatarUrl,
         })
-        .eq("id", (await supabase.auth.getUser()).data.user?.id);
+        .eq("id", user.id);
 
       if (error) throw error;
 
@@ -95,6 +134,12 @@ export function AccountSettings() {
         description: "Password updated successfully",
       });
       setShowPasswordDialog(false);
+      setFormData(prev => ({
+        ...prev,
+        currentPassword: "",
+        newPassword: "",
+        confirmPassword: "",
+      }));
     } catch (error) {
       console.error("Error updating password:", error);
       toast({
