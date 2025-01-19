@@ -148,11 +148,12 @@ export default function Settings() {
                   Get help with using the application
                 </CardDescription>
               </CardHeader>
-              <CardContent className="space-y-4">
-                <Button variant="outline" className="w-full">
-                  View Documentation
-                </Button>
-                <Button variant="outline" className="w-full">
+              <CardContent>
+                <Button 
+                  variant="outline" 
+                  className="w-full"
+                  onClick={() => window.location.href = 'mailto:marwan.s@gfsp.com.sa'}
+                >
                   Contact Support
                 </Button>
               </CardContent>
