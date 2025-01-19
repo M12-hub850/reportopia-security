@@ -112,6 +112,7 @@ export function AccountSettings() {
         .from("profiles")
         .upsert({
           id: user.id,
+          email: formData.email, // Include email in the update
           full_name: formData.fullName,
           phone: formData.phone,
           avatar_url: avatarUrl,
