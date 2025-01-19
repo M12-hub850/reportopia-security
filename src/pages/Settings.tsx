@@ -1,58 +1,11 @@
 import { MainNav } from "@/components/MainNav";
 import { BackButton } from "@/components/BackButton";
-import { Button } from "@/components/ui/button";
-import { useLanguage } from "@/contexts/LanguageContext";
-import { Globe, Bell, HelpCircle, User, Mail, Phone } from "lucide-react";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Switch } from "@/components/ui/switch";
-import { Label } from "@/components/ui/label";
-import { useState } from "react";
-import { useToast } from "@/hooks/use-toast";
+import { LanguageSettings } from "@/components/settings/LanguageSettings";
+import { NotificationSettings } from "@/components/settings/NotificationSettings";
+import { AccountSettings } from "@/components/settings/AccountSettings";
+import { SupportSettings } from "@/components/settings/SupportSettings";
 
 export default function Settings() {
-  const { language, setLanguage } = useLanguage();
-  const { toast } = useToast();
-  const [emailNotifications, setEmailNotifications] = useState(true);
-  const [pushNotifications, setPushNotifications] = useState(true);
-  const [showContactDialog, setShowContactDialog] = useState(false);
-
-  const handleLanguageChange = async (lang: "en" | "ar") => {
-    try {
-      await setLanguage(lang);
-      toast({
-        title: "Language Updated",
-        description: `The application language has been changed to ${
-          lang === "en" ? "English" : "Arabic"
-        }`,
-      });
-    } catch (error) {
-      console.error("Error changing language:", error);
-      toast({
-        title: "Error",
-        description: "Failed to update language preference",
-        variant: "destructive",
-      });
-    }
-  };
-
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
       <MainNav />
@@ -65,131 +18,13 @@ export default function Settings() {
           </p>
 
           <div className="grid gap-6 md:grid-cols-2">
-            {/* Language Settings */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Globe className="h-5 w-5" />
-                  Language
-                </CardTitle>
-                <CardDescription>
-                  Choose your preferred language for the application
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="outline">
-                      {language === "en" ? "English" : "العربية"}
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent>
-                    <DropdownMenuItem onClick={() => handleLanguageChange("en")}>
-                      English
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => handleLanguageChange("ar")}>
-                      العربية
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </CardContent>
-            </Card>
-
-            {/* Notification Settings */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Bell className="h-5 w-5" />
-                  Notifications
-                </CardTitle>
-                <CardDescription>
-                  Configure how you want to receive notifications
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <Label htmlFor="email-notifications">Email notifications</Label>
-                  <Switch
-                    id="email-notifications"
-                    checked={emailNotifications}
-                    onCheckedChange={setEmailNotifications}
-                  />
-                </div>
-                <div className="flex items-center justify-between">
-                  <Label htmlFor="push-notifications">Push notifications</Label>
-                  <Switch
-                    id="push-notifications"
-                    checked={pushNotifications}
-                    onCheckedChange={setPushNotifications}
-                  />
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Account Settings */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <User className="h-5 w-5" />
-                  Account
-                </CardTitle>
-                <CardDescription>
-                  Manage your account settings and preferences
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <Button variant="outline" className="w-full">
-                  Update Profile
-                </Button>
-              </CardContent>
-            </Card>
-
-            {/* Help & Support */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <HelpCircle className="h-5 w-5" />
-                  Help & Support
-                </CardTitle>
-                <CardDescription>
-                  Get help with using the application
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <Button 
-                  variant="outline" 
-                  className="w-full"
-                  onClick={() => setShowContactDialog(true)}
-                >
-                  Contact Support
-                </Button>
-              </CardContent>
-            </Card>
+            <LanguageSettings />
+            <NotificationSettings />
+            <AccountSettings />
+            <SupportSettings />
           </div>
         </div>
       </div>
-
-      <Dialog open={showContactDialog} onOpenChange={setShowContactDialog}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Contact Support</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4">
-            <div className="flex items-center gap-2">
-              <Phone className="h-4 w-4" />
-              <a href="tel:+966548431829" className="text-primary hover:underline">
-                +966 54 843 1829
-              </a>
-            </div>
-            <div className="flex items-center gap-2">
-              <Mail className="h-4 w-4" />
-              <a href="mailto:marwan.s@gfsp.com.sa" className="text-primary hover:underline">
-                marwan.s@gfsp.com.sa
-              </a>
-            </div>
-          </div>
-        </DialogContent>
-      </Dialog>
     </div>
   );
 }
