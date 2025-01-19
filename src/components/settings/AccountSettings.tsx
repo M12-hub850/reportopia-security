@@ -28,37 +28,61 @@ export function AccountSettings() {
   });
 
   useEffect(() => {
+    console.log("Initializing AccountSettings component");
     fetchProfile();
   }, []);
 
   const fetchProfile = async () => {
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
+      console.log("Fetching user profile...");
+      const { data: { user }, error: userError } = await supabase.auth.getUser();
+      
+      if (userError) {
+        console.error("Error fetching user:", userError);
+        throw userError;
+      }
 
-      const { data: profile, error } = await supabase
+      if (!user) {
+        console.log("No authenticated user found");
+        return;
+      }
+
+      console.log("User found, fetching profile data...");
+      const { data: profile, error: profileError } = await supabase
         .from("profiles")
         .select("*")
         .eq("id", user.id)
-        .single();
+        .maybeSingle();
 
-      if (error) throw error;
+      if (profileError) {
+        console.error("Error fetching profile:", profileError);
+        throw profileError;
+      }
 
-      if (profile) {
+      if (!profile) {
+        console.log("No profile found for user");
+        // Initialize with default values
         setFormData(prev => ({
           ...prev,
-          fullName: profile.full_name || "",
           email: user.email || "",
-          phone: profile.phone || "",
         }));
-        setAvatarUrl(profile.avatar_url || "");
+        return;
       }
+
+      console.log("Profile data retrieved successfully:", profile);
+      setFormData(prev => ({
+        ...prev,
+        fullName: profile.full_name || "",
+        email: user.email || "",
+        phone: profile.phone || "",
+      }));
+      setAvatarUrl(profile.avatar_url || "");
     } catch (error) {
-      console.error("Error fetching profile:", error);
+      console.error("Error in fetchProfile:", error);
       toast({
         variant: "destructive",
         title: "Error",
-        description: "Failed to load profile",
+        description: "Failed to load profile. Please try again.",
       });
     }
   };
@@ -70,27 +94,41 @@ export function AccountSettings() {
 
   const updateProfile = async () => {
     try {
+      console.log("Updating profile...");
       setIsLoading(true);
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error("No user found");
+      const { data: { user }, error: userError } = await supabase.auth.getUser();
+      
+      if (userError) {
+        console.error("Error getting user:", userError);
+        throw userError;
+      }
 
-      const { error } = await supabase
+      if (!user) {
+        console.log("No authenticated user found");
+        throw new Error("No user found");
+      }
+
+      const { error: updateError } = await supabase
         .from("profiles")
-        .update({
+        .upsert({
+          id: user.id,
           full_name: formData.fullName,
           phone: formData.phone,
           avatar_url: avatarUrl,
-        })
-        .eq("id", user.id);
+        });
 
-      if (error) throw error;
+      if (updateError) {
+        console.error("Error updating profile:", updateError);
+        throw updateError;
+      }
 
+      console.log("Profile updated successfully");
       toast({
         title: "Success",
         description: "Profile updated successfully",
       });
     } catch (error) {
-      console.error("Error updating profile:", error);
+      console.error("Error in updateProfile:", error);
       toast({
         variant: "destructive",
         title: "Error",
@@ -112,6 +150,7 @@ export function AccountSettings() {
     }
 
     try {
+      console.log("Updating password...");
       setIsLoading(true);
       const { error } = await supabase.auth.updateUser({
         password: formData.newPassword,
@@ -119,6 +158,7 @@ export function AccountSettings() {
 
       if (error) throw error;
 
+      console.log("Password updated successfully");
       toast({
         title: "Success",
         description: "Password updated successfully",

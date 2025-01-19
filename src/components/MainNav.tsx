@@ -24,34 +24,52 @@ export function MainNav() {
   const [avatarUrl, setAvatarUrl] = useState<string>("");
 
   useEffect(() => {
+    console.log("MainNav: Initializing component");
     fetchProfile();
   }, []);
 
   const fetchProfile = async () => {
     try {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
+      console.log("MainNav: Fetching user profile");
+      const { data: { user }, error: userError } = await supabase.auth.getUser();
+      
+      if (userError) {
+        console.error("MainNav: Error fetching user:", userError);
+        return;
+      }
 
-      const { data: profile } = await supabase
+      if (!user) {
+        console.log("MainNav: No authenticated user found");
+        return;
+      }
+
+      const { data: profile, error: profileError } = await supabase
         .from("profiles")
         .select("avatar_url")
         .eq("id", user.id)
-        .single();
+        .maybeSingle();
+
+      if (profileError) {
+        console.error("MainNav: Error fetching profile:", profileError);
+        return;
+      }
 
       if (profile?.avatar_url) {
+        console.log("MainNav: Avatar URL found:", profile.avatar_url);
         setAvatarUrl(profile.avatar_url);
       }
     } catch (error) {
-      console.error("Error fetching profile:", error);
+      console.error("MainNav: Error in fetchProfile:", error);
     }
   };
 
   const handleSignOut = async () => {
     try {
+      console.log("MainNav: Signing out user");
       await supabase.auth.signOut();
       navigate("/sign-in");
     } catch (error) {
-      console.error("Error signing out:", error);
+      console.error("MainNav: Error signing out:", error);
     }
   };
 
