@@ -12,6 +12,8 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Menu, Settings, User } from "lucide-react";
 import { NotificationsDropdown } from "./NotificationsDropdown";
 import { supabase } from "@/integrations/supabase/client";
+import { useLanguage } from "@/contexts/LanguageContext";
+import { translations } from "@/translations";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -22,6 +24,8 @@ import {
 export function MainNav() {
   const navigate = useNavigate();
   const [avatarUrl, setAvatarUrl] = useState<string>("");
+  const { language } = useLanguage();
+  const t = translations[language].common;
 
   useEffect(() => {
     console.log("MainNav: Initializing component");
@@ -83,12 +87,12 @@ export function MainNav() {
         </SheetTrigger>
         <SheetContent side="left">
           <SheetHeader>
-            <SheetTitle>Menu</SheetTitle>
+            <SheetTitle>{t.menu}</SheetTitle>
           </SheetHeader>
           <div className="flex flex-col gap-4 mt-4">
             <Button variant="ghost" className="justify-start" onClick={() => navigate("/settings")}>
               <Settings className="mr-2 h-4 w-4" />
-              Settings
+              {t.settings}
             </Button>
           </div>
         </SheetContent>
@@ -115,10 +119,10 @@ export function MainNav() {
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             <DropdownMenuItem onClick={() => navigate("/settings")}>
-              Settings
+              {t.settings}
             </DropdownMenuItem>
             <DropdownMenuItem onClick={handleSignOut}>
-              Sign Out
+              {t.signOut}
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
