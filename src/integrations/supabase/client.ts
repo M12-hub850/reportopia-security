@@ -4,10 +4,12 @@ import type { Database } from './types';
 const SUPABASE_URL = "https://jiqbosndzhevajffcinr.supabase.co";
 const SUPABASE_PUBLISHABLE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImppcWJvc25kemhldmFqZmZjaW5yIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzY4NDU3NDIsImV4cCI6MjA1MjQyMTc0Mn0.7UqdihjgJC5bYykHtJlIwibltIgyZF_d9RkwCEW2Tgk";
 
-// Log the current domain
-console.log('Current domain:', window.location.origin);
-console.log('Current hostname:', window.location.hostname);
-console.log('Current URL:', window.location.href);
+// Add detailed logging for debugging
+console.log('Initializing Supabase client with:', {
+  url: SUPABASE_URL,
+  hasKey: !!SUPABASE_PUBLISHABLE_KEY,
+  domain: window.location.origin,
+});
 
 export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
   auth: {
@@ -16,12 +18,16 @@ export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABL
     detectSessionInUrl: true,
     storage: typeof window !== 'undefined' ? window.localStorage : undefined,
     flowType: 'pkce',
-    debug: true // Enable debug mode to see detailed auth logs
+    debug: true,
+    // Add these to ensure proper CORS and cookie handling
+    cookieOptions: {
+      domain: window.location.hostname,
+      secure: window.location.protocol === 'https:',
+    }
   },
   global: {
     headers: {
       'X-Client-Info': 'supabase-js-web',
-      'X-Supabase-Auth': `Bearer ${SUPABASE_PUBLISHABLE_KEY}`
     }
   },
   db: {
