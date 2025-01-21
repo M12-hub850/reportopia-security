@@ -7,16 +7,14 @@ const SUPABASE_PUBLISHABLE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiO
 export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
   auth: {
     persistSession: true,
-    detectSessionInUrl: false,
+    detectSessionInUrl: true,
     autoRefreshToken: true,
-    storage: window?.localStorage,
-    flowType: 'pkce',
-    debug: true
+    storage: typeof window !== 'undefined' ? window.localStorage : undefined,
+    flowType: 'pkce'
   },
   global: {
     headers: {
-      'X-Client-Info': 'supabase-js-web',
-      'Content-Type': 'application/json'
+      'X-Client-Info': 'supabase-js-web'
     }
   }
 });
@@ -30,7 +28,9 @@ supabase.auth.onAuthStateChange((event, session) => {
   }
   if (event === 'SIGNED_OUT') {
     console.log('User signed out, clearing local storage');
-    window?.localStorage?.removeItem('supabase.auth.token');
+    if (typeof window !== 'undefined') {
+      window.localStorage?.removeItem('supabase.auth.token');
+    }
   }
   if (event === 'TOKEN_REFRESHED') {
     console.log('Token refreshed, session exists:', !!session);
@@ -41,12 +41,14 @@ supabase.auth.onAuthStateChange((event, session) => {
 });
 
 // Add error handling for network issues
-window.addEventListener('online', () => {
-  console.log('Network connection restored');
-  supabase.auth.getSession().then(({ data: { session } }) => {
-    if (session) {
-      console.log('Refreshing session after network restore');
-      supabase.auth.refreshSession();
-    }
+if (typeof window !== 'undefined') {
+  window.addEventListener('online', () => {
+    console.log('Network connection restored');
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session) {
+        console.log('Refreshing session after network restore');
+        supabase.auth.refreshSession();
+      }
+    });
   });
-});
+}
