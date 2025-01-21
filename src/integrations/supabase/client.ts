@@ -4,11 +4,9 @@ import type { Database } from './types';
 const SUPABASE_URL = "https://jiqbosndzhevajffcinr.supabase.co";
 const SUPABASE_PUBLISHABLE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImppcWJvc25kemhldmFqZmZjaW5yIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzY4NDU3NDIsImV4cCI6MjA1MjQyMTc0Mn0.7UqdihjgJC5bYykHtJlIwibltIgyZF_d9RkwCEW2Tgk";
 
-// Add detailed logging for debugging
 console.log('Initializing Supabase client with:', {
   url: SUPABASE_URL,
   hasKey: !!SUPABASE_PUBLISHABLE_KEY,
-  domain: window.location.origin,
 });
 
 export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
