@@ -7,25 +7,28 @@ const SUPABASE_PUBLISHABLE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiO
 export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
   auth: {
     persistSession: true,
-    detectSessionInUrl: true,
+    detectSessionInUrl: false,
     autoRefreshToken: true,
-    storage: localStorage
+    storage: localStorage,
+    flowType: 'pkce',
+    debug: true
+  },
+  global: {
+    headers: {
+      'X-Client-Info': 'supabase-js-web'
+    }
   }
 });
 
 // Add detailed error logging for auth state changes
 supabase.auth.onAuthStateChange((event, session) => {
   console.log('Auth state changed:', event, !!session);
-});
-
-// Add error handling for failed requests
-supabase.auth.onAuthStateChange((event, session) => {
+  if (event === 'SIGNED_IN') {
+    console.log('User signed in, session exists:', !!session);
+  }
   if (event === 'SIGNED_OUT') {
     console.log('User signed out, clearing local storage');
     localStorage.removeItem('supabase.auth.token');
-  }
-  if (event === 'SIGNED_IN') {
-    console.log('User signed in, session exists:', !!session);
   }
   if (event === 'TOKEN_REFRESHED') {
     console.log('Token refreshed, session exists:', !!session);
