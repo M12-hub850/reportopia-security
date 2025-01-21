@@ -9,9 +9,9 @@ export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABL
     autoRefreshToken: true,
     persistSession: true,
     detectSessionInUrl: true,
-    flowType: 'implicit',
     storage: localStorage,
     storageKey: 'supabase.auth.token',
+    flowType: 'pkce',
   },
   realtime: {
     params: {
@@ -22,24 +22,58 @@ export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABL
     headers: {
       'X-Client-Info': 'supabase-js-web'
     }
+  },
+  // Add retryable fetch configuration
+  fetch: (url, options = {}) => {
+    const retries = 3;
+    const retryDelay = 1000; // 1 second
+
+    const fetchWithRetry = async (attempt = 0): Promise<Response> => {
+      try {
+        const response = await fetch(url, {
+          ...options,
+          credentials: 'include',
+        });
+        
+        if (!response.ok && attempt < retries) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        
+        return response;
+      } catch (error) {
+        console.error(`Fetch attempt ${attempt + 1} failed:`, error);
+        
+        if (attempt < retries) {
+          await new Promise(resolve => setTimeout(resolve, retryDelay * (attempt + 1)));
+          return fetchWithRetry(attempt + 1);
+        }
+        throw error;
+      }
+    };
+
+    return fetchWithRetry();
   }
 });
 
 // Add detailed error logging for auth state changes
 supabase.auth.onAuthStateChange((event, session) => {
-  console.log('Auth state changed:', event, session);
+  console.log('Auth state changed:', event, session ? 'Session exists' : 'No session');
+  
   if (event === 'SIGNED_OUT') {
     console.log('User signed out, clearing local storage');
     localStorage.removeItem('supabase.auth.token');
   }
   if (event === 'SIGNED_IN') {
-    console.log('User signed in, session:', session);
+    console.log('User signed in, session exists:', !!session);
   }
   if (event === 'TOKEN_REFRESHED') {
-    console.log('Token refreshed:', session);
+    console.log('Token refreshed, session exists:', !!session);
   }
   if (event === 'USER_UPDATED') {
-    console.log('User updated:', session);
+    console.log('User updated, session exists:', !!session);
+  }
+  if (event === 'INITIAL_SESSION') {
+    console.log('Initial session loaded, session exists:', !!session);
   }
 });
 
