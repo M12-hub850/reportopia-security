@@ -17,7 +17,6 @@ export const createCompositeImage = async (
       return new Promise((resolve, reject) => {
         FabricImage.fromURL(url, {
           crossOrigin: 'anonymous',
-          objectFit: 'contain'
         }, (img) => {
           if (img) {
             resolve(img);
