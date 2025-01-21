@@ -6,25 +6,35 @@ const SUPABASE_PUBLISHABLE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiO
 
 export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
   auth: {
+    autoRefreshToken: true,
     persistSession: true,
     detectSessionInUrl: true,
-    autoRefreshToken: true,
     storage: typeof window !== 'undefined' ? window.localStorage : undefined,
-    flowType: 'pkce'
+    flowType: 'pkce',
+    debug: true // Enable debug mode to see detailed auth logs
   },
   global: {
     headers: {
-      'X-Client-Info': 'supabase-js-web'
+      'X-Client-Info': 'supabase-js-web',
+      'X-Supabase-Auth': `Bearer ${SUPABASE_PUBLISHABLE_KEY}`
+    }
+  },
+  // Add retry configuration
+  db: {
+    schema: 'public'
+  },
+  realtime: {
+    params: {
+      eventsPerSecond: 10
     }
   }
 });
 
 // Add detailed error logging for auth state changes
 supabase.auth.onAuthStateChange((event, session) => {
-  console.log('Auth state changed:', event, !!session);
+  console.log('Auth state changed:', { event, sessionExists: !!session });
   if (event === 'SIGNED_IN') {
-    console.log('User signed in, session exists:', !!session);
-    console.log('Session details:', session);
+    console.log('User signed in successfully:', session?.user?.id);
   }
   if (event === 'SIGNED_OUT') {
     console.log('User signed out, clearing local storage');
@@ -33,14 +43,14 @@ supabase.auth.onAuthStateChange((event, session) => {
     }
   }
   if (event === 'TOKEN_REFRESHED') {
-    console.log('Token refreshed, session exists:', !!session);
+    console.log('Token refreshed successfully');
   }
   if (event === 'USER_UPDATED') {
-    console.log('User updated:', session?.user);
+    console.log('User data updated');
   }
 });
 
-// Add error handling for network issues
+// Add network error handling
 if (typeof window !== 'undefined') {
   window.addEventListener('online', () => {
     console.log('Network connection restored');
@@ -50,5 +60,18 @@ if (typeof window !== 'undefined') {
         supabase.auth.refreshSession();
       }
     });
+  });
+
+  window.addEventListener('offline', () => {
+    console.log('Network connection lost');
+  });
+}
+
+// Add error event listener
+if (typeof window !== 'undefined') {
+  window.addEventListener('unhandledrejection', (event) => {
+    if (event.reason?.message?.includes('Failed to fetch')) {
+      console.error('Supabase API connection error:', event.reason);
+    }
   });
 }
