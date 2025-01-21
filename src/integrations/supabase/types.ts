@@ -1,5 +1,3 @@
-import { Database as DatabaseGeneric } from '@supabase/supabase-js';
-
 export type Json =
   | string
   | number
@@ -140,39 +138,30 @@ export type Database = {
           reporting_person?: string | null
         }
       }
-      staff_entries: {
+      visits: {
         Row: {
           id: string
-          report_id: string
-          staff_name: string
-          shift: string
-          attendance_rating: string | null
-          duties_rating: string | null
-          uniform_rating: string | null
-          presence_rating: string | null
+          user_id: string
+          status: 'completed' | 'pending' | 'missed' | 'other'
+          visit_date: string | null
           created_at: string | null
+          type: string | null
         }
         Insert: {
           id?: string
-          report_id: string
-          staff_name: string
-          shift: string
-          attendance_rating?: string | null
-          duties_rating?: string | null
-          uniform_rating?: string | null
-          presence_rating?: string | null
+          user_id: string
+          status: 'completed' | 'pending' | 'missed' | 'other'
+          visit_date?: string | null
           created_at?: string | null
+          type?: string | null
         }
         Update: {
           id?: string
-          report_id?: string
-          staff_name?: string
-          shift?: string
-          attendance_rating?: string | null
-          duties_rating?: string | null
-          uniform_rating?: string | null
-          presence_rating?: string | null
+          user_id?: string
+          status?: 'completed' | 'pending' | 'missed' | 'other'
+          visit_date?: string | null
           created_at?: string | null
+          type?: string | null
         }
       }
       vehicle_reports: {
@@ -219,81 +208,15 @@ export type Database = {
           driving_license_image?: string | null
         }
       }
-      visits: {
-        Row: {
-          id: string
-          user_id: string
-          status: 'completed' | 'pending' | 'missed' | 'other'
-          visit_date: string | null
-          created_at: string | null
-          type: string | null
-        }
-        Insert: {
-          id?: string
-          user_id: string
-          status: 'completed' | 'pending' | 'missed' | 'other'
-          visit_date?: string | null
-          created_at?: string | null
-          type?: string | null
-        }
-        Update: {
-          id?: string
-          user_id?: string
-          status?: 'completed' | 'pending' | 'missed' | 'other'
-          visit_date?: string | null
-          created_at?: string | null
-          type?: string | null
-        }
-      }
-      report_files: {
-        Row: {
-          id: string
-          user_id: string
-          report_type: string
-          file_name: string
-          file_path: string
-          report_id: string | null
-          vehicle_report_id: string | null
-          created_at: string | null
-        }
-        Insert: {
-          id?: string
-          user_id: string
-          report_type: string
-          file_name: string
-          file_path: string
-          report_id?: string | null
-          vehicle_report_id?: string | null
-          created_at?: string | null
-        }
-        Update: {
-          id?: string
-          user_id?: string
-          report_type?: string
-          file_name?: string
-          file_path?: string
-          report_id?: string | null
-          vehicle_report_id?: string | null
-          created_at?: string | null
-        }
-      }
     }
     Functions: {
       get_weekly_visits: {
         Args: { user_id: string }
-        Returns: { status: string; count: number }[]
+        Returns: Array<{ status: string; count: number }>
       }
       get_monthly_visits: {
         Args: { user_id: string }
-        Returns: { status: string; count: number }[]
-      }
-      get_report_counts: {
-        Args: {
-          p_user_id: string
-          p_start_date: string
-          p_end_date: string
-        }
-        Returns: { report_type: string; count: number }[]
+        Returns: Array<{ status: string; count: number }>
       }
     }
     Enums: {

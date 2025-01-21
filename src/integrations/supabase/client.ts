@@ -11,8 +11,7 @@ export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABL
     autoRefreshToken: true,
     storage: window?.localStorage,
     flowType: 'pkce',
-    debug: true,
-    timeout: 10000
+    debug: true
   },
   global: {
     headers: {
