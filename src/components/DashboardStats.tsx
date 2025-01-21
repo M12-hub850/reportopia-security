@@ -5,13 +5,17 @@ import { supabase } from "@/integrations/supabase/client";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { translations } from "@/translations";
-import { WeeklyVisitsReturn, MonthlyVisitsReturn } from "@/types/supabase";
+import { Database } from "@/types/supabase";
+
+type VisitStats = {
+  status: Database['public']['Enums']['visit_status'];
+  count: number;
+}[];
 
 export function DashboardStats() {
   const { language } = useLanguage();
   const userId = supabase.auth.getUser().then(response => response.data.user?.id);
 
-  // Use a single query for user ID to avoid multiple fetches
   const { data: currentUserId } = useQuery({
     queryKey: ['current-user'],
     queryFn: async () => {
@@ -20,7 +24,7 @@ export function DashboardStats() {
     },
   });
 
-  const { data: weeklyVisits, isLoading: weeklyLoading } = useQuery<WeeklyVisitsReturn>({
+  const { data: weeklyVisits, isLoading: weeklyLoading } = useQuery<VisitStats>({
     queryKey: ['weekly-visits', currentUserId],
     queryFn: async () => {
       if (!currentUserId) return [];
@@ -28,12 +32,12 @@ export function DashboardStats() {
         user_id: currentUserId 
       });
       if (error) throw error;
-      return data;
+      return data as VisitStats;
     },
     enabled: !!currentUserId,
   });
 
-  const { data: monthlyVisits, isLoading: monthlyLoading } = useQuery<MonthlyVisitsReturn>({
+  const { data: monthlyVisits, isLoading: monthlyLoading } = useQuery<VisitStats>({
     queryKey: ['monthly-visits', currentUserId],
     queryFn: async () => {
       if (!currentUserId) return [];
@@ -41,7 +45,7 @@ export function DashboardStats() {
         user_id: currentUserId 
       });
       if (error) throw error;
-      return data;
+      return data as VisitStats;
     },
     enabled: !!currentUserId,
   });
@@ -53,7 +57,7 @@ export function DashboardStats() {
       const { count, error } = await supabase
         .from('reports')
         .select('*', { count: 'exact', head: true })
-        .eq('type', 'event_incident')
+        .eq('type', 'event_incident' as Database['public']['Enums']['report_type'])
         .eq('user_id', currentUserId);
       if (error) throw error;
       return count || 0;
