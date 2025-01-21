@@ -19,11 +19,6 @@ export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABL
     storage: typeof window !== 'undefined' ? window.localStorage : undefined,
     flowType: 'pkce',
     debug: true,
-    // Add these to ensure proper CORS and cookie handling
-    cookieOptions: {
-      domain: window.location.hostname,
-      secure: window.location.protocol === 'https:',
-    }
   },
   global: {
     headers: {
