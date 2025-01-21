@@ -33,12 +33,11 @@ const CarHandovers = () => {
       date: new Date().toISOString().split('T')[0],
       time: new Date().toTimeString().split(' ')[0].slice(0, 5),
       carImages: [],
-      mileageImage: "",
     },
   });
 
   const captureImage = async (
-    fieldName: keyof Pick<FormSchema, 'carImages' | 'mileageImage'>
+    fieldName: keyof Pick<FormSchema, 'carImages'>
   ) => {
     try {
       const input = document.createElement('input');
@@ -62,8 +61,6 @@ const CarHandovers = () => {
           if (fieldName === "carImages") {
             const currentImages = form.getValues("carImages");
             form.setValue("carImages", [...currentImages, reader.result as string]);
-          } else {
-            form.setValue(fieldName, reader.result as string);
           }
         };
         reader.readAsDataURL(file);

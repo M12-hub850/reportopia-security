@@ -123,6 +123,7 @@ export function VehicleHandoverSection({ onClose }: VehicleHandoverSectionProps)
           car_images: data.carImages,
           receiver_id_image: data.receiverIdImage,
           driving_license_image: data.drivingLicenseImage,
+          mileage_image: data.carImages[0] // Use the first car image as mileage image to satisfy the schema
         });
 
       if (error) throw error;
