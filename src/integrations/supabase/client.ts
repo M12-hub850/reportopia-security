@@ -22,36 +22,6 @@ export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABL
     headers: {
       'X-Client-Info': 'supabase-js-web'
     }
-  },
-  // Add retryable fetch configuration
-  fetch: (url, options = {}) => {
-    const retries = 3;
-    const retryDelay = 1000; // 1 second
-
-    const fetchWithRetry = async (attempt = 0): Promise<Response> => {
-      try {
-        const response = await fetch(url, {
-          ...options,
-          credentials: 'include',
-        });
-        
-        if (!response.ok && attempt < retries) {
-          throw new Error(`HTTP error! status: ${response.status}`);
-        }
-        
-        return response;
-      } catch (error) {
-        console.error(`Fetch attempt ${attempt + 1} failed:`, error);
-        
-        if (attempt < retries) {
-          await new Promise(resolve => setTimeout(resolve, retryDelay * (attempt + 1)));
-          return fetchWithRetry(attempt + 1);
-        }
-        throw error;
-      }
-    };
-
-    return fetchWithRetry();
   }
 });
 
