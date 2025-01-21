@@ -8,45 +8,56 @@ import { translations } from "@/translations";
 
 export function DashboardStats() {
   const { language } = useLanguage();
-  console.log("Fetching dashboard stats...");
+  const userId = supabase.auth.getUser().then(response => response.data.user?.id);
+
+  // Use a single query for user ID to avoid multiple fetches
+  const { data: currentUserId } = useQuery({
+    queryKey: ['current-user'],
+    queryFn: async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      return user?.id;
+    },
+  });
 
   const { data: weeklyVisits, isLoading: weeklyLoading } = useQuery({
-    queryKey: ['weekly-visits'],
+    queryKey: ['weekly-visits', currentUserId],
     queryFn: async () => {
+      if (!currentUserId) return 0;
       const { data, error } = await supabase.rpc('get_weekly_visits', { 
-        user_id: (await supabase.auth.getUser()).data.user?.id
+        user_id: currentUserId 
       });
       if (error) throw error;
-      console.log("Weekly visits data:", data);
       return data.reduce((acc: number, curr: any) => acc + Number(curr.count), 0);
-    }
+    },
+    enabled: !!currentUserId,
   });
 
   const { data: monthlyVisits, isLoading: monthlyLoading } = useQuery({
-    queryKey: ['monthly-visits'],
+    queryKey: ['monthly-visits', currentUserId],
     queryFn: async () => {
+      if (!currentUserId) return 0;
       const { data, error } = await supabase.rpc('get_monthly_visits', { 
-        user_id: (await supabase.auth.getUser()).data.user?.id
+        user_id: currentUserId 
       });
       if (error) throw error;
-      console.log("Monthly visits data:", data);
       return data.reduce((acc: number, curr: any) => acc + Number(curr.count), 0);
-    }
+    },
+    enabled: !!currentUserId,
   });
 
   const { data: incidents, isLoading: incidentsLoading } = useQuery({
-    queryKey: ['incidents-count'],
+    queryKey: ['incidents-count', currentUserId],
     queryFn: async () => {
-      const { data: { user } } = await supabase.auth.getUser();
+      if (!currentUserId) return 0;
       const { count, error } = await supabase
         .from('reports')
         .select('*', { count: 'exact', head: true })
         .eq('type', 'event_incident')
-        .eq('user_id', user?.id);
+        .eq('user_id', currentUserId);
       if (error) throw error;
-      console.log("Incidents count:", count);
       return count;
-    }
+    },
+    enabled: !!currentUserId,
   });
 
   const t = translations[language].dashboard.stats;
