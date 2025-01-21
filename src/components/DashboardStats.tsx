@@ -5,6 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { translations } from "@/translations";
+import { WeeklyVisitsReturn, MonthlyVisitsReturn } from "@/types/supabase";
 
 export function DashboardStats() {
   const { language } = useLanguage();
@@ -19,28 +20,28 @@ export function DashboardStats() {
     },
   });
 
-  const { data: weeklyVisits, isLoading: weeklyLoading } = useQuery({
+  const { data: weeklyVisits, isLoading: weeklyLoading } = useQuery<WeeklyVisitsReturn>({
     queryKey: ['weekly-visits', currentUserId],
     queryFn: async () => {
-      if (!currentUserId) return 0;
+      if (!currentUserId) return [];
       const { data, error } = await supabase.rpc('get_weekly_visits', { 
         user_id: currentUserId 
       });
       if (error) throw error;
-      return data.reduce((acc: number, curr: any) => acc + Number(curr.count), 0);
+      return data;
     },
     enabled: !!currentUserId,
   });
 
-  const { data: monthlyVisits, isLoading: monthlyLoading } = useQuery({
+  const { data: monthlyVisits, isLoading: monthlyLoading } = useQuery<MonthlyVisitsReturn>({
     queryKey: ['monthly-visits', currentUserId],
     queryFn: async () => {
-      if (!currentUserId) return 0;
+      if (!currentUserId) return [];
       const { data, error } = await supabase.rpc('get_monthly_visits', { 
         user_id: currentUserId 
       });
       if (error) throw error;
-      return data.reduce((acc: number, curr: any) => acc + Number(curr.count), 0);
+      return data;
     },
     enabled: !!currentUserId,
   });
@@ -55,7 +56,7 @@ export function DashboardStats() {
         .eq('type', 'event_incident')
         .eq('user_id', currentUserId);
       if (error) throw error;
-      return count;
+      return count || 0;
     },
     enabled: !!currentUserId,
   });
@@ -65,13 +66,13 @@ export function DashboardStats() {
   const stats = [
     {
       title: t.weeklyVisits.title,
-      value: weeklyLoading ? "..." : weeklyVisits?.toString() || "0",
+      value: weeklyLoading ? "..." : (weeklyVisits?.reduce((acc, curr) => acc + Number(curr.count), 0) || "0").toString(),
       icon: ClipboardList,
       description: t.weeklyVisits.description
     },
     {
       title: t.monthlyVisits.title,
-      value: monthlyLoading ? "..." : monthlyVisits?.toString() || "0",
+      value: monthlyLoading ? "..." : (monthlyVisits?.reduce((acc, curr) => acc + Number(curr.count), 0) || "0").toString(),
       icon: Users,
       description: t.monthlyVisits.description
     },
