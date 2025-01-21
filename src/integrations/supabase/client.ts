@@ -17,12 +17,16 @@ export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABL
     storage: typeof window !== 'undefined' ? window.localStorage : undefined,
     flowType: 'pkce',
     debug: true,
+    // Add retries for auth requests
+    retryAttempts: 3,
+    retryInterval: 1000, // 1 second between retries
   },
   global: {
     headers: {
       'X-Client-Info': 'supabase-js-web',
     }
   },
+  // Add global retry configuration
   db: {
     schema: 'public'
   },
@@ -33,17 +37,21 @@ export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABL
   }
 });
 
-// Add detailed error logging for auth state changes
+// Enhanced error logging for auth state changes
 supabase.auth.onAuthStateChange((event, session) => {
   console.log('Auth state changed:', { 
     event, 
     sessionExists: !!session,
     domain: window.location.origin,
-    url: window.location.href
+    url: window.location.href,
+    timestamp: new Date().toISOString()
   });
   
   if (event === 'SIGNED_IN') {
-    console.log('User signed in successfully:', session?.user?.id);
+    console.log('User signed in successfully:', {
+      userId: session?.user?.id,
+      timestamp: new Date().toISOString()
+    });
   }
   if (event === 'SIGNED_OUT') {
     console.log('User signed out, clearing local storage');
@@ -52,38 +60,54 @@ supabase.auth.onAuthStateChange((event, session) => {
     }
   }
   if (event === 'TOKEN_REFRESHED') {
-    console.log('Token refreshed successfully');
+    console.log('Token refreshed successfully:', {
+      timestamp: new Date().toISOString()
+    });
   }
   if (event === 'USER_UPDATED') {
-    console.log('User data updated');
+    console.log('User data updated:', {
+      timestamp: new Date().toISOString()
+    });
   }
 });
 
-// Add network error handling
+// Enhanced network error handling
 if (typeof window !== 'undefined') {
   window.addEventListener('online', () => {
-    console.log('Network connection restored');
+    console.log('Network connection restored:', {
+      timestamp: new Date().toISOString()
+    });
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (session) {
         console.log('Refreshing session after network restore');
         supabase.auth.refreshSession();
       }
+    }).catch(error => {
+      console.error('Error refreshing session:', {
+        error,
+        timestamp: new Date().toISOString()
+      });
     });
   });
 
   window.addEventListener('offline', () => {
-    console.log('Network connection lost');
+    console.log('Network connection lost:', {
+      timestamp: new Date().toISOString()
+    });
   });
 }
 
-// Add error event listener
+// Enhanced error event listener
 if (typeof window !== 'undefined') {
   window.addEventListener('unhandledrejection', (event) => {
     if (event.reason?.message?.includes('Failed to fetch')) {
       console.error('Supabase API connection error:', {
         error: event.reason,
         domain: window.location.origin,
-        url: window.location.href
+        url: window.location.href,
+        timestamp: new Date().toISOString(),
+        // Add stack trace for debugging
+        stack: event.reason?.stack
       });
     }
   });
