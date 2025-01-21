@@ -13,11 +13,6 @@ export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABL
     storageKey: 'supabase.auth.token',
     flowType: 'pkce',
   },
-  realtime: {
-    params: {
-      eventsPerSecond: 10
-    }
-  },
   global: {
     headers: {
       'X-Client-Info': 'supabase-js-web'
