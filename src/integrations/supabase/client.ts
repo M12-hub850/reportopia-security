@@ -9,7 +9,7 @@ export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABL
     persistSession: true,
     autoRefreshToken: true,
     detectSessionInUrl: true,
-    flowType: 'pkce',
+    flowType: 'implicit',
     storage: localStorage,
     storageKey: 'supabase.auth.token',
     debug: true
@@ -17,8 +17,7 @@ export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABL
   global: {
     headers: {
       'X-Client-Info': 'supabase-js-web',
-      'Access-Control-Allow-Origin': '*',
-      'Content-Type': 'application/json'
+      'Content-Type': 'application/json',
     }
   },
   realtime: {
@@ -26,4 +25,9 @@ export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABL
       eventsPerSecond: 10
     }
   }
+});
+
+// Add error handling for fetch operations
+supabase.auth.onAuthStateChange((event, session) => {
+  console.log('Auth state changed:', event, session);
 });
