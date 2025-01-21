@@ -10,15 +10,42 @@ export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABL
     persistSession: true,
     detectSessionInUrl: true,
     flowType: 'implicit',
+    storage: localStorage,
+    storageKey: 'supabase.auth.token',
   },
   realtime: {
     params: {
       eventsPerSecond: 10
     }
+  },
+  global: {
+    headers: {
+      'X-Client-Info': 'supabase-js-web'
+    }
+  }
+});
+
+// Add detailed error logging for auth state changes
+supabase.auth.onAuthStateChange((event, session) => {
+  console.log('Auth state changed:', event, session);
+  if (event === 'SIGNED_OUT') {
+    console.log('User signed out, clearing local storage');
+    localStorage.removeItem('supabase.auth.token');
+  }
+  if (event === 'SIGNED_IN') {
+    console.log('User signed in, session:', session);
+  }
+  if (event === 'TOKEN_REFRESHED') {
+    console.log('Token refreshed:', session);
+  }
+  if (event === 'USER_UPDATED') {
+    console.log('User updated:', session);
   }
 });
 
 // Add error handling for fetch operations
 supabase.auth.onAuthStateChange((event, session) => {
-  console.log('Auth state changed:', event, session);
+  if (event === 'SIGNED_IN' && !session) {
+    console.error('Auth state inconsistency: SIGNED_IN event but no session');
+  }
 });
