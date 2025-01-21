@@ -47,6 +47,7 @@ function App() {
     checkAuth();
   }, []);
 
+  // Show loading state while checking authentication
   if (isAuthenticated === null) {
     return <div>Loading...</div>;
   }
@@ -70,34 +71,40 @@ function App() {
               element={isAuthenticated ? <Navigate to="/dashboard" /> : <SignUp />} 
             />
 
-            {/* Protected routes */}
+            {/* Protected routes - all redirect to dashboard if not authenticated */}
             <Route 
               path="/dashboard" 
               element={isAuthenticated ? <Index /> : <Navigate to="/sign-in" />} 
             />
             <Route 
               path="/manager-reports" 
-              element={isAuthenticated ? <ManagerReports /> : <Navigate to="/sign-in" />} 
+              element={isAuthenticated ? <ManagerReports /> : <Navigate to="/dashboard" />} 
             />
             <Route 
               path="/supervisor-reports" 
-              element={isAuthenticated ? <SupervisorReports /> : <Navigate to="/sign-in" />} 
+              element={isAuthenticated ? <SupervisorReports /> : <Navigate to="/dashboard" />} 
             />
             <Route 
               path="/event-incidents" 
-              element={isAuthenticated ? <EventIncidents /> : <Navigate to="/sign-in" />} 
+              element={isAuthenticated ? <EventIncidents /> : <Navigate to="/dashboard" />} 
             />
             <Route 
               path="/car-handovers/new" 
-              element={isAuthenticated ? <NewVehicleHandover /> : <Navigate to="/sign-in" />} 
+              element={isAuthenticated ? <NewVehicleHandover /> : <Navigate to="/dashboard" />} 
             />
             <Route 
               path="/reports" 
-              element={isAuthenticated ? <ReportView /> : <Navigate to="/sign-in" />} 
+              element={isAuthenticated ? <ReportView /> : <Navigate to="/dashboard" />} 
             />
             <Route 
               path="/settings" 
-              element={isAuthenticated ? <Settings /> : <Navigate to="/sign-in" />} 
+              element={isAuthenticated ? <Settings /> : <Navigate to="/dashboard" />} 
+            />
+
+            {/* Catch all route - redirect to dashboard if authenticated, otherwise to sign-in */}
+            <Route 
+              path="*" 
+              element={isAuthenticated ? <Navigate to="/dashboard" /> : <Navigate to="/sign-in" />} 
             />
           </Routes>
         </Router>
