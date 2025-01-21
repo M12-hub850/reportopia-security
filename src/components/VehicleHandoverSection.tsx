@@ -10,6 +10,7 @@ import { formSchema, FormSchema } from "@/types/carHandover";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useQueryClient } from "@tanstack/react-query";
+import { createCompositeImage } from "@/utils/imageComposite";
 
 interface VehicleHandoverSectionProps {
   onClose: () => void;
@@ -18,6 +19,7 @@ interface VehicleHandoverSectionProps {
 export function VehicleHandoverSection({ onClose }: VehicleHandoverSectionProps) {
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const form = useForm<FormSchema>({
     resolver: zodResolver(formSchema),
@@ -103,11 +105,31 @@ export function VehicleHandoverSection({ onClose }: VehicleHandoverSectionProps)
 
   const onSubmit = async (data: FormSchema) => {
     try {
+      setIsSubmitting(true);
       const { data: { user } } = await supabase.auth.getUser();
       
       if (!user) {
         throw new Error("No authenticated user found");
       }
+
+      // Create composite image
+      const compositeImageDataUrl = await createCompositeImage(data.carImages, data.mileageImage);
+
+      // Convert data URL to blob
+      const response = await fetch(compositeImageDataUrl);
+      const blob = await response.blob();
+
+      // Upload composite image
+      const fileName = `composite_${Date.now()}.png`;
+      const { data: uploadData, error: uploadError } = await supabase.storage
+        .from('vehicle_images')
+        .upload(fileName, blob);
+
+      if (uploadError) throw uploadError;
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('vehicle_images')
+        .getPublicUrl(fileName);
 
       const { error } = await supabase
         .from('vehicle_reports')
@@ -121,7 +143,7 @@ export function VehicleHandoverSection({ onClose }: VehicleHandoverSectionProps)
             contents: data.contents,
             observations: data.observations,
           }),
-          car_images: data.carImages,
+          car_images: [publicUrl], // Store the composite image URL
           mileage_image: data.mileageImage,
           receiver_id_image: data.receiverIdImage,
           driving_license_image: data.drivingLicenseImage,
@@ -146,6 +168,8 @@ export function VehicleHandoverSection({ onClose }: VehicleHandoverSectionProps)
         description: "Failed to submit report. Please try again.",
         variant: "destructive",
       });
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -164,10 +188,17 @@ export function VehicleHandoverSection({ onClose }: VehicleHandoverSectionProps)
               variant="outline" 
               className="w-full"
               onClick={onClose}
+              disabled={isSubmitting}
             >
               Cancel
             </Button>
-            <Button type="submit" className="w-full">Submit Report</Button>
+            <Button 
+              type="submit" 
+              className="w-full"
+              disabled={isSubmitting}
+            >
+              {isSubmitting ? "Submitting..." : "Submit Report"}
+            </Button>
           </div>
         </form>
       </Form>
