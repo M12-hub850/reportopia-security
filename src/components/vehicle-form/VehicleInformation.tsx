@@ -8,6 +8,7 @@ import { FormSchema } from "@/types/carHandover";
 import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { translations } from "@/translations";
+import { Switch } from "@/components/ui/switch";
 
 interface VehicleInformationProps {
   form: UseFormReturn<FormSchema>;
@@ -48,6 +49,8 @@ export function VehicleInformation({ form }: VehicleInformationProps) {
       });
     }
   };
+
+  const isDelegated = form.watch("isDelegated");
 
   return (
     <Card className="p-4">
@@ -147,6 +150,54 @@ export function VehicleInformation({ form }: VehicleInformationProps) {
             </FormItem>
           )}
         />
+
+        <FormField
+          control={form.control}
+          name="isDelegated"
+          render={({ field }) => (
+            <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
+              <div className="space-y-0.5">
+                <FormLabel>Delegated</FormLabel>
+              </div>
+              <FormControl>
+                <Switch
+                  checked={field.value}
+                  onCheckedChange={field.onChange}
+                />
+              </FormControl>
+            </FormItem>
+          )}
+        />
+
+        {isDelegated ? (
+          <FormField
+            control={form.control}
+            name="delegationNumber"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Delegation Number</FormLabel>
+                <FormControl>
+                  <Input placeholder="Enter delegation number" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        ) : (
+          <FormField
+            control={form.control}
+            name="nonDelegationReason"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Reason for No Delegation</FormLabel>
+                <FormControl>
+                  <Input placeholder="Enter reason" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+        )}
       </div>
     </Card>
   );

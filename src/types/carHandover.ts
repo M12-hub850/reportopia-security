@@ -7,6 +7,9 @@ export const formSchema = z.object({
   brand: z.string().min(1, "Brand is required"),
   mileage: z.string().min(1, "Mileage is required"),
   location: z.string().min(1, "Location is required"),
+  isDelegated: z.boolean().default(false),
+  delegationNumber: z.string().optional(),
+  nonDelegationReason: z.string().optional(),
   contents: z.object({
     spareTire: z.boolean(),
     jackHandle: z.boolean(),

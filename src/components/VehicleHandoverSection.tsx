@@ -29,6 +29,9 @@ export function VehicleHandoverSection({ onClose }: VehicleHandoverSectionProps)
       brand: "",
       mileage: "",
       location: "",
+      isDelegated: false,
+      delegationNumber: "",
+      nonDelegationReason: "",
       contents: {
         spareTire: false,
         jackHandle: false,
@@ -119,6 +122,9 @@ export function VehicleHandoverSection({ onClose }: VehicleHandoverSectionProps)
           condition: JSON.stringify({
             contents: data.contents,
             observations: data.observations,
+            isDelegated: data.isDelegated,
+            delegationNumber: data.delegationNumber,
+            nonDelegationReason: data.nonDelegationReason,
           }),
           car_images: data.carImages,
           receiver_id_image: data.receiverIdImage,
