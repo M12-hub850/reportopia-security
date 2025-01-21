@@ -5,7 +5,7 @@ import { FormSchema } from "@/types/carHandover";
 
 interface VehicleImageCaptureProps {
   form: UseFormReturn<FormSchema>;
-  onCaptureImage: (fieldName: keyof Pick<FormSchema, 'carImages' | 'mileageImage'>) => Promise<void>;
+  onCaptureImage: (fieldName: keyof Pick<FormSchema, 'carImages'>) => Promise<void>;
 }
 
 export function VehicleImageCapture({ form, onCaptureImage }: VehicleImageCaptureProps) {
@@ -31,25 +31,6 @@ export function VehicleImageCapture({ form, onCaptureImage }: VehicleImageCaptur
             />
           ))}
         </div>
-      </div>
-
-      <div>
-        <Label>Mileage Meter Image</Label>
-        <Button
-          type="button"
-          variant="outline"
-          className="w-full mt-1"
-          onClick={() => onCaptureImage("mileageImage")}
-        >
-          Take Mileage Photo
-        </Button>
-        {form.watch("mileageImage") && (
-          <img
-            src={form.watch("mileageImage")}
-            alt="Mileage meter"
-            className="mt-2 w-24 h-24 object-cover rounded-md"
-          />
-        )}
       </div>
     </div>
   );

@@ -10,7 +10,6 @@ import { formSchema, FormSchema } from "@/types/carHandover";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useQueryClient } from "@tanstack/react-query";
-import { createCompositeImage } from "@/utils/imageComposite";
 
 interface VehicleHandoverSectionProps {
   onClose: () => void;
@@ -49,12 +48,11 @@ export function VehicleHandoverSection({ onClose }: VehicleHandoverSectionProps)
       date: new Date().toISOString().split('T')[0],
       time: new Date().toTimeString().split(' ')[0].slice(0, 5),
       carImages: [],
-      mileageImage: "",
     },
   });
 
   const captureImage = async (
-    fieldName: keyof Pick<FormSchema, 'carImages' | 'mileageImage'>
+    fieldName: keyof Pick<FormSchema, 'carImages'>
   ) => {
     try {
       const input = document.createElement('input');
@@ -89,8 +87,6 @@ export function VehicleHandoverSection({ onClose }: VehicleHandoverSectionProps)
         if (fieldName === "carImages") {
           const currentImages = form.getValues("carImages");
           form.setValue("carImages", [...currentImages, publicUrl]);
-        } else {
-          form.setValue(fieldName, publicUrl);
         }
       }
     } catch (error) {
@@ -112,25 +108,6 @@ export function VehicleHandoverSection({ onClose }: VehicleHandoverSectionProps)
         throw new Error("No authenticated user found");
       }
 
-      // Create composite image
-      const compositeImageDataUrl = await createCompositeImage(data.carImages, data.mileageImage);
-
-      // Convert data URL to blob
-      const response = await fetch(compositeImageDataUrl);
-      const blob = await response.blob();
-
-      // Upload composite image
-      const fileName = `composite_${Date.now()}.png`;
-      const { data: uploadData, error: uploadError } = await supabase.storage
-        .from('vehicle_images')
-        .upload(fileName, blob);
-
-      if (uploadError) throw uploadError;
-
-      const { data: { publicUrl } } = supabase.storage
-        .from('vehicle_images')
-        .getPublicUrl(fileName);
-
       const { error } = await supabase
         .from('vehicle_reports')
         .insert({
@@ -143,8 +120,7 @@ export function VehicleHandoverSection({ onClose }: VehicleHandoverSectionProps)
             contents: data.contents,
             observations: data.observations,
           }),
-          car_images: [publicUrl], // Store the composite image URL
-          mileage_image: data.mileageImage,
+          car_images: data.carImages,
           receiver_id_image: data.receiverIdImage,
           driving_license_image: data.drivingLicenseImage,
         });

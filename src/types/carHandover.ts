@@ -26,7 +26,6 @@ export const formSchema = z.object({
   date: z.string().min(1, "Date is required"),
   time: z.string().min(1, "Time is required"),
   carImages: z.array(z.string()).min(1, "At least one car image is required"),
-  mileageImage: z.string().min(1, "Mileage meter image is required"),
 });
 
 export type FormSchema = z.infer<typeof formSchema>;
