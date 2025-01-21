@@ -9,13 +9,16 @@ export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABL
     persistSession: true,
     detectSessionInUrl: false,
     autoRefreshToken: true,
-    storage: localStorage,
+    storage: window?.localStorage,
     flowType: 'pkce',
-    debug: true
+    debug: true,
+    retryAttempts: 3,
+    timeout: 10000
   },
   global: {
     headers: {
-      'X-Client-Info': 'supabase-js-web'
+      'X-Client-Info': 'supabase-js-web',
+      'Content-Type': 'application/json'
     }
   }
 });
@@ -25,12 +28,27 @@ supabase.auth.onAuthStateChange((event, session) => {
   console.log('Auth state changed:', event, !!session);
   if (event === 'SIGNED_IN') {
     console.log('User signed in, session exists:', !!session);
+    console.log('Session details:', session);
   }
   if (event === 'SIGNED_OUT') {
     console.log('User signed out, clearing local storage');
-    localStorage.removeItem('supabase.auth.token');
+    window?.localStorage?.removeItem('supabase.auth.token');
   }
   if (event === 'TOKEN_REFRESHED') {
     console.log('Token refreshed, session exists:', !!session);
   }
+  if (event === 'USER_UPDATED') {
+    console.log('User updated:', session?.user);
+  }
+});
+
+// Add error handling for network issues
+window.addEventListener('online', () => {
+  console.log('Network connection restored');
+  supabase.auth.getSession().then(({ data: { session } }) => {
+    if (session) {
+      console.log('Refreshing session after network restore');
+      supabase.auth.refreshSession();
+    }
+  });
 });
