@@ -21,12 +21,7 @@ export default function SupervisorReports() {
   const form = useForm<SupervisorReportFormValues>({
     resolver: zodResolver(supervisorReportSchema),
     defaultValues: {
-      staffName: "",
-      shift: "",
-      attendanceRating: "",
-      dutiesRating: "",
-      uniformRating: "",
-      presenceRating: "",
+      staffEntries: [],
       description: "",
       photoUrl: "",
     },
@@ -45,16 +40,11 @@ export default function SupervisorReports() {
 
       console.log("Authenticated user:", user.id);
 
+      // Insert the main report
       const { data: reportData, error: insertError } = await supabase
         .from("reports")
         .insert({
           type: "supervisor_weekly",
-          staff_name: data.staffName,
-          shift: data.shift,
-          attendance_rating: data.attendanceRating,
-          duties_rating: data.dutiesRating,
-          uniform_rating: data.uniformRating,
-          presence_rating: data.presenceRating,
           description: data.description,
           photo_url: data.photoUrl,
           user_id: user.id,
@@ -69,8 +59,36 @@ export default function SupervisorReports() {
 
       console.log("Report inserted successfully:", reportData);
 
+      // Insert staff entries
+      if (data.staffEntries && data.staffEntries.length > 0) {
+        const staffEntriesData = data.staffEntries.map(entry => ({
+          report_id: reportData.id,
+          staff_name: entry.staffName,
+          shift: entry.shift,
+          attendance_rating: entry.attendanceRating,
+          duties_rating: entry.dutiesRating,
+          uniform_rating: entry.uniformRating,
+          presence_rating: entry.presenceRating,
+        }));
+
+        const { error: staffError } = await supabase
+          .from("staff_entries")
+          .insert(staffEntriesData);
+
+        if (staffError) {
+          console.error("Error inserting staff entries:", staffError);
+          throw staffError;
+        }
+      }
+
+      // Generate and store PDF
       const pdfUrl = await generateReportPDF(
-        data,
+        {
+          ...data,
+          reportId: reportData.id,
+          reportType: "supervisor_weekly",
+          timestamp: new Date().toISOString(),
+        },
         "supervisor_weekly",
         reportData.id,
         user.id
@@ -78,8 +96,24 @@ export default function SupervisorReports() {
 
       if (!pdfUrl) {
         console.error("Failed to generate PDF");
-      } else {
-        console.log("PDF generated successfully:", pdfUrl);
+        throw new Error("Failed to generate PDF");
+      }
+
+      console.log("PDF generated successfully:", pdfUrl);
+
+      // Create notification
+      const { error: notificationError } = await supabase
+        .from("notifications")
+        .insert({
+          user_id: user.id,
+          type: "report_submitted",
+          title: t.notificationTitle,
+          message: t.notificationMessage,
+          report_id: reportData.id,
+        });
+
+      if (notificationError) {
+        console.error("Error creating notification:", notificationError);
       }
 
       toast({
