@@ -1,3 +1,15 @@
+import { 
+  NotificationTable,
+  ProfileTable,
+  ReportTable,
+  StaffEntryTable,
+  VehicleReportTable,
+  VisitTable,
+  ReportFileTable 
+} from './tables.types';
+import { DatabaseFunctions } from './functions.types';
+import { DatabaseEnums } from './enums.types';
+
 export type Json =
   | string
   | number
