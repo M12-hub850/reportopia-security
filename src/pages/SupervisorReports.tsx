@@ -43,20 +43,31 @@ export default function SupervisorReports() {
         throw new Error("No authenticated user found");
       }
 
-      const { data: reportData, error } = await supabase.from("reports").insert({
-        type: "supervisor_weekly",
-        staff_name: data.staffName,
-        shift: data.shift,
-        attendance_rating: data.attendanceRating,
-        duties_rating: data.dutiesRating,
-        uniform_rating: data.uniformRating,
-        presence_rating: data.presenceRating,
-        description: data.description,
-        photo_url: data.photoUrl,
-        user_id: user.id,
-      }).select().single();
+      console.log("Authenticated user:", user.id);
 
-      if (error) throw error;
+      const { data: reportData, error: insertError } = await supabase
+        .from("reports")
+        .insert({
+          type: "supervisor_weekly",
+          staff_name: data.staffName,
+          shift: data.shift,
+          attendance_rating: data.attendanceRating,
+          duties_rating: data.dutiesRating,
+          uniform_rating: data.uniformRating,
+          presence_rating: data.presenceRating,
+          description: data.description,
+          photo_url: data.photoUrl,
+          user_id: user.id,
+        })
+        .select()
+        .single();
+
+      if (insertError) {
+        console.error("Error inserting report:", insertError);
+        throw insertError;
+      }
+
+      console.log("Report inserted successfully:", reportData);
 
       const pdfUrl = await generateReportPDF(
         data,
@@ -67,6 +78,8 @@ export default function SupervisorReports() {
 
       if (!pdfUrl) {
         console.error("Failed to generate PDF");
+      } else {
+        console.log("PDF generated successfully:", pdfUrl);
       }
 
       toast({
@@ -101,7 +114,7 @@ export default function SupervisorReports() {
         form={form}
         onSubmit={handleSubmit}
         isSubmitting={isSubmitting}
-        onCancel={() => navigate("/")}
+        onCancel={() => navigate("/reports")}
       />
     </div>
   );
