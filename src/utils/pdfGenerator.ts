@@ -37,6 +37,8 @@ export async function generateReportPDF(
     const pdfBlob = pdf.output('blob');
     const fileName = `${userId}/${reportType}_${reportId}.pdf`;
 
+    console.log('Uploading PDF with filename:', fileName);
+
     // Upload to Supabase Storage with user-specific folder
     const { data: uploadData, error: uploadError } = await supabase.storage
       .from('report_pdfs')
@@ -49,6 +51,8 @@ export async function generateReportPDF(
       console.error('Error uploading PDF:', uploadError);
       return null;
     }
+
+    console.log('PDF uploaded successfully:', uploadData);
 
     // Store reference in report_files table
     const { error: dbError } = await supabase
