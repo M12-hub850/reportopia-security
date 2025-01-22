@@ -6,6 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Database } from "@/types/supabase";
 import { BackButton } from "@/components/BackButton";
+import { useQueryClient } from "@tanstack/react-query";
 
 type ReportType = Database['public']['Enums']['report_type'];
 type VisitStatus = Database['public']['Enums']['visit_status'];
@@ -14,12 +15,18 @@ export default function SupervisorReports() {
   const navigate = useNavigate();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const form = useForm();
+  const queryClient = useQueryClient();
 
   const handleSubmit = async (formData: any) => {
     try {
+      console.log('Starting report submission:', formData);
       setIsSubmitting(true);
+      
       const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error('Not authenticated');
+      if (!user) {
+        console.error('No authenticated user found');
+        throw new Error('Not authenticated');
+      }
 
       // Create the report
       const { data: report, error: reportError } = await supabase
@@ -33,7 +40,12 @@ export default function SupervisorReports() {
         .select()
         .single();
 
-      if (reportError) throw reportError;
+      if (reportError) {
+        console.error('Error creating report:', reportError);
+        throw reportError;
+      }
+
+      console.log('Report created successfully:', report);
 
       // Create staff entries
       if (formData.staffEntries && formData.staffEntries.length > 0) {
@@ -51,7 +63,12 @@ export default function SupervisorReports() {
           .from('staff_entries')
           .insert(staffEntriesData);
 
-        if (staffError) throw staffError;
+        if (staffError) {
+          console.error('Error creating staff entries:', staffError);
+          throw staffError;
+        }
+
+        console.log('Staff entries created successfully');
       }
 
       // Create a visit record
@@ -64,7 +81,12 @@ export default function SupervisorReports() {
           visit_date: new Date().toISOString(),
         });
 
-      if (visitError) throw visitError;
+      if (visitError) {
+        console.error('Error creating visit record:', visitError);
+        throw visitError;
+      }
+
+      console.log('Visit record created successfully');
 
       // Create notification
       const { error: notificationError } = await supabase
@@ -77,7 +99,17 @@ export default function SupervisorReports() {
           report_id: report.id,
         });
 
-      if (notificationError) throw notificationError;
+      if (notificationError) {
+        console.error('Error creating notification:', notificationError);
+        throw notificationError;
+      }
+
+      console.log('Notification created successfully');
+
+      // Invalidate relevant queries to trigger refetch
+      await queryClient.invalidateQueries({ queryKey: ['weekly-visits'] });
+      await queryClient.invalidateQueries({ queryKey: ['reports'] });
+      await queryClient.invalidateQueries({ queryKey: ['notifications'] });
 
       toast.success('Report submitted successfully');
       navigate('/reports');
