@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useForm } from "react-hook-form";
 import { SupervisorReportForm } from "@/components/SupervisorReportForm";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -11,6 +12,7 @@ type VisitStatus = Database['public']['Enums']['visit_status'];
 export default function SupervisorReports() {
   const navigate = useNavigate();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const form = useForm();
 
   const handleSubmit = async (formData: any) => {
     try {
@@ -86,12 +88,21 @@ export default function SupervisorReports() {
     }
   };
 
+  const handleCancel = () => {
+    navigate('/reports');
+  };
+
   return (
     <div className="container mx-auto py-6 space-y-6">
       <div className="flex justify-between items-center">
         <h1 className="text-3xl font-bold">Supervisor Weekly Report</h1>
       </div>
-      <SupervisorReportForm onSubmit={handleSubmit} isSubmitting={isSubmitting} />
+      <SupervisorReportForm 
+        form={form}
+        onSubmit={handleSubmit} 
+        isSubmitting={isSubmitting}
+        onCancel={handleCancel}
+      />
     </div>
   );
 }

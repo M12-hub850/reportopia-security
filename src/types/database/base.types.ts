@@ -26,24 +26,24 @@ export interface Database {
       vehicle_reports: VehicleReportTable;
       visits: VisitTable;
       report_files: ReportFileTable;
-    }
+    };
     Functions: DatabaseFunctions;
     Enums: DatabaseEnums;
     CompositeTypes: {
       [_ in never]: never;
-    }
-  }
+    };
+  };
 }
 
 export interface DatabaseFunctions {
   get_weekly_visits: {
     Args: { user_id: string };
     Returns: Array<{ status: string; count: number }>;
-  }
+  };
   get_monthly_visits: {
     Args: { user_id: string };
     Returns: Array<{ status: string; count: number }>;
-  }
+  };
   get_report_counts: {
     Args: {
       p_user_id: string;
@@ -51,7 +51,7 @@ export interface DatabaseFunctions {
       p_end_date: string;
     };
     Returns: Array<{ report_type: string; count: number }>;
-  }
+  };
 }
 
 export interface DatabaseEnums {
@@ -60,7 +60,6 @@ export interface DatabaseEnums {
   visit_status: 'completed' | 'pending' | 'missed' | 'other';
 }
 
-// Helper types for database operations
 export type Tables<T extends keyof Database['public']['Tables']> = Database['public']['Tables'][T]['Row'];
 export type Enums<T extends keyof Database['public']['Enums']> = Database['public']['Enums'][T];
 export type DBInsert<T extends keyof Database['public']['Tables']> = Database['public']['Tables'][T]['Insert'];
