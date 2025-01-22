@@ -7,23 +7,15 @@ import { FileIcon } from 'lucide-react';
 import { DateRange } from 'react-day-picker';
 import { addDays, startOfDay, endOfDay, format } from 'date-fns';
 import { DateRangeFilter } from '@/components/DateRangeFilter';
-import { Badge } from '@/components/ui/badge';
-import { Separator } from '@/components/ui/separator';
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-
-interface StaffEntry {
-  staff_name: string;
-  shift: string;
-  attendance_rating: string | null;
-  duties_rating: string | null;
-  uniform_rating: string | null;
-  presence_rating: string | null;
-}
+import { SupervisorReportDisplay } from '@/components/reports/SupervisorReportDisplay';
+import { IncidentReportDisplay } from '@/components/reports/IncidentReportDisplay';
+import { VehicleReportDisplay } from '@/components/reports/VehicleReportDisplay';
 
 interface ReportDetails {
   description: string;
@@ -39,7 +31,7 @@ interface ReportDetails {
   reporting_time?: string | null;
   action_taken?: string | null;
   reporting_person?: string | null;
-  staff_entries?: StaffEntry[];
+  staff_entries?: any[];
   car_model?: string;
   plate_number?: string;
   mileage?: number;
@@ -111,7 +103,10 @@ export default function ReportView() {
             mileage,
             project,
             condition,
-            car_images
+            car_images,
+            mileage_image,
+            receiver_id_image,
+            driving_license_image
           )
         `)
         .gte('created_at', dateRange.from.toISOString())
@@ -142,187 +137,47 @@ export default function ReportView() {
     }
   };
 
-  const getRatingColor = (rating: string | null) => {
-    if (!rating) return 'bg-gray-100 text-gray-800';
-    
-    switch (rating.toLowerCase()) {
-      case 'excellent':
-        return 'bg-green-100 text-green-800';
-      case 'good':
-        return 'bg-blue-100 text-blue-800';
-      case 'fair':
-        return 'bg-yellow-100 text-yellow-800';
-      case 'poor':
-        return 'bg-red-100 text-red-800';
+  const renderReportContent = (report: ReportFile) => {
+    switch (report.report_type) {
+      case 'supervisor_weekly':
+        return (
+          <SupervisorReportDisplay
+            staffEntries={report.report.staff_entries || []}
+            description={report.report.description}
+            photoUrl={report.report.photo_url}
+          />
+        );
+      case 'event_incident':
+        return (
+          <IncidentReportDisplay
+            staffName={report.report.staff_name}
+            shift={report.report.shift}
+            location={report.report.location}
+            incidentDate={report.report.incident_date}
+            actionTaken={report.report.action_taken}
+            reportingPerson={report.report.reporting_person}
+            description={report.report.description}
+            photoUrl={report.report.photo_url}
+          />
+        );
+      case 'vehicle_handover':
+        return (
+          <VehicleReportDisplay
+            carModel={report.report.car_model || ''}
+            plateNumber={report.report.plate_number || ''}
+            mileage={report.report.mileage || 0}
+            project={report.report.project || ''}
+            condition={report.report.condition || ''}
+            carImages={report.report.car_images}
+            mileageImage={report.report.mileage_image}
+            receiverIdImage={report.report.receiver_id_image}
+            drivingLicenseImage={report.report.driving_license_image}
+            description={report.report.description}
+          />
+        );
       default:
-        return 'bg-gray-100 text-gray-800';
+        return null;
     }
-  };
-
-  const renderSupervisorReport = (report: ReportDetails) => {
-    if (!report.staff_entries?.length) return null;
-    
-    return (
-      <div className="mt-4 space-y-4">
-        <h4 className="font-medium">Staff Evaluations</h4>
-        <div className="space-y-3">
-          {report.staff_entries.map((entry, index) => (
-            <Card key={index} className="p-3">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                <div>
-                  <p className="text-sm font-medium">Staff Name</p>
-                  <p className="text-sm text-muted-foreground">{entry.staff_name}</p>
-                </div>
-                <div>
-                  <p className="text-sm font-medium">Shift</p>
-                  <p className="text-sm text-muted-foreground">{entry.shift}</p>
-                </div>
-                <div className="col-span-2 grid grid-cols-2 md:grid-cols-4 gap-2">
-                  <div>
-                    <p className="text-sm font-medium">Attendance</p>
-                    <Badge variant="secondary" className={getRatingColor(entry.attendance_rating)}>
-                      {entry.attendance_rating || 'N/A'}
-                    </Badge>
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium">Duties</p>
-                    <Badge variant="secondary" className={getRatingColor(entry.duties_rating)}>
-                      {entry.duties_rating || 'N/A'}
-                    </Badge>
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium">Uniform</p>
-                    <Badge variant="secondary" className={getRatingColor(entry.uniform_rating)}>
-                      {entry.uniform_rating || 'N/A'}
-                    </Badge>
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium">Presence</p>
-                    <Badge variant="secondary" className={getRatingColor(entry.presence_rating)}>
-                      {entry.presence_rating || 'N/A'}
-                    </Badge>
-                  </div>
-                </div>
-              </div>
-            </Card>
-          ))}
-        </div>
-      </div>
-    );
-  };
-
-  const renderIncidentReport = (report: ReportDetails) => {
-    if (!report.staff_name) return null;
-
-    return (
-      <div className="mt-4 space-y-4">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <p className="text-sm font-medium">Guard Name</p>
-            <p className="text-sm text-muted-foreground">{report.staff_name}</p>
-          </div>
-          <div>
-            <p className="text-sm font-medium">Shift</p>
-            <p className="text-sm text-muted-foreground">{report.shift}</p>
-          </div>
-          <div>
-            <p className="text-sm font-medium">Location</p>
-            <p className="text-sm text-muted-foreground">{report.location}</p>
-          </div>
-          <div>
-            <p className="text-sm font-medium">Incident Date</p>
-            <p className="text-sm text-muted-foreground">
-              {report.incident_date ? format(new Date(report.incident_date), 'PPP') : 'N/A'}
-            </p>
-          </div>
-        </div>
-        <Separator />
-        <div>
-          <p className="text-sm font-medium">Action Taken</p>
-          <p className="text-sm text-muted-foreground">{report.action_taken}</p>
-        </div>
-        <div>
-          <p className="text-sm font-medium">Reporting Person</p>
-          <p className="text-sm text-muted-foreground">{report.reporting_person}</p>
-        </div>
-      </div>
-    );
-  };
-
-  const renderVehicleReport = (report: ReportDetails) => {
-    if (!report.car_model) return null;
-
-    return (
-      <div className="mt-4 space-y-4">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <p className="text-sm font-medium">Car Model</p>
-            <p className="text-sm text-muted-foreground">{report.car_model}</p>
-          </div>
-          <div>
-            <p className="text-sm font-medium">Plate Number</p>
-            <p className="text-sm text-muted-foreground">{report.plate_number}</p>
-          </div>
-          <div>
-            <p className="text-sm font-medium">Mileage</p>
-            <p className="text-sm text-muted-foreground">{report.mileage}</p>
-          </div>
-          <div>
-            <p className="text-sm font-medium">Project</p>
-            <p className="text-sm text-muted-foreground">{report.project}</p>
-          </div>
-        </div>
-        <div>
-          <p className="text-sm font-medium">Condition</p>
-          <p className="text-sm text-muted-foreground">{report.condition}</p>
-        </div>
-        {report.car_images && report.car_images.length > 0 && (
-          <div>
-            <p className="text-sm font-medium mb-2">Car Images</p>
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-              {report.car_images.map((image, index) => (
-                <img
-                  key={index}
-                  src={image}
-                  alt={`Car image ${index + 1}`}
-                  className="w-full h-48 object-cover rounded-lg"
-                />
-              ))}
-            </div>
-          </div>
-        )}
-        {report.mileage_image && (
-          <div>
-            <p className="text-sm font-medium mb-2">Mileage Image</p>
-            <img
-              src={report.mileage_image}
-              alt="Mileage"
-              className="w-full max-w-md h-48 object-cover rounded-lg"
-            />
-          </div>
-        )}
-        {report.receiver_id_image && (
-          <div>
-            <p className="text-sm font-medium mb-2">Receiver ID</p>
-            <img
-              src={report.receiver_id_image}
-              alt="Receiver ID"
-              className="w-full max-w-md h-48 object-cover rounded-lg"
-            />
-          </div>
-        )}
-        {report.driving_license_image && (
-          <div>
-            <p className="text-sm font-medium mb-2">Driving License</p>
-            <img
-              src={report.driving_license_image}
-              alt="Driving License"
-              className="w-full max-w-md h-48 object-cover rounded-lg"
-            />
-          </div>
-        )}
-      </div>
-    );
   };
 
   return (
@@ -378,31 +233,7 @@ export default function ReportView() {
               {selectedReport?.report_type.replace(/_/g, ' ').toUpperCase()}
             </DialogTitle>
           </DialogHeader>
-          {selectedReport && (
-            <div className="space-y-6">
-              {selectedReport.report_type === 'supervisor_weekly' && renderSupervisorReport(selectedReport.report)}
-              {selectedReport.report_type === 'event_incident' && renderIncidentReport(selectedReport.report)}
-              {selectedReport.report_type === 'vehicle_handover' && renderVehicleReport(selectedReport.report)}
-              
-              {selectedReport.report.description && (
-                <div>
-                  <p className="text-sm font-medium">Description</p>
-                  <p className="text-sm text-muted-foreground">{selectedReport.report.description}</p>
-                </div>
-              )}
-              
-              {selectedReport.report.photo_url && (
-                <div>
-                  <p className="text-sm font-medium mb-2">Photo Evidence</p>
-                  <img
-                    src={selectedReport.report.photo_url}
-                    alt="Report photo"
-                    className="w-full max-w-md h-48 object-cover rounded-lg"
-                  />
-                </div>
-              )}
-            </div>
-          )}
+          {selectedReport && renderReportContent(selectedReport)}
         </DialogContent>
       </Dialog>
     </div>
