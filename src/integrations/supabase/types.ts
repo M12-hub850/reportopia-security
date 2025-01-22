@@ -346,6 +346,14 @@ export type Database = {
               count: number
             }[]
           }
+      get_pending_supervisor_visits: {
+        Args: {
+          user_id: string
+        }
+        Returns: {
+          count: number
+        }[]
+      }
       get_report_counts: {
         Args: {
           p_user_id: string

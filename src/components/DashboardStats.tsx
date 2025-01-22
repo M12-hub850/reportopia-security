@@ -1,15 +1,18 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ClipboardList, Users, AlertTriangle } from "lucide-react";
+import { ClipboardList, Users, AlertTriangle, Clock } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { translations } from "@/translations";
 import { WeeklyVisitsReturn, MonthlyVisitsReturn, ReportType } from "@/types/supabase";
+import { useNavigate } from "react-router-dom";
+import { Button } from "@/components/ui/button";
 
 export function DashboardStats() {
   const { language } = useLanguage();
   const t = translations[language].dashboard.stats;
+  const navigate = useNavigate();
 
   const { data: currentUserId } = useQuery({
     queryKey: ['current-user'],
@@ -60,6 +63,23 @@ export function DashboardStats() {
     enabled: !!currentUserId,
   });
 
+  const { data: pendingVisits, isLoading: pendingLoading } = useQuery({
+    queryKey: ['pending-supervisor-visits', currentUserId],
+    queryFn: async () => {
+      if (!currentUserId) return 0;
+      const { data, error } = await supabase.rpc('get_pending_supervisor_visits', {
+        user_id: currentUserId
+      });
+      if (error) throw error;
+      return data?.[0]?.count || 0;
+    },
+    enabled: !!currentUserId,
+  });
+
+  const handlePendingClick = () => {
+    navigate('/supervisor-reports');
+  };
+
   const stats = [
     {
       title: t.weeklyVisits.title,
@@ -104,6 +124,35 @@ export function DashboardStats() {
           </CardContent>
         </Card>
       ))}
+
+      {/* Pending Supervisor Visits Card */}
+      <Card 
+        className="animate-fadeIn backdrop-blur-sm bg-white/50 border-2 cursor-pointer hover:bg-gray-50 transition-colors"
+        onClick={handlePendingClick}
+      >
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <CardTitle className="text-sm font-medium">Pending Supervisor Visits</CardTitle>
+          <Clock className="h-4 w-4 text-muted-foreground" />
+        </CardHeader>
+        <CardContent>
+          {pendingLoading ? (
+            <Skeleton className="h-8 w-20" />
+          ) : (
+            <>
+              <div className="text-2xl font-bold">{pendingVisits}</div>
+              <p className="text-xs text-muted-foreground">Click to add pending reports</p>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="mt-2 w-full"
+                onClick={handlePendingClick}
+              >
+                View Pending Reports
+              </Button>
+            </>
+          )}
+        </CardContent>
+      </Card>
     </div>
   );
 }
