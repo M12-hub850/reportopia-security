@@ -29,13 +29,18 @@ export default function SupervisorReports() {
         throw new Error('Not authenticated');
       }
 
-      // Create the report
+      // Ensure photo_url is present and matches database column name
+      if (!formData.photoUrl) {
+        throw new Error('Photo evidence is required');
+      }
+
+      // Create the report with correct field names
       const { data: report, error: reportError } = await supabase
         .from('reports')
         .insert({
           type: 'supervisor_weekly' as ReportType,
           description: formData.description,
-          photo_url: formData.photo_url,
+          photo_url: formData.photoUrl, // Match the database column name
           user_id: user.id,
         })
         .select()
@@ -52,12 +57,12 @@ export default function SupervisorReports() {
       if (formData.staffEntries && formData.staffEntries.length > 0) {
         const staffEntriesData = formData.staffEntries.map((entry: any) => ({
           report_id: report.id,
-          staff_name: entry.staff_name,
+          staff_name: entry.staffName,
           shift: entry.shift,
-          attendance_rating: entry.attendance_rating,
-          duties_rating: entry.duties_rating,
-          uniform_rating: entry.uniform_rating,
-          presence_rating: entry.presence_rating,
+          attendance_rating: entry.attendanceRating,
+          duties_rating: entry.dutiesRating,
+          uniform_rating: entry.uniformRating,
+          presence_rating: entry.presenceRating,
         }));
 
         const { error: staffError } = await supabase
