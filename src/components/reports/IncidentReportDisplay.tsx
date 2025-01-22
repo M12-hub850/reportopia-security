@@ -1,5 +1,6 @@
 import { format } from "date-fns";
 import { Separator } from "@/components/ui/separator";
+import { ReportImage } from "@/components/ui/report-image";
 
 interface IncidentReportProps {
   staffName: string | null;
@@ -69,10 +70,10 @@ export function IncidentReportDisplay({
       {photoUrl && (
         <div>
           <p className="text-sm font-medium mb-2">Photo Evidence</p>
-          <img
+          <ReportImage
             src={photoUrl}
             alt="Report photo"
-            className="w-full max-w-md h-48 object-cover rounded-lg"
+            className="w-full max-w-2xl h-64 object-cover rounded-lg"
           />
         </div>
       )}

@@ -1,3 +1,5 @@
+import { ReportImage } from "@/components/ui/report-image";
+
 interface VehicleReportProps {
   carModel: string;
   plateNumber: string;
@@ -61,7 +63,7 @@ export function VehicleReportDisplay({
           <p className="text-sm font-medium mb-2">Car Images</p>
           <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
             {carImages.map((image, index) => (
-              <img
+              <ReportImage
                 key={index}
                 src={image}
                 alt={`Car image ${index + 1}`}
@@ -75,10 +77,10 @@ export function VehicleReportDisplay({
       {mileageImage && (
         <div>
           <p className="text-sm font-medium mb-2">Mileage Image</p>
-          <img
+          <ReportImage
             src={mileageImage}
             alt="Mileage"
-            className="w-full max-w-md h-48 object-cover rounded-lg"
+            className="w-full max-w-2xl h-64 object-cover rounded-lg"
           />
         </div>
       )}
@@ -86,10 +88,10 @@ export function VehicleReportDisplay({
       {receiverIdImage && (
         <div>
           <p className="text-sm font-medium mb-2">Receiver ID</p>
-          <img
+          <ReportImage
             src={receiverIdImage}
             alt="Receiver ID"
-            className="w-full max-w-md h-48 object-cover rounded-lg"
+            className="w-full max-w-2xl h-64 object-cover rounded-lg"
           />
         </div>
       )}
@@ -97,10 +99,10 @@ export function VehicleReportDisplay({
       {drivingLicenseImage && (
         <div>
           <p className="text-sm font-medium mb-2">Driving License</p>
-          <img
+          <ReportImage
             src={drivingLicenseImage}
             alt="Driving License"
-            className="w-full max-w-md h-48 object-cover rounded-lg"
+            className="w-full max-w-2xl h-64 object-cover rounded-lg"
           />
         </div>
       )}

@@ -1,5 +1,6 @@
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
+import { ReportImage } from "@/components/ui/report-image";
 
 interface StaffEntry {
   staff_name: string;
@@ -94,10 +95,10 @@ export function SupervisorReportDisplay({ staffEntries, description, photoUrl }:
       {photoUrl && (
         <div>
           <p className="text-sm font-medium mb-2">Photo Evidence</p>
-          <img
+          <ReportImage
             src={photoUrl}
             alt="Report photo"
-            className="w-full max-w-md h-48 object-cover rounded-lg"
+            className="w-full max-w-2xl h-64 object-cover rounded-lg"
           />
         </div>
       )}
