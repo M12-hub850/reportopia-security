@@ -44,3 +44,6 @@ export type MonthlyVisitsReturn = Array<{
 export type VisitStatus = Database['public']['Enums']['visit_status'];
 export type ReportType = Database['public']['Enums']['report_type'];
 export type NotificationType = Database['public']['Enums']['notification_type'];
+
+// Helper type for database function returns
+export type DatabaseFunctionReturn<T> = T[];
