@@ -3,13 +3,18 @@ import { supabase } from '@/integrations/supabase/client';
 import { BackButton } from '@/components/BackButton';
 import { Card } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
-import { Button } from '@/components/ui/button';
-import { FileIcon, DownloadIcon } from 'lucide-react';
+import { FileIcon } from 'lucide-react';
 import { DateRange } from 'react-day-picker';
 import { addDays, startOfDay, endOfDay, format } from 'date-fns';
 import { DateRangeFilter } from '@/components/DateRangeFilter';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 interface StaffEntry {
   staff_name: string;
@@ -40,6 +45,10 @@ interface ReportDetails {
   mileage?: number;
   project?: string;
   condition?: string;
+  car_images?: string[];
+  mileage_image?: string;
+  receiver_id_image?: string;
+  driving_license_image?: string;
 }
 
 interface ReportFile {
@@ -54,6 +63,7 @@ interface ReportFile {
 export default function ReportView() {
   const [reports, setReports] = useState<ReportFile[]>([]);
   const [loading, setIsLoading] = useState(true);
+  const [selectedReport, setSelectedReport] = useState<ReportFile | null>(null);
   const { toast } = useToast();
   const [dateRange, setDateRange] = useState<DateRange | undefined>({
     from: startOfDay(addDays(new Date(), -30)),
@@ -100,7 +110,8 @@ export default function ReportView() {
             plate_number,
             mileage,
             project,
-            condition
+            condition,
+            car_images
           )
         `)
         .gte('created_at', dateRange.from.toISOString())
@@ -128,32 +139,6 @@ export default function ReportView() {
       });
     } finally {
       setIsLoading(false);
-    }
-  };
-
-  const downloadReport = async (filePath: string) => {
-    try {
-      const { data, error } = await supabase.storage
-        .from('report_pdfs')
-        .download(filePath);
-
-      if (error) throw error;
-
-      const url = URL.createObjectURL(data);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = filePath.split('/').pop() || 'report.pdf';
-      document.body.appendChild(a);
-      a.click();
-      URL.revokeObjectURL(url);
-      document.body.removeChild(a);
-    } catch (error) {
-      console.error('Error downloading report:', error);
-      toast({
-        title: 'Error',
-        description: 'Failed to download report. Please try again.',
-        variant: 'destructive',
-      });
     }
   };
 
@@ -291,6 +276,51 @@ export default function ReportView() {
           <p className="text-sm font-medium">Condition</p>
           <p className="text-sm text-muted-foreground">{report.condition}</p>
         </div>
+        {report.car_images && report.car_images.length > 0 && (
+          <div>
+            <p className="text-sm font-medium mb-2">Car Images</p>
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+              {report.car_images.map((image, index) => (
+                <img
+                  key={index}
+                  src={image}
+                  alt={`Car image ${index + 1}`}
+                  className="w-full h-48 object-cover rounded-lg"
+                />
+              ))}
+            </div>
+          </div>
+        )}
+        {report.mileage_image && (
+          <div>
+            <p className="text-sm font-medium mb-2">Mileage Image</p>
+            <img
+              src={report.mileage_image}
+              alt="Mileage"
+              className="w-full max-w-md h-48 object-cover rounded-lg"
+            />
+          </div>
+        )}
+        {report.receiver_id_image && (
+          <div>
+            <p className="text-sm font-medium mb-2">Receiver ID</p>
+            <img
+              src={report.receiver_id_image}
+              alt="Receiver ID"
+              className="w-full max-w-md h-48 object-cover rounded-lg"
+            />
+          </div>
+        )}
+        {report.driving_license_image && (
+          <div>
+            <p className="text-sm font-medium mb-2">Driving License</p>
+            <img
+              src={report.driving_license_image}
+              alt="Driving License"
+              className="w-full max-w-md h-48 object-cover rounded-lg"
+            />
+          </div>
+        )}
       </div>
     );
   };
@@ -301,7 +331,7 @@ export default function ReportView() {
         <BackButton />
         <h1 className="text-3xl font-bold mt-4">Report Archive</h1>
         <p className="text-muted-foreground">
-          View and download your submitted reports
+          View your submitted reports
         </p>
       </div>
 
@@ -318,45 +348,63 @@ export default function ReportView() {
       ) : (
         <div className="space-y-4">
           {reports.map((report) => (
-            <Card key={report.id} className="p-4">
-              <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center space-x-4">
-                    <FileIcon className="h-6 w-6 text-blue-500" />
-                    <div>
-                      <h3 className="font-semibold">
-                        {report.report_type.replace(/_/g, ' ').toUpperCase()}
-                      </h3>
-                      <p className="text-sm text-muted-foreground">
-                        {format(new Date(report.created_at), 'PPP')}
-                      </p>
-                    </div>
+            <Card 
+              key={report.id} 
+              className="p-4 cursor-pointer hover:shadow-md transition-shadow"
+              onClick={() => setSelectedReport(report)}
+            >
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-4">
+                  <FileIcon className="h-6 w-6 text-blue-500" />
+                  <div>
+                    <h3 className="font-semibold">
+                      {report.report_type.replace(/_/g, ' ').toUpperCase()}
+                    </h3>
+                    <p className="text-sm text-muted-foreground">
+                      {format(new Date(report.created_at), 'PPP')}
+                    </p>
                   </div>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => downloadReport(report.file_path)}
-                  >
-                    <DownloadIcon className="h-4 w-4 mr-2" />
-                    Download
-                  </Button>
                 </div>
-
-                {report.report_type === 'supervisor_weekly' && renderSupervisorReport(report.report)}
-                {report.report_type === 'event_incident' && renderIncidentReport(report.report)}
-                {report.report_type === 'vehicle_handover' && renderVehicleReport(report.report)}
-
-                {report.report?.description && (
-                  <div className="mt-2">
-                    <p className="text-sm font-medium">Description</p>
-                    <p className="text-sm text-muted-foreground">{report.report.description}</p>
-                  </div>
-                )}
               </div>
             </Card>
           ))}
         </div>
       )}
+
+      <Dialog open={!!selectedReport} onOpenChange={() => setSelectedReport(null)}>
+        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>
+              {selectedReport?.report_type.replace(/_/g, ' ').toUpperCase()}
+            </DialogTitle>
+          </DialogHeader>
+          {selectedReport && (
+            <div className="space-y-6">
+              {selectedReport.report_type === 'supervisor_weekly' && renderSupervisorReport(selectedReport.report)}
+              {selectedReport.report_type === 'event_incident' && renderIncidentReport(selectedReport.report)}
+              {selectedReport.report_type === 'vehicle_handover' && renderVehicleReport(selectedReport.report)}
+              
+              {selectedReport.report.description && (
+                <div>
+                  <p className="text-sm font-medium">Description</p>
+                  <p className="text-sm text-muted-foreground">{selectedReport.report.description}</p>
+                </div>
+              )}
+              
+              {selectedReport.report.photo_url && (
+                <div>
+                  <p className="text-sm font-medium mb-2">Photo Evidence</p>
+                  <img
+                    src={selectedReport.report.photo_url}
+                    alt="Report photo"
+                    className="w-full max-w-md h-48 object-cover rounded-lg"
+                  />
+                </div>
+              )}
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

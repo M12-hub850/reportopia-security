@@ -5,6 +5,7 @@ import { SupervisorReportForm } from "@/components/SupervisorReportForm";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { Database } from "@/types/supabase";
+import { BackButton } from "@/components/BackButton";
 
 type ReportType = Database['public']['Enums']['report_type'];
 type VisitStatus = Database['public']['Enums']['visit_status'];
@@ -94,7 +95,8 @@ export default function SupervisorReports() {
 
   return (
     <div className="container mx-auto py-6 space-y-6">
-      <div className="flex justify-between items-center">
+      <div className="flex items-center gap-4">
+        <BackButton />
         <h1 className="text-3xl font-bold">Supervisor Weekly Report</h1>
       </div>
       <SupervisorReportForm 
