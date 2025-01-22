@@ -27,7 +27,7 @@ export function DashboardStats() {
         user_id: currentUserId 
       });
       if (error) throw error;
-      return data;
+      return data as WeeklyVisitsReturn;
     },
     enabled: !!currentUserId,
   });
@@ -40,7 +40,7 @@ export function DashboardStats() {
         user_id: currentUserId 
       });
       if (error) throw error;
-      return data;
+      return data as MonthlyVisitsReturn;
     },
     enabled: !!currentUserId,
   });
