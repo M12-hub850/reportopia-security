@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import { Database } from "@/types/supabase";
 import { BackButton } from "@/components/BackButton";
 import { useQueryClient } from "@tanstack/react-query";
+import { CheckCircle2 } from "lucide-react";
 
 type ReportType = Database['public']['Enums']['report_type'];
 type VisitStatus = Database['public']['Enums']['visit_status'];
@@ -111,11 +112,20 @@ export default function SupervisorReports() {
       await queryClient.invalidateQueries({ queryKey: ['reports'] });
       await queryClient.invalidateQueries({ queryKey: ['notifications'] });
 
-      toast.success('Report submitted successfully');
+      // Enhanced success toast with icon and description
+      toast.success('Report Submitted Successfully', {
+        description: `Your supervisor weekly report has been submitted and saved. You can view it in the reports archive.`,
+        duration: 5000,
+        icon: <CheckCircle2 className="h-5 w-5 text-green-500" />,
+      });
+
       navigate('/reports');
     } catch (error: any) {
       console.error('Error submitting report:', error);
-      toast.error(error.message || 'Failed to submit report');
+      toast.error(error.message || 'Failed to submit report', {
+        description: 'Please try again or contact support if the problem persists.',
+        duration: 5000,
+      });
     } finally {
       setIsSubmitting(false);
     }
