@@ -45,20 +45,6 @@ const renderCustomizedLabel = ({
 };
 
 export function VisitsOverview() {
-  const { data: weeklyData } = useQuery({
-    queryKey: ['weeklyVisits'],
-    queryFn: async () => {
-      const { data: user } = await supabase.auth.getUser();
-      if (!user.user) throw new Error('Not authenticated');
-      
-      const { data, error } = await supabase
-        .rpc('get_weekly_visits', { user_id: user.user.id });
-      
-      if (error) throw error;
-      return data;
-    },
-  });
-
   const { data: monthlyData } = useQuery({
     queryKey: ['monthlyVisits'],
     queryFn: async () => {
@@ -74,41 +60,7 @@ export function VisitsOverview() {
   });
 
   return (
-    <div className="grid gap-4 md:grid-cols-2">
-      <Card className="backdrop-blur-sm bg-white/50 border-2">
-        <CardHeader>
-          <CardTitle className="text-lg font-semibold">Weekly Engagement Overview</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="h-[300px]">
-            <ResponsiveContainer width="100%" height="100%">
-              <PieChart>
-                <Pie
-                  data={weeklyData}
-                  cx="50%"
-                  cy="50%"
-                  labelLine={false}
-                  label={renderCustomizedLabel}
-                  outerRadius={100}
-                  fill="#8884d8"
-                  dataKey="count"
-                  nameKey="status"
-                >
-                  {weeklyData?.map((entry) => (
-                    <Cell 
-                      key={entry.status} 
-                      fill={COLORS[entry.status as keyof typeof COLORS]} 
-                    />
-                  ))}
-                </Pie>
-                <Tooltip />
-                <Legend />
-              </PieChart>
-            </ResponsiveContainer>
-          </div>
-        </CardContent>
-      </Card>
-
+    <div className="grid gap-4">
       <Card className="backdrop-blur-sm bg-white/50 border-2">
         <CardHeader>
           <CardTitle className="text-lg font-semibold">Monthly Engagement Overview</CardTitle>
