@@ -53,7 +53,7 @@ interface ReportFile {
 
 export default function ReportView() {
   const [reports, setReports] = useState<ReportFile[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setIsLoading] = useState(true);
   const { toast } = useToast();
   const [dateRange, setDateRange] = useState<DateRange | undefined>({
     from: startOfDay(addDays(new Date(), -30)),
@@ -113,9 +113,10 @@ export default function ReportView() {
         ...item,
         report: {
           ...item.report,
-          ...(item.vehicle_report || {})
+          ...(item.vehicle_report || {}),
+          staff_entries: item.report?.staff_entries || []
         }
-      }));
+      })) as ReportFile[];
 
       setReports(formattedReports);
     } catch (error) {
@@ -126,7 +127,7 @@ export default function ReportView() {
         variant: 'destructive',
       });
     } finally {
-      setLoading(false);
+      setIsLoading(false);
     }
   };
 
@@ -174,7 +175,7 @@ export default function ReportView() {
   };
 
   const renderSupervisorReport = (report: ReportDetails) => {
-    if (!report.staff_entries) return null;
+    if (!report.staff_entries?.length) return null;
     
     return (
       <div className="mt-4 space-y-4">
