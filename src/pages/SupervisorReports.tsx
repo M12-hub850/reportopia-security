@@ -1,155 +1,97 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
-import { useToast } from "@/hooks/use-toast";
-import { supabase } from "@/integrations/supabase/client";
-import { BackButton } from "@/components/BackButton";
 import { SupervisorReportForm } from "@/components/SupervisorReportForm";
-import { supervisorReportSchema, type SupervisorReportFormValues } from "@/types/supervisorReport";
-import { generateReportPDF } from "@/utils/pdfGenerator";
-import { useLanguage } from "@/contexts/LanguageContext";
-import { translations } from "@/translations";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
+import { Database } from "@/types/supabase";
+
+type ReportType = Database['public']['Enums']['report_type'];
+type VisitStatus = Database['public']['Enums']['visit_status'];
 
 export default function SupervisorReports() {
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const { toast } = useToast();
   const navigate = useNavigate();
-  const { language } = useLanguage();
-  const t = translations[language].reports.supervisor;
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const form = useForm<SupervisorReportFormValues>({
-    resolver: zodResolver(supervisorReportSchema),
-    defaultValues: {
-      staffEntries: [],
-      description: "",
-      photoUrl: "",
-    },
-  });
-
-  const handleSubmit = async (data: SupervisorReportFormValues) => {
+  const handleSubmit = async (formData: any) => {
     try {
       setIsSubmitting(true);
-      console.log("Submitting supervisor report:", data);
-
       const { data: { user } } = await supabase.auth.getUser();
-      
-      if (!user) {
-        throw new Error("No authenticated user found");
-      }
+      if (!user) throw new Error('Not authenticated');
 
-      console.log("Authenticated user:", user.id);
-
-      // Insert the main report
-      const { data: reportData, error: insertError } = await supabase
-        .from("reports")
+      // Create the report
+      const { data: report, error: reportError } = await supabase
+        .from('reports')
         .insert({
-          type: "supervisor_weekly",
-          description: data.description,
-          photo_url: data.photoUrl,
+          type: 'supervisor_weekly' as ReportType,
+          description: formData.description,
+          photo_url: formData.photo_url,
           user_id: user.id,
         })
         .select()
         .single();
 
-      if (insertError) {
-        console.error("Error inserting report:", insertError);
-        throw insertError;
-      }
+      if (reportError) throw reportError;
 
-      console.log("Report inserted successfully:", reportData);
-
-      // Insert staff entries
-      if (data.staffEntries && data.staffEntries.length > 0) {
-        const staffEntriesData = data.staffEntries.map(entry => ({
-          report_id: reportData.id,
-          staff_name: entry.staffName,
+      // Create staff entries
+      if (formData.staffEntries && formData.staffEntries.length > 0) {
+        const staffEntriesData = formData.staffEntries.map((entry: any) => ({
+          report_id: report.id,
+          staff_name: entry.staff_name,
           shift: entry.shift,
-          attendance_rating: entry.attendanceRating,
-          duties_rating: entry.dutiesRating,
-          uniform_rating: entry.uniformRating,
-          presence_rating: entry.presenceRating,
+          attendance_rating: entry.attendance_rating,
+          duties_rating: entry.duties_rating,
+          uniform_rating: entry.uniform_rating,
+          presence_rating: entry.presence_rating,
         }));
 
         const { error: staffError } = await supabase
-          .from("staff_entries")
+          .from('staff_entries')
           .insert(staffEntriesData);
 
-        if (staffError) {
-          console.error("Error inserting staff entries:", staffError);
-          throw staffError;
-        }
+        if (staffError) throw staffError;
       }
 
-      // Generate and store PDF
-      const pdfUrl = await generateReportPDF(
-        {
-          ...data,
-          reportId: reportData.id,
-          reportType: "supervisor_weekly",
-          timestamp: new Date().toISOString(),
-        },
-        "supervisor_weekly",
-        reportData.id,
-        user.id
-      );
+      // Create a visit record
+      const { error: visitError } = await supabase
+        .from('visits')
+        .insert({
+          user_id: user.id,
+          status: 'completed' as VisitStatus,
+          type: 'supervisor_weekly',
+          visit_date: new Date().toISOString(),
+        });
 
-      if (!pdfUrl) {
-        console.error("Failed to generate PDF");
-        throw new Error("Failed to generate PDF");
-      }
-
-      console.log("PDF generated successfully:", pdfUrl);
+      if (visitError) throw visitError;
 
       // Create notification
       const { error: notificationError } = await supabase
-        .from("notifications")
+        .from('notifications')
         .insert({
           user_id: user.id,
-          type: "report_submitted",
-          title: t.notificationTitle,
-          message: t.notificationMessage,
-          report_id: reportData.id,
+          type: 'report_submitted',
+          title: 'Supervisor Weekly Report Submitted',
+          message: 'Your supervisor weekly report has been submitted successfully',
+          report_id: report.id,
         });
 
-      if (notificationError) {
-        console.error("Error creating notification:", notificationError);
-      }
+      if (notificationError) throw notificationError;
 
-      toast({
-        title: translations[language].common.success,
-        description: t.successMessage,
-      });
-
-      navigate("/reports");
-    } catch (error) {
-      console.error("Error submitting report:", error);
-      toast({
-        variant: "destructive",
-        title: translations[language].common.error,
-        description: t.errorMessage,
-      });
+      toast.success('Report submitted successfully');
+      navigate('/reports');
+    } catch (error: any) {
+      console.error('Error submitting report:', error);
+      toast.error(error.message || 'Failed to submit report');
     } finally {
       setIsSubmitting(false);
     }
   };
 
   return (
-    <div className="container max-w-4xl py-6">
-      <div className="mb-6">
-        <BackButton />
-        <h1 className="text-3xl font-bold mt-4">{t.title}</h1>
-        <p className="text-muted-foreground">
-          {t.subtitle}
-        </p>
+    <div className="container mx-auto py-6 space-y-6">
+      <div className="flex justify-between items-center">
+        <h1 className="text-3xl font-bold">Supervisor Weekly Report</h1>
       </div>
-
-      <SupervisorReportForm
-        form={form}
-        onSubmit={handleSubmit}
-        isSubmitting={isSubmitting}
-        onCancel={() => navigate("/reports")}
-      />
+      <SupervisorReportForm onSubmit={handleSubmit} isSubmitting={isSubmitting} />
     </div>
   );
 }
