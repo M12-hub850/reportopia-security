@@ -5,16 +5,11 @@ import { supabase } from "@/integrations/supabase/client";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { translations } from "@/translations";
-import { Database } from "@/types/supabase";
-
-type VisitStats = {
-  status: Database['public']['Enums']['visit_status'];
-  count: number;
-}[];
+import { WeeklyVisitsReturn, MonthlyVisitsReturn, ReportType } from "@/types/supabase";
 
 export function DashboardStats() {
   const { language } = useLanguage();
-  const userId = supabase.auth.getUser().then(response => response.data.user?.id);
+  const t = translations[language].dashboard.stats;
 
   const { data: currentUserId } = useQuery({
     queryKey: ['current-user'],
@@ -24,7 +19,7 @@ export function DashboardStats() {
     },
   });
 
-  const { data: weeklyVisits, isLoading: weeklyLoading } = useQuery<VisitStats>({
+  const { data: weeklyVisits, isLoading: weeklyLoading } = useQuery<WeeklyVisitsReturn>({
     queryKey: ['weekly-visits', currentUserId],
     queryFn: async () => {
       if (!currentUserId) return [];
@@ -32,12 +27,12 @@ export function DashboardStats() {
         user_id: currentUserId 
       });
       if (error) throw error;
-      return data as VisitStats;
+      return data;
     },
     enabled: !!currentUserId,
   });
 
-  const { data: monthlyVisits, isLoading: monthlyLoading } = useQuery<VisitStats>({
+  const { data: monthlyVisits, isLoading: monthlyLoading } = useQuery<MonthlyVisitsReturn>({
     queryKey: ['monthly-visits', currentUserId],
     queryFn: async () => {
       if (!currentUserId) return [];
@@ -45,7 +40,7 @@ export function DashboardStats() {
         user_id: currentUserId 
       });
       if (error) throw error;
-      return data as VisitStats;
+      return data;
     },
     enabled: !!currentUserId,
   });
@@ -57,15 +52,13 @@ export function DashboardStats() {
       const { count, error } = await supabase
         .from('reports')
         .select('*', { count: 'exact', head: true })
-        .eq('type', 'event_incident' as Database['public']['Enums']['report_type'])
+        .eq('type', 'event_incident' as ReportType)
         .eq('user_id', currentUserId);
       if (error) throw error;
       return count || 0;
     },
     enabled: !!currentUserId,
   });
-
-  const t = translations[language].dashboard.stats;
 
   const stats = [
     {

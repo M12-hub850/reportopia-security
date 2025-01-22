@@ -2,17 +2,6 @@ import { Database as DatabaseGenerated } from '@/integrations/supabase/types';
 
 export type Database = DatabaseGenerated;
 
-// Strongly typed function returns
-export type WeeklyVisitsReturn = Array<{
-  status: string;
-  count: number;
-}>;
-
-export type MonthlyVisitsReturn = Array<{
-  status: string;
-  count: number;
-}>;
-
 // Strongly typed table rows
 export type Profile = Database['public']['Tables']['profiles']['Row'];
 export type Report = Database['public']['Tables']['reports']['Row'];
@@ -39,6 +28,17 @@ export type NotificationUpdate = Database['public']['Tables']['notifications']['
 export type VehicleReportUpdate = Database['public']['Tables']['vehicle_reports']['Update'];
 export type StaffEntryUpdate = Database['public']['Tables']['staff_entries']['Update'];
 export type ReportFileUpdate = Database['public']['Tables']['report_files']['Update'];
+
+// Strongly typed function returns
+export type WeeklyVisitsReturn = Array<{
+  status: Database['public']['Enums']['visit_status'];
+  count: number;
+}>;
+
+export type MonthlyVisitsReturn = Array<{
+  status: Database['public']['Enums']['visit_status'];
+  count: number;
+}>;
 
 // Enums
 export type VisitStatus = Database['public']['Enums']['visit_status'];
