@@ -9,6 +9,38 @@ import { DateRange } from 'react-day-picker';
 import { addDays, startOfDay, endOfDay, format } from 'date-fns';
 import { DateRangeFilter } from '@/components/DateRangeFilter';
 import { Badge } from '@/components/ui/badge';
+import { Separator } from '@/components/ui/separator';
+
+interface StaffEntry {
+  staff_name: string;
+  shift: string;
+  attendance_rating: string | null;
+  duties_rating: string | null;
+  uniform_rating: string | null;
+  presence_rating: string | null;
+}
+
+interface ReportDetails {
+  description: string;
+  photo_url: string;
+  staff_name?: string | null;
+  shift?: string | null;
+  attendance_rating?: string | null;
+  duties_rating?: string | null;
+  uniform_rating?: string | null;
+  presence_rating?: string | null;
+  location?: string | null;
+  incident_date?: string | null;
+  reporting_time?: string | null;
+  action_taken?: string | null;
+  reporting_person?: string | null;
+  staff_entries?: StaffEntry[];
+  car_model?: string;
+  plate_number?: string;
+  mileage?: number;
+  project?: string;
+  condition?: string;
+}
 
 interface ReportFile {
   id: string;
@@ -16,18 +48,7 @@ interface ReportFile {
   file_name: string;
   file_path: string;
   created_at: string;
-  report: {
-    description: string;
-    photo_url: string;
-    staff_entries: Array<{
-      staff_name: string;
-      shift: string;
-      attendance_rating: string;
-      duties_rating: string;
-      uniform_rating: string;
-      presence_rating: string;
-    }>;
-  };
+  report: ReportDetails;
 }
 
 export default function ReportView() {
@@ -54,6 +75,17 @@ export default function ReportView() {
           report:report_id (
             description,
             photo_url,
+            staff_name,
+            shift,
+            attendance_rating,
+            duties_rating,
+            uniform_rating,
+            presence_rating,
+            location,
+            incident_date,
+            reporting_time,
+            action_taken,
+            reporting_person,
             staff_entries (
               staff_name,
               shift,
@@ -62,6 +94,13 @@ export default function ReportView() {
               uniform_rating,
               presence_rating
             )
+          ),
+          vehicle_report:vehicle_report_id (
+            car_model,
+            plate_number,
+            mileage,
+            project,
+            condition
           )
         `)
         .gte('created_at', dateRange.from.toISOString())
@@ -70,8 +109,15 @@ export default function ReportView() {
 
       if (error) throw error;
 
-      console.log('Fetched reports:', data);
-      setReports(data || []);
+      const formattedReports = data.map(item => ({
+        ...item,
+        report: {
+          ...item.report,
+          ...(item.vehicle_report || {})
+        }
+      }));
+
+      setReports(formattedReports);
     } catch (error) {
       console.error('Error fetching reports:', error);
       toast({
@@ -110,8 +156,10 @@ export default function ReportView() {
     }
   };
 
-  const getRatingColor = (rating: string) => {
-    switch (rating?.toLowerCase()) {
+  const getRatingColor = (rating: string | null) => {
+    if (!rating) return 'bg-gray-100 text-gray-800';
+    
+    switch (rating.toLowerCase()) {
       case 'excellent':
         return 'bg-green-100 text-green-800';
       case 'good':
@@ -123,6 +171,127 @@ export default function ReportView() {
       default:
         return 'bg-gray-100 text-gray-800';
     }
+  };
+
+  const renderSupervisorReport = (report: ReportDetails) => {
+    if (!report.staff_entries) return null;
+    
+    return (
+      <div className="mt-4 space-y-4">
+        <h4 className="font-medium">Staff Evaluations</h4>
+        <div className="space-y-3">
+          {report.staff_entries.map((entry, index) => (
+            <Card key={index} className="p-3">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div>
+                  <p className="text-sm font-medium">Staff Name</p>
+                  <p className="text-sm text-muted-foreground">{entry.staff_name}</p>
+                </div>
+                <div>
+                  <p className="text-sm font-medium">Shift</p>
+                  <p className="text-sm text-muted-foreground">{entry.shift}</p>
+                </div>
+                <div className="col-span-2 grid grid-cols-2 md:grid-cols-4 gap-2">
+                  <div>
+                    <p className="text-sm font-medium">Attendance</p>
+                    <Badge variant="secondary" className={getRatingColor(entry.attendance_rating)}>
+                      {entry.attendance_rating || 'N/A'}
+                    </Badge>
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium">Duties</p>
+                    <Badge variant="secondary" className={getRatingColor(entry.duties_rating)}>
+                      {entry.duties_rating || 'N/A'}
+                    </Badge>
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium">Uniform</p>
+                    <Badge variant="secondary" className={getRatingColor(entry.uniform_rating)}>
+                      {entry.uniform_rating || 'N/A'}
+                    </Badge>
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium">Presence</p>
+                    <Badge variant="secondary" className={getRatingColor(entry.presence_rating)}>
+                      {entry.presence_rating || 'N/A'}
+                    </Badge>
+                  </div>
+                </div>
+              </div>
+            </Card>
+          ))}
+        </div>
+      </div>
+    );
+  };
+
+  const renderIncidentReport = (report: ReportDetails) => {
+    if (!report.staff_name) return null;
+
+    return (
+      <div className="mt-4 space-y-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <p className="text-sm font-medium">Guard Name</p>
+            <p className="text-sm text-muted-foreground">{report.staff_name}</p>
+          </div>
+          <div>
+            <p className="text-sm font-medium">Shift</p>
+            <p className="text-sm text-muted-foreground">{report.shift}</p>
+          </div>
+          <div>
+            <p className="text-sm font-medium">Location</p>
+            <p className="text-sm text-muted-foreground">{report.location}</p>
+          </div>
+          <div>
+            <p className="text-sm font-medium">Incident Date</p>
+            <p className="text-sm text-muted-foreground">
+              {report.incident_date ? format(new Date(report.incident_date), 'PPP') : 'N/A'}
+            </p>
+          </div>
+        </div>
+        <Separator />
+        <div>
+          <p className="text-sm font-medium">Action Taken</p>
+          <p className="text-sm text-muted-foreground">{report.action_taken}</p>
+        </div>
+        <div>
+          <p className="text-sm font-medium">Reporting Person</p>
+          <p className="text-sm text-muted-foreground">{report.reporting_person}</p>
+        </div>
+      </div>
+    );
+  };
+
+  const renderVehicleReport = (report: ReportDetails) => {
+    if (!report.car_model) return null;
+
+    return (
+      <div className="mt-4 space-y-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <p className="text-sm font-medium">Car Model</p>
+            <p className="text-sm text-muted-foreground">{report.car_model}</p>
+          </div>
+          <div>
+            <p className="text-sm font-medium">Plate Number</p>
+            <p className="text-sm text-muted-foreground">{report.plate_number}</p>
+          </div>
+          <div>
+            <p className="text-sm font-medium">Mileage</p>
+            <p className="text-sm text-muted-foreground">{report.mileage}</p>
+          </div>
+          <div>
+            <p className="text-sm font-medium">Project</p>
+            <p className="text-sm text-muted-foreground">{report.project}</p>
+          </div>
+        </div>
+        <div>
+          <p className="text-sm font-medium">Condition</p>
+          <p className="text-sm text-muted-foreground">{report.condition}</p>
+        </div>
+      </div>
+    );
   };
 
   return (
@@ -172,53 +341,9 @@ export default function ReportView() {
                   </Button>
                 </div>
 
-                {report.report?.staff_entries && report.report.staff_entries.length > 0 && (
-                  <div className="mt-4">
-                    <h4 className="font-medium mb-2">Staff Entries</h4>
-                    <div className="space-y-3">
-                      {report.report.staff_entries.map((entry, index) => (
-                        <Card key={index} className="p-3">
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                            <div>
-                              <p className="text-sm font-medium">Staff Name</p>
-                              <p className="text-sm text-muted-foreground">{entry.staff_name}</p>
-                            </div>
-                            <div>
-                              <p className="text-sm font-medium">Shift</p>
-                              <p className="text-sm text-muted-foreground">{entry.shift}</p>
-                            </div>
-                            <div className="col-span-2 grid grid-cols-2 md:grid-cols-4 gap-2">
-                              <div>
-                                <p className="text-sm font-medium">Attendance</p>
-                                <Badge variant="secondary" className={getRatingColor(entry.attendance_rating)}>
-                                  {entry.attendance_rating || 'N/A'}
-                                </Badge>
-                              </div>
-                              <div>
-                                <p className="text-sm font-medium">Duties</p>
-                                <Badge variant="secondary" className={getRatingColor(entry.duties_rating)}>
-                                  {entry.duties_rating || 'N/A'}
-                                </Badge>
-                              </div>
-                              <div>
-                                <p className="text-sm font-medium">Uniform</p>
-                                <Badge variant="secondary" className={getRatingColor(entry.uniform_rating)}>
-                                  {entry.uniform_rating || 'N/A'}
-                                </Badge>
-                              </div>
-                              <div>
-                                <p className="text-sm font-medium">Presence</p>
-                                <Badge variant="secondary" className={getRatingColor(entry.presence_rating)}>
-                                  {entry.presence_rating || 'N/A'}
-                                </Badge>
-                              </div>
-                            </div>
-                          </div>
-                        </Card>
-                      ))}
-                    </div>
-                  </div>
-                )}
+                {report.report_type === 'supervisor_weekly' && renderSupervisorReport(report.report)}
+                {report.report_type === 'event_incident' && renderIncidentReport(report.report)}
+                {report.report_type === 'vehicle_handover' && renderVehicleReport(report.report)}
 
                 {report.report?.description && (
                   <div className="mt-2">
