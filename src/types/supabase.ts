@@ -1,6 +1,6 @@
-import { Database as DatabaseGenerated } from '@/integrations/supabase/types';
+import { Database } from './database';
 
-export type Database = DatabaseGenerated;
+export type { Database };
 
 // Strongly typed table rows
 export type Profile = Database['public']['Tables']['profiles']['Row'];
