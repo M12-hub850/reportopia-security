@@ -365,27 +365,6 @@ export type Database = {
           count: number
         }[]
       }
-      get_weekly_visits:
-        | {
-            Args: {
-              user_id: string
-            }
-            Returns: {
-              status: Database["public"]["Enums"]["visit_status"]
-              count: number
-            }[]
-          }
-        | {
-            Args: {
-              user_id: string
-              start_date: string
-              end_date: string
-            }
-            Returns: {
-              status: Database["public"]["Enums"]["visit_status"]
-              count: number
-            }[]
-          }
     }
     Enums: {
       notification_type: "report_submitted" | "report_updated" | "new_report"

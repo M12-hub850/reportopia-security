@@ -1,11 +1,11 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { ClipboardList, Users, AlertTriangle, Clock } from "lucide-react";
+import { Users, AlertTriangle, Clock } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { translations } from "@/translations";
-import { WeeklyVisitsReturn, MonthlyVisitsReturn, ReportType } from "@/types/supabase";
+import { MonthlyVisitsReturn, ReportType } from "@/types/supabase";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 
@@ -20,19 +20,6 @@ export function DashboardStats() {
       const { data: { user } } = await supabase.auth.getUser();
       return user?.id;
     },
-  });
-
-  const { data: weeklyVisits, isLoading: weeklyLoading } = useQuery<WeeklyVisitsReturn>({
-    queryKey: ['weekly-visits', currentUserId],
-    queryFn: async () => {
-      if (!currentUserId) return [];
-      const { data, error } = await supabase.rpc('get_weekly_visits', { 
-        user_id: currentUserId 
-      });
-      if (error) throw error;
-      return data as WeeklyVisitsReturn;
-    },
-    enabled: !!currentUserId,
   });
 
   const { data: monthlyVisits, isLoading: monthlyLoading } = useQuery<MonthlyVisitsReturn>({
@@ -82,12 +69,6 @@ export function DashboardStats() {
 
   const stats = [
     {
-      title: t.weeklyVisits.title,
-      value: weeklyLoading ? "..." : (weeklyVisits?.reduce((acc, curr) => acc + Number(curr.count), 0) || "0").toString(),
-      icon: ClipboardList,
-      description: t.weeklyVisits.description
-    },
-    {
       title: t.monthlyVisits.title,
       value: monthlyLoading ? "..." : (monthlyVisits?.reduce((acc, curr) => acc + Number(curr.count), 0) || "0").toString(),
       icon: Users,
@@ -113,7 +94,7 @@ export function DashboardStats() {
             <stat.icon className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            {weeklyLoading || monthlyLoading || incidentsLoading ? (
+            {monthlyLoading || incidentsLoading ? (
               <Skeleton className="h-8 w-20" />
             ) : (
               <>
