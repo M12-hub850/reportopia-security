@@ -1,3 +1,13 @@
+import { 
+  NotificationTable,
+  ProfileTable,
+  ReportTable,
+  StaffEntryTable,
+  VehicleReportTable,
+  VisitTable,
+  ReportFileTable 
+} from './tables.types';
+
 export type Json =
   | string
   | number
@@ -49,3 +59,9 @@ export interface DatabaseEnums {
   report_type: 'supervisor_weekly' | 'manager_monthly' | 'visitor_log' | 'vehicle_handover' | 'full_monthly' | 'event_incident';
   visit_status: 'completed' | 'pending' | 'missed' | 'other';
 }
+
+// Helper types for database operations
+export type Tables<T extends keyof Database['public']['Tables']> = Database['public']['Tables'][T]['Row'];
+export type Enums<T extends keyof Database['public']['Enums']> = Database['public']['Enums'][T];
+export type DBInsert<T extends keyof Database['public']['Tables']> = Database['public']['Tables'][T]['Insert'];
+export type DBUpdate<T extends keyof Database['public']['Tables']> = Database['public']['Tables'][T]['Update'];

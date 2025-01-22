@@ -1,49 +1,49 @@
-import { Database } from './database';
+import { Database, Tables, Enums, DBInsert, DBUpdate } from './database/base.types';
 
 export type { Database };
 
 // Strongly typed table rows
-export type Profile = Database['public']['Tables']['profiles']['Row'];
-export type Report = Database['public']['Tables']['reports']['Row'];
-export type Visit = Database['public']['Tables']['visits']['Row'];
-export type Notification = Database['public']['Tables']['notifications']['Row'];
-export type VehicleReport = Database['public']['Tables']['vehicle_reports']['Row'];
-export type StaffEntry = Database['public']['Tables']['staff_entries']['Row'];
-export type ReportFile = Database['public']['Tables']['report_files']['Row'];
+export type Profile = Tables<'profiles'>;
+export type Report = Tables<'reports'>;
+export type Visit = Tables<'visits'>;
+export type Notification = Tables<'notifications'>;
+export type VehicleReport = Tables<'vehicle_reports'>;
+export type StaffEntry = Tables<'staff_entries'>;
+export type ReportFile = Tables<'report_files'>;
 
 // Strongly typed table inserts
-export type ProfileInsert = Database['public']['Tables']['profiles']['Insert'];
-export type ReportInsert = Database['public']['Tables']['reports']['Insert'];
-export type VisitInsert = Database['public']['Tables']['visits']['Insert'];
-export type NotificationInsert = Database['public']['Tables']['notifications']['Insert'];
-export type VehicleReportInsert = Database['public']['Tables']['vehicle_reports']['Insert'];
-export type StaffEntryInsert = Database['public']['Tables']['staff_entries']['Insert'];
-export type ReportFileInsert = Database['public']['Tables']['report_files']['Insert'];
+export type ProfileInsert = DBInsert<'profiles'>;
+export type ReportInsert = DBInsert<'reports'>;
+export type VisitInsert = DBInsert<'visits'>;
+export type NotificationInsert = DBInsert<'notifications'>;
+export type VehicleReportInsert = DBInsert<'vehicle_reports'>;
+export type StaffEntryInsert = DBInsert<'staff_entries'>;
+export type ReportFileInsert = DBInsert<'report_files'>;
 
 // Strongly typed table updates
-export type ProfileUpdate = Database['public']['Tables']['profiles']['Update'];
-export type ReportUpdate = Database['public']['Tables']['reports']['Update'];
-export type VisitUpdate = Database['public']['Tables']['visits']['Update'];
-export type NotificationUpdate = Database['public']['Tables']['notifications']['Update'];
-export type VehicleReportUpdate = Database['public']['Tables']['vehicle_reports']['Update'];
-export type StaffEntryUpdate = Database['public']['Tables']['staff_entries']['Update'];
-export type ReportFileUpdate = Database['public']['Tables']['report_files']['Update'];
+export type ProfileUpdate = DBUpdate<'profiles'>;
+export type ReportUpdate = DBUpdate<'reports'>;
+export type VisitUpdate = DBUpdate<'visits'>;
+export type NotificationUpdate = DBUpdate<'notifications'>;
+export type VehicleReportUpdate = DBUpdate<'vehicle_reports'>;
+export type StaffEntryUpdate = DBUpdate<'staff_entries'>;
+export type ReportFileUpdate = DBUpdate<'report_files'>;
 
 // Strongly typed function returns
 export type WeeklyVisitsReturn = Array<{
-  status: Database['public']['Enums']['visit_status'];
+  status: Enums<'visit_status'>;
   count: number;
 }>;
 
 export type MonthlyVisitsReturn = Array<{
-  status: Database['public']['Enums']['visit_status'];
+  status: Enums<'visit_status'>;
   count: number;
 }>;
 
 // Enums
-export type VisitStatus = Database['public']['Enums']['visit_status'];
-export type ReportType = Database['public']['Enums']['report_type'];
-export type NotificationType = Database['public']['Enums']['notification_type'];
+export type VisitStatus = Enums<'visit_status'>;
+export type ReportType = Enums<'report_type'>;
+export type NotificationType = Enums<'notification_type'>;
 
 // Helper type for database function returns
 export type DatabaseFunctionReturn<T> = T[];

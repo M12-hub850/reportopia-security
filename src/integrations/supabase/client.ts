@@ -16,17 +16,13 @@ export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABL
     detectSessionInUrl: true,
     storage: typeof window !== 'undefined' ? window.localStorage : undefined,
     flowType: 'pkce',
-    debug: true,
-    // Add retries for auth requests
-    retryAttempts: 3,
-    retryInterval: 1000, // 1 second between retries
+    debug: true
   },
   global: {
     headers: {
       'X-Client-Info': 'supabase-js-web',
     }
   },
-  // Add global retry configuration
   db: {
     schema: 'public'
   },
@@ -106,7 +102,6 @@ if (typeof window !== 'undefined') {
         domain: window.location.origin,
         url: window.location.href,
         timestamp: new Date().toISOString(),
-        // Add stack trace for debugging
         stack: event.reason?.stack
       });
     }
