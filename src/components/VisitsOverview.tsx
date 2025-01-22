@@ -55,7 +55,10 @@ export function VisitsOverview() {
         .rpc('get_pending_monthly_visits', { user_id: user.user.id });
       
       if (error) throw error;
-      return data;
+      
+      // Transform the data for the pie chart
+      const count = data?.[0]?.count || 0;
+      return [{ name: 'Pending Visits', value: count }];
     },
   });
 
@@ -77,13 +80,13 @@ export function VisitsOverview() {
                   label={renderCustomizedLabel}
                   outerRadius={100}
                   fill="#8884d8"
-                  dataKey="count"
-                  nameKey="status"
+                  dataKey="value"
+                  nameKey="name"
                 >
-                  {monthlyData?.map((entry) => (
+                  {monthlyData?.map((entry, index) => (
                     <Cell 
-                      key={entry.status} 
-                      fill={COLORS[entry.status as keyof typeof COLORS]} 
+                      key={`cell-${index}`}
+                      fill={COLORS.pending}
                     />
                   ))}
                 </Pie>

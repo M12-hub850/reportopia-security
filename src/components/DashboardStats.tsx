@@ -69,10 +69,10 @@ export function DashboardStats() {
 
   const stats = [
     {
-      title: t.pendingMonthlyVisits.title,
+      title: t.monthlyVisits.title,
       value: monthlyLoading ? "..." : pendingMonthlyVisits?.toString() || "0",
       icon: Users,
-      description: t.pendingMonthlyVisits.description
+      description: t.monthlyVisits.description
     },
     {
       title: t.incidents.title,
