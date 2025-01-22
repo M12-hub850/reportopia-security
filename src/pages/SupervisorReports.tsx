@@ -40,7 +40,7 @@ export default function SupervisorReports() {
         .insert({
           type: 'supervisor_weekly' as ReportType,
           description: formData.description,
-          photo_url: formData.photoUrl, // Match the database column name
+          photo_url: formData.photoUrl,
           user_id: user.id,
         })
         .select()
@@ -117,18 +117,22 @@ export default function SupervisorReports() {
       await queryClient.invalidateQueries({ queryKey: ['reports'] });
       await queryClient.invalidateQueries({ queryKey: ['notifications'] });
 
-      // Enhanced success toast with icon and description
+      // Show success toast with icon
       toast.success('Report Submitted Successfully', {
-        description: `Your supervisor weekly report has been submitted and saved. You can view it in the reports archive.`,
+        description: 'Your supervisor weekly report has been submitted and saved. You can view it in the reports archive.',
         duration: 5000,
         icon: <CheckCircle2 className="h-5 w-5 text-green-500" />,
       });
 
-      navigate('/reports');
+      // Navigate after showing the toast
+      setTimeout(() => {
+        navigate('/reports');
+      }, 1000);
+
     } catch (error: any) {
       console.error('Error submitting report:', error);
-      toast.error(error.message || 'Failed to submit report', {
-        description: 'Please try again or contact support if the problem persists.',
+      toast.error('Failed to Submit Report', {
+        description: error.message || 'Please try again or contact support if the problem persists.',
         duration: 5000,
       });
     } finally {
