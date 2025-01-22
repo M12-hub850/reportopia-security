@@ -29,12 +29,12 @@ export default function SupervisorReports() {
         throw new Error('Not authenticated');
       }
 
-      // Ensure photo_url is present and matches database column name
+      // Ensure photo_url is present
       if (!formData.photoUrl) {
         throw new Error('Photo evidence is required');
       }
 
-      // Create the report with correct field names
+      // Create the report
       const { data: report, error: reportError } = await supabase
         .from('reports')
         .insert({
@@ -77,7 +77,7 @@ export default function SupervisorReports() {
         console.log('Staff entries created successfully');
       }
 
-      // Create a visit record
+      // Create a visit record with completed status
       const { error: visitError } = await supabase
         .from('visits')
         .insert({
