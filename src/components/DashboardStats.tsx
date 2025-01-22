@@ -5,7 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { translations } from "@/translations";
-import { MonthlyVisitsReturn, ReportType } from "@/types/supabase";
+import { ReportType } from "@/types/supabase";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 
@@ -22,15 +22,15 @@ export function DashboardStats() {
     },
   });
 
-  const { data: monthlyVisits, isLoading: monthlyLoading } = useQuery<MonthlyVisitsReturn>({
-    queryKey: ['monthly-visits', currentUserId],
+  const { data: pendingMonthlyVisits, isLoading: monthlyLoading } = useQuery({
+    queryKey: ['pending-monthly-visits', currentUserId],
     queryFn: async () => {
-      if (!currentUserId) return [];
-      const { data, error } = await supabase.rpc('get_monthly_visits', { 
+      if (!currentUserId) return 0;
+      const { data, error } = await supabase.rpc('get_pending_monthly_visits', { 
         user_id: currentUserId 
       });
       if (error) throw error;
-      return data as MonthlyVisitsReturn;
+      return data?.[0]?.count || 0;
     },
     enabled: !!currentUserId,
   });
@@ -69,10 +69,10 @@ export function DashboardStats() {
 
   const stats = [
     {
-      title: t.monthlyVisits.title,
-      value: monthlyLoading ? "..." : (monthlyVisits?.reduce((acc, curr) => acc + Number(curr.count), 0) || "0").toString(),
+      title: t.pendingMonthlyVisits.title,
+      value: monthlyLoading ? "..." : pendingMonthlyVisits?.toString() || "0",
       icon: Users,
-      description: t.monthlyVisits.description
+      description: t.pendingMonthlyVisits.description
     },
     {
       title: t.incidents.title,

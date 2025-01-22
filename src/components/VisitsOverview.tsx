@@ -52,7 +52,7 @@ export function VisitsOverview() {
       if (!user.user) throw new Error('Not authenticated');
       
       const { data, error } = await supabase
-        .rpc('get_monthly_visits', { user_id: user.user.id });
+        .rpc('get_pending_monthly_visits', { user_id: user.user.id });
       
       if (error) throw error;
       return data;
@@ -63,7 +63,7 @@ export function VisitsOverview() {
     <div className="grid gap-4">
       <Card className="backdrop-blur-sm bg-white/50 border-2">
         <CardHeader>
-          <CardTitle className="text-lg font-semibold">Monthly Engagement Overview</CardTitle>
+          <CardTitle className="text-lg font-semibold">Monthly Pending Visits Overview</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="h-[300px]">
