@@ -13,8 +13,16 @@ export function DashboardStats() {
   const { language } = useLanguage();
   const t = translations[language].dashboard;
 
-  const { data: { user } } = await supabase.auth.getUser();
-  const currentUserId = user?.id;
+  // Get current user using useQuery
+  const { data: userData } = useQuery({
+    queryKey: ['current-user'],
+    queryFn: async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      return user;
+    },
+  });
+
+  const currentUserId = userData?.id;
 
   const { data: pendingMonthlyVisits, isLoading: monthlyLoading } = useQuery({
     queryKey: ['pending-monthly-visits', currentUserId],
@@ -56,10 +64,10 @@ export function DashboardStats() {
 
   const stats = [
     {
-      title: t.monthlyVisits.title,
+      title: t.stats.monthlyVisits.title,
       value: monthlyLoading ? "..." : pendingMonthlyVisits?.toString() || "0",
       icon: Users,
-      description: t.monthlyVisits.description,
+      description: t.stats.monthlyVisits.description,
       onClick: handleMonthlyVisitClick,
       isPending: pendingMonthlyVisits && pendingMonthlyVisits > 0
     },
