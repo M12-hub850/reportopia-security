@@ -13,7 +13,7 @@ export function DashboardStats() {
   const { language } = useLanguage();
   const t = translations[language].dashboard;
 
-  // Get current user using useQuery
+  // Use React Query to fetch the current user
   const { data: userData } = useQuery({
     queryKey: ['current-user'],
     queryFn: async () => {
