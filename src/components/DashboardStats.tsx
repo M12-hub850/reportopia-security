@@ -24,6 +24,7 @@ export function DashboardStats() {
 
   const currentUserId = userData?.id;
 
+  // Fetch pending monthly visits
   const { data: pendingMonthlyVisits, isLoading: monthlyLoading } = useQuery({
     queryKey: ['pending-monthly-visits', currentUserId],
     queryFn: async () => {
@@ -37,6 +38,7 @@ export function DashboardStats() {
     enabled: !!currentUserId,
   });
 
+  // Fetch pending supervisor visits
   const { data: pendingSupervisorVisits, isLoading: supervisorLoading } = useQuery({
     queryKey: ['pending-supervisor-visits', currentUserId],
     queryFn: async () => {
@@ -72,10 +74,10 @@ export function DashboardStats() {
       isPending: pendingMonthlyVisits && pendingMonthlyVisits > 0
     },
     {
-      title: "Supervisor Weekly Visits",
+      title: t.stats.weeklyVisits.title,
       value: supervisorLoading ? "..." : pendingSupervisorVisits?.toString() || "0",
       icon: Clock,
-      description: "Click to submit pending weekly reports",
+      description: t.stats.weeklyVisits.description,
       onClick: handleSupervisorVisitClick,
       isPending: pendingSupervisorVisits && pendingSupervisorVisits > 0
     }
