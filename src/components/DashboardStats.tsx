@@ -1,33 +1,27 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Users, AlertTriangle, Clock } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
+import { Clock, Users } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
+import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { translations } from "@/translations";
-import { ReportType } from "@/types/supabase";
-import { useNavigate } from "react-router-dom";
-import { Button } from "@/components/ui/button";
 
 export function DashboardStats() {
-  const { language } = useLanguage();
-  const t = translations[language].dashboard.stats;
   const navigate = useNavigate();
+  const { language } = useLanguage();
+  const t = translations[language].dashboard;
 
-  const { data: currentUserId } = useQuery({
-    queryKey: ['current-user'],
-    queryFn: async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      return user?.id;
-    },
-  });
+  const { data: { user } } = await supabase.auth.getUser();
+  const currentUserId = user?.id;
 
   const { data: pendingMonthlyVisits, isLoading: monthlyLoading } = useQuery({
     queryKey: ['pending-monthly-visits', currentUserId],
     queryFn: async () => {
       if (!currentUserId) return 0;
-      const { data, error } = await supabase.rpc('get_pending_monthly_visits', { 
-        user_id: currentUserId 
+      const { data, error } = await supabase.rpc('get_pending_monthly_visits', {
+        user_id: currentUserId
       });
       if (error) throw error;
       return data?.[0]?.count || 0;
@@ -35,17 +29,15 @@ export function DashboardStats() {
     enabled: !!currentUserId,
   });
 
-  const { data: incidents, isLoading: incidentsLoading } = useQuery({
-    queryKey: ['incidents-count', currentUserId],
+  const { data: pendingSupervisorVisits, isLoading: supervisorLoading } = useQuery({
+    queryKey: ['pending-supervisor-visits', currentUserId],
     queryFn: async () => {
       if (!currentUserId) return 0;
-      const { count, error } = await supabase
-        .from('reports')
-        .select('*', { count: 'exact', head: true })
-        .eq('type', 'event_incident' as ReportType)
-        .eq('user_id', currentUserId);
+      const { data, error } = await supabase.rpc('get_pending_supervisor_visits', {
+        user_id: currentUserId
+      });
       if (error) throw error;
-      return count || 0;
+      return data?.[0]?.count || 0;
     },
     enabled: !!currentUserId,
   });
@@ -53,6 +45,12 @@ export function DashboardStats() {
   const handleMonthlyVisitClick = () => {
     if (pendingMonthlyVisits && pendingMonthlyVisits > 0) {
       navigate('/manager-reports');
+    }
+  };
+
+  const handleSupervisorVisitClick = () => {
+    if (pendingSupervisorVisits && pendingSupervisorVisits > 0) {
+      navigate('/supervisor-reports');
     }
   };
 
@@ -66,11 +64,13 @@ export function DashboardStats() {
       isPending: pendingMonthlyVisits && pendingMonthlyVisits > 0
     },
     {
-      title: t.incidents.title,
-      value: incidentsLoading ? "..." : incidents?.toString() || "0",
-      icon: AlertTriangle,
-      description: t.incidents.description
-    },
+      title: "Supervisor Weekly Visits",
+      value: supervisorLoading ? "..." : pendingSupervisorVisits?.toString() || "0",
+      icon: Clock,
+      description: "Click to submit pending weekly reports",
+      onClick: handleSupervisorVisitClick,
+      isPending: pendingSupervisorVisits && pendingSupervisorVisits > 0
+    }
   ];
 
   return (
@@ -95,7 +95,7 @@ export function DashboardStats() {
             }`} />
           </CardHeader>
           <CardContent>
-            {monthlyLoading || incidentsLoading ? (
+            {monthlyLoading || supervisorLoading ? (
               <Skeleton className="h-8 w-20" />
             ) : (
               <>
@@ -108,7 +108,7 @@ export function DashboardStats() {
                     className="mt-2 w-full"
                     onClick={stat.onClick}
                   >
-                    Submit Monthly Report
+                    Submit Report
                   </Button>
                 )}
               </>
