@@ -50,21 +50,10 @@ export function DashboardStats() {
     enabled: !!currentUserId,
   });
 
-  const { data: pendingVisits, isLoading: pendingLoading } = useQuery({
-    queryKey: ['pending-supervisor-visits', currentUserId],
-    queryFn: async () => {
-      if (!currentUserId) return 0;
-      const { data, error } = await supabase.rpc('get_pending_supervisor_visits', {
-        user_id: currentUserId
-      });
-      if (error) throw error;
-      return data?.[0]?.count || 0;
-    },
-    enabled: !!currentUserId,
-  });
-
-  const handlePendingClick = () => {
-    navigate('/supervisor-reports');
+  const handleMonthlyVisitClick = () => {
+    if (pendingMonthlyVisits && pendingMonthlyVisits > 0) {
+      navigate('/manager-reports');
+    }
   };
 
   const stats = [
@@ -72,7 +61,9 @@ export function DashboardStats() {
       title: t.monthlyVisits.title,
       value: monthlyLoading ? "..." : pendingMonthlyVisits?.toString() || "0",
       icon: Users,
-      description: t.monthlyVisits.description
+      description: t.monthlyVisits.description,
+      onClick: handleMonthlyVisitClick,
+      isPending: pendingMonthlyVisits && pendingMonthlyVisits > 0
     },
     {
       title: t.incidents.title,
@@ -83,15 +74,25 @@ export function DashboardStats() {
   ];
 
   return (
-    <div className="grid gap-4 md:grid-cols-3">
+    <div className="grid gap-4 md:grid-cols-2">
       {stats.map((stat) => (
         <Card 
           key={stat.title} 
-          className="animate-fadeIn backdrop-blur-sm bg-white/50 border-2"
+          className={`animate-fadeIn backdrop-blur-sm bg-white/50 border-2 ${
+            stat.isPending ? 'cursor-pointer hover:bg-gray-50 transition-colors' : ''
+          }`}
+          onClick={stat.onClick}
         >
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">{stat.title}</CardTitle>
-            <stat.icon className="h-4 w-4 text-muted-foreground" />
+            <CardTitle className="text-sm font-medium">
+              {stat.title}
+              {stat.isPending && (
+                <span className="ml-2 text-xs text-red-500">(Pending)</span>
+              )}
+            </CardTitle>
+            <stat.icon className={`h-4 w-4 ${
+              stat.isPending ? 'text-red-500' : 'text-muted-foreground'
+            }`} />
           </CardHeader>
           <CardContent>
             {monthlyLoading || incidentsLoading ? (
@@ -100,40 +101,21 @@ export function DashboardStats() {
               <>
                 <div className="text-2xl font-bold">{stat.value}</div>
                 <p className="text-xs text-muted-foreground">{stat.description}</p>
+                {stat.isPending && (
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="mt-2 w-full"
+                    onClick={stat.onClick}
+                  >
+                    Submit Monthly Report
+                  </Button>
+                )}
               </>
             )}
           </CardContent>
         </Card>
       ))}
-
-      {/* Pending Supervisor Visits Card */}
-      <Card 
-        className="animate-fadeIn backdrop-blur-sm bg-white/50 border-2 cursor-pointer hover:bg-gray-50 transition-colors"
-        onClick={handlePendingClick}
-      >
-        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-sm font-medium">Pending Supervisor Visits</CardTitle>
-          <Clock className="h-4 w-4 text-muted-foreground" />
-        </CardHeader>
-        <CardContent>
-          {pendingLoading ? (
-            <Skeleton className="h-8 w-20" />
-          ) : (
-            <>
-              <div className="text-2xl font-bold">{pendingVisits}</div>
-              <p className="text-xs text-muted-foreground">Click to add pending reports</p>
-              <Button 
-                variant="outline" 
-                size="sm" 
-                className="mt-2 w-full"
-                onClick={handlePendingClick}
-              >
-                View Pending Reports
-              </Button>
-            </>
-          )}
-        </CardContent>
-      </Card>
     </div>
   );
 }
