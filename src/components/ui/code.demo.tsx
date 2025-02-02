@@ -2,7 +2,7 @@
 import React from "react";
 import { SparklesCore } from "@/components/ui/sparkles";
 
-export function SparklesPreview() {
+function SparklesPreview() {
   return (
     <div className="h-[40rem] w-full bg-black flex flex-col items-center justify-center overflow-hidden rounded-md">
       <h1 className="md:text-7xl text-3xl lg:text-9xl font-bold text-center text-white relative z-20">
@@ -32,7 +32,7 @@ export function SparklesPreview() {
   );
 }
 
-export function SparklesPreviewDark() {
+function SparklesPreviewDark() {
   return (
     <div className="h-[40rem] relative w-full bg-slate-950 flex flex-col items-center justify-center overflow-hidden rounded-md">
       <div className="w-full absolute inset-0 h-screen">
@@ -54,7 +54,7 @@ export function SparklesPreviewDark() {
   );
 }
 
-export function SparklesPreviewColorful() {
+function SparklesPreviewColorful() {
   return (
     <div className="h-[40rem] relative w-full bg-black flex flex-col items-center justify-center overflow-hidden rounded-md">
       <div className="w-full absolute inset-0 h-screen">
