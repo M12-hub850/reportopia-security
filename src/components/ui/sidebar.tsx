@@ -72,10 +72,11 @@ export const Sidebar = ({
 };
 
 export const SidebarBody = (props: HTMLMotionProps<"div">) => {
+  const { className, ...restProps } = props;
   return (
     <>
-      <DesktopSidebar {...props} />
-      <MobileSidebar {...props} />
+      <DesktopSidebar className={className} {...restProps} />
+      <MobileSidebar className={className} />
     </>
   );
 };
@@ -107,8 +108,10 @@ export const DesktopSidebar = ({
 export const MobileSidebar = ({
   className,
   children,
-  ...props
-}: React.HTMLAttributes<HTMLDivElement>) => {
+}: {
+  className?: string;
+  children?: React.ReactNode;
+}) => {
   const { open, setOpen } = useSidebar();
   return (
     <>
@@ -116,7 +119,6 @@ export const MobileSidebar = ({
         className={cn(
           "h-10 px-4 py-4 flex flex-row md:hidden items-center justify-between bg-neutral-100 dark:bg-neutral-800 w-full"
         )}
-        {...props}
       >
         <div className="flex justify-end z-20 w-full">
           <Menu
