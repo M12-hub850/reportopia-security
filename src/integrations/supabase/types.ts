@@ -352,6 +352,10 @@ export type Database = {
           count: number
         }[]
       }
+      schedule_weekly_visits: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
+      }
     }
     Enums: {
       notification_type: "report_submitted" | "report_updated" | "new_report"
