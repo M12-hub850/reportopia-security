@@ -2,6 +2,7 @@ export const dashboardTranslations = {
   en: {
     title: "Security Monitoring Dashboard",
     subtitle: "Monitor and manage your security operations reports",
+    welcome: "Welcome to GFSP Security",
     stats: {
       weeklyVisits: {
         title: "Weekly Visits",
@@ -52,6 +53,7 @@ export const dashboardTranslations = {
   ar: {
     title: "لوحة مراقبة الأمن",
     subtitle: "مراقبة وإدارة تقارير عمليات الأمن الخاصة بك",
+    welcome: "مرحباً بكم في أمن GFSP",
     stats: {
       weeklyVisits: {
         title: "الزيارات الأسبوعية",
