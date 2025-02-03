@@ -171,9 +171,7 @@ export const SidebarLink = ({
         initial={false}
         animate={{ opacity: animate && open ? 1 : 0 }}
         transition={{ duration: 0.2 }}
-        style={{
-          display: animate && !open ? "none" : "block",
-        }}
+        style={{ display: animate && !open ? "none" : "block" }}
         className="text-neutral-700 dark:text-neutral-200 text-sm group-hover/sidebar:translate-x-1 transition duration-150 whitespace-pre"
       >
         {link.label}
