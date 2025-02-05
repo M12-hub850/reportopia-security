@@ -105,7 +105,7 @@ export function UserManagement() {
           .from("user_roles")
           .insert({ 
             user_id: user.id, 
-            role: newUserRole as AppRole 
+            role: newUserRole 
           });
 
         if (roleError) throw roleError;
@@ -196,7 +196,10 @@ export function UserManagement() {
               </div>
               <div className="space-y-2">
                 <label>Role</label>
-                <Select value={newUserRole} onValueChange={setNewUserRole}>
+                <Select
+                  value={newUserRole}
+                  onValueChange={(value: AppRole) => setNewUserRole(value)}
+                >
                   <SelectTrigger>
                     <SelectValue />
                   </SelectTrigger>
@@ -233,7 +236,7 @@ export function UserManagement() {
               <TableCell>
                 <Select
                   value={user.role}
-                  onValueChange={(newRole) => updateUserRole(user.id, newRole)}
+                  onValueChange={(value: AppRole) => updateUserRole(user.id, value)}
                 >
                   <SelectTrigger>
                     <SelectValue />
