@@ -16,6 +16,7 @@ import {
 import { SupervisorReportDisplay } from '@/components/reports/SupervisorReportDisplay';
 import { IncidentReportDisplay } from '@/components/reports/IncidentReportDisplay';
 import { VehicleReportDisplay } from '@/components/reports/VehicleReportDisplay';
+import { useQuery } from '@tanstack/react-query';
 
 interface ReportDetails {
   description: string;
@@ -53,8 +54,6 @@ interface ReportFile {
 }
 
 export default function ReportView() {
-  const [reports, setReports] = useState<ReportFile[]>([]);
-  const [loading, setIsLoading] = useState(true);
   const [selectedReport, setSelectedReport] = useState<ReportFile | null>(null);
   const { toast } = useToast();
   const [dateRange, setDateRange] = useState<DateRange | undefined>({
@@ -62,80 +61,80 @@ export default function ReportView() {
     to: endOfDay(new Date())
   });
 
-  useEffect(() => {
-    fetchReports();
-  }, [dateRange]);
+  const { data: reports = [], isLoading } = useQuery({
+    queryKey: ['reports', dateRange?.from, dateRange?.to],
+    queryFn: async () => {
+      try {
+        if (!dateRange?.from || !dateRange?.to) return [];
 
-  const fetchReports = async () => {
-    try {
-      if (!dateRange?.from || !dateRange?.to) return;
+        console.log('Fetching reports with date range:', { from: dateRange.from, to: dateRange.to });
 
-      const { data, error } = await supabase
-        .from('report_files')
-        .select(`
-          *,
-          report:report_id (
-            description,
-            photo_url,
-            staff_name,
-            shift,
-            attendance_rating,
-            duties_rating,
-            uniform_rating,
-            presence_rating,
-            location,
-            incident_date,
-            reporting_time,
-            action_taken,
-            reporting_person,
-            staff_entries (
+        const { data, error } = await supabase
+          .from('report_files')
+          .select(`
+            *,
+            report:report_id (
+              description,
+              photo_url,
               staff_name,
               shift,
               attendance_rating,
               duties_rating,
               uniform_rating,
-              presence_rating
+              presence_rating,
+              location,
+              incident_date,
+              reporting_time,
+              action_taken,
+              reporting_person,
+              staff_entries (
+                staff_name,
+                shift,
+                attendance_rating,
+                duties_rating,
+                uniform_rating,
+                presence_rating
+              )
+            ),
+            vehicle_report:vehicle_report_id (
+              car_model,
+              plate_number,
+              mileage,
+              project,
+              condition,
+              car_images,
+              mileage_image,
+              receiver_id_image,
+              driving_license_image
             )
-          ),
-          vehicle_report:vehicle_report_id (
-            car_model,
-            plate_number,
-            mileage,
-            project,
-            condition,
-            car_images,
-            mileage_image,
-            receiver_id_image,
-            driving_license_image
-          )
-        `)
-        .gte('created_at', dateRange.from.toISOString())
-        .lte('created_at', dateRange.to.toISOString())
-        .order('created_at', { ascending: false });
+          `)
+          .gte('created_at', dateRange.from.toISOString())
+          .lte('created_at', dateRange.to.toISOString())
+          .order('created_at', { ascending: false });
 
-      if (error) throw error;
+        if (error) throw error;
 
-      const formattedReports = data.map(item => ({
-        ...item,
-        report: {
-          ...item.report,
-          ...(item.vehicle_report || {}),
-          staff_entries: item.report?.staff_entries || []
-        }
-      })) as ReportFile[];
+        console.log('Fetched reports:', data);
 
-      setReports(formattedReports);
-    } catch (error) {
-      console.error('Error fetching reports:', error);
-      toast({
-        title: 'Error',
-        description: 'Failed to load reports. Please try again.',
-        variant: 'destructive',
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  };
+        return data.map(item => ({
+          ...item,
+          report: {
+            ...item.report,
+            ...(item.vehicle_report || {}),
+            staff_entries: item.report?.staff_entries || []
+          }
+        })) as ReportFile[];
+      } catch (error) {
+        console.error('Error fetching reports:', error);
+        toast({
+          title: 'Error',
+          description: 'Failed to load reports. Please try again.',
+          variant: 'destructive',
+        });
+        return [];
+      }
+    },
+  });
 
   const renderReportContent = (report: ReportFile) => {
     switch (report.report_type) {
@@ -194,7 +193,7 @@ export default function ReportView() {
         <DateRangeFilter date={dateRange} onDateChange={setDateRange} />
       </div>
 
-      {loading ? (
+      {isLoading ? (
         <div className="text-center py-8">Loading reports...</div>
       ) : reports.length === 0 ? (
         <Card className="p-8 text-center text-muted-foreground">

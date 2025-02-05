@@ -248,6 +248,27 @@ export type Database = {
           },
         ]
       }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
       vehicle_reports: {
         Row: {
           car_images: string[]
@@ -352,12 +373,20 @@ export type Database = {
           count: number
         }[]
       }
+      has_role: {
+        Args: {
+          user_id: string
+          required_role: Database["public"]["Enums"]["app_role"]
+        }
+        Returns: boolean
+      }
       schedule_weekly_visits: {
         Args: Record<PropertyKey, never>
         Returns: undefined
       }
     }
     Enums: {
+      app_role: "admin" | "manager" | "user"
       notification_type: "report_submitted" | "report_updated" | "new_report"
       report_type:
         | "supervisor_weekly"
