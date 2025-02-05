@@ -8,6 +8,7 @@ import EventIncidents from "./pages/EventIncidents";
 import NewVehicleHandover from "./pages/NewVehicleHandover";
 import ReportView from "./pages/ReportView";
 import Settings from "./pages/Settings";
+import AdminDashboard from "./pages/AdminDashboard";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { LanguageProvider } from "@/contexts/LanguageContext";
@@ -71,10 +72,14 @@ function App() {
               element={isAuthenticated ? <Navigate to="/dashboard" /> : <SignUp />} 
             />
 
-            {/* Protected routes - all redirect to dashboard if not authenticated */}
+            {/* Protected routes */}
             <Route 
               path="/dashboard" 
               element={isAuthenticated ? <Index /> : <Navigate to="/sign-in" />} 
+            />
+            <Route 
+              path="/admin" 
+              element={isAuthenticated ? <AdminDashboard /> : <Navigate to="/sign-in" />} 
             />
             <Route 
               path="/manager-reports" 
@@ -101,7 +106,7 @@ function App() {
               element={isAuthenticated ? <Settings /> : <Navigate to="/dashboard" />} 
             />
 
-            {/* Catch all route - redirect to dashboard if authenticated, otherwise to sign-in */}
+            {/* Catch all route */}
             <Route 
               path="*" 
               element={isAuthenticated ? <Navigate to="/dashboard" /> : <Navigate to="/sign-in" />} 

@@ -9,7 +9,8 @@ import {
   FileText, 
   Clipboard, 
   AlertTriangle,
-  Car 
+  Car,
+  Users
 } from "lucide-react";
 import { NotificationsDropdown } from "./NotificationsDropdown";
 import { supabase } from "@/integrations/supabase/client";
@@ -32,13 +33,36 @@ import {
 export function MainNav() {
   const navigate = useNavigate();
   const [avatarUrl, setAvatarUrl] = useState<string>("");
+  const [isAdmin, setIsAdmin] = useState(false);
   const { language } = useLanguage();
   const t = translations[language].common;
 
   useEffect(() => {
     console.log("MainNav: Initializing component");
     fetchProfile();
+    checkAdminRole();
   }, []);
+
+  const checkAdminRole = async () => {
+    try {
+      console.log("Checking admin role...");
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      if (!user) return;
+
+      const { data, error } = await supabase.rpc('has_role', {
+        _user_id: user.id,
+        _role: 'admin'
+      });
+
+      if (error) throw error;
+      
+      console.log("Is admin:", data);
+      setIsAdmin(!!data);
+    } catch (error) {
+      console.error("Error checking admin role:", error);
+    }
+  };
 
   const fetchProfile = async () => {
     try {
@@ -86,6 +110,7 @@ export function MainNav() {
   };
 
   const navigationItems = [
+    ...(isAdmin ? [{ label: "User Management", icon: Users, path: "/admin" }] : []),
     { label: t.managerReports, icon: FileText, path: "/manager-reports" },
     { label: t.supervisorReports, icon: Clipboard, path: "/supervisor-reports" },
     { label: t.eventIncidents, icon: AlertTriangle, path: "/event-incidents" },
