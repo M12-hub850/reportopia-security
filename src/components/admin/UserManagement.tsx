@@ -26,11 +26,13 @@ import {
 } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2, UserPlus } from "lucide-react";
+import type { Database } from "@/integrations/supabase/types";
 
+type AppRole = Database["public"]["Enums"]["app_role"];
 type User = {
   id: string;
   email: string;
-  role?: string;
+  role?: AppRole;
   created_at: string;
 };
 
@@ -38,7 +40,7 @@ export function UserManagement() {
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [newUserEmail, setNewUserEmail] = useState("");
-  const [newUserRole, setNewUserRole] = useState("user");
+  const [newUserRole, setNewUserRole] = useState<AppRole>("user");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const { toast } = useToast();
 
@@ -90,7 +92,6 @@ export function UserManagement() {
       console.log("Creating new user...");
       setLoading(true);
 
-      // Create user in auth.users
       const { data: { user }, error: createError } = await supabase.auth.admin.createUser({
         email: newUserEmail,
         password: "tempPassword123!", // Temporary password
@@ -99,11 +100,13 @@ export function UserManagement() {
 
       if (createError) throw createError;
 
-      // Assign role
       if (user) {
         const { error: roleError } = await supabase
           .from("user_roles")
-          .insert({ user_id: user.id, role: newUserRole });
+          .insert({ 
+            user_id: user.id, 
+            role: newUserRole as AppRole 
+          });
 
         if (roleError) throw roleError;
       }
@@ -130,12 +133,15 @@ export function UserManagement() {
     }
   };
 
-  const updateUserRole = async (userId: string, newRole: string) => {
+  const updateUserRole = async (userId: string, newRole: AppRole) => {
     try {
       console.log("Updating user role...", { userId, newRole });
       const { error } = await supabase
         .from("user_roles")
-        .upsert({ user_id: userId, role: newRole });
+        .upsert({ 
+          user_id: userId, 
+          role: newRole 
+        });
 
       if (error) throw error;
 

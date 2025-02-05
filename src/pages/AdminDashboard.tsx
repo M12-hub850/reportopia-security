@@ -27,8 +27,8 @@ export default function AdminDashboard() {
       }
 
       const { data, error } = await supabase.rpc('has_role', {
-        _user_id: user.id,
-        _role: 'admin'
+        user_id: user.id,
+        required_role: 'admin'
       });
 
       if (error) {
