@@ -26,29 +26,28 @@ export function UserManagement() {
   const fetchUsers = async () => {
     try {
       console.log("Fetching users...");
-      const { data: { users }, error } = await supabase.auth.admin.listUsers();
-      
-      if (error) throw error;
+      const { data: profiles, error: profilesError } = await supabase
+        .from('profiles')
+        .select(`
+          id,
+          email,
+          created_at,
+          user_roles (
+            role
+          )
+        `);
 
-      const usersWithRoles = await Promise.all(
-        users.map(async (user) => {
-          const { data: roles } = await supabase
-            .from("user_roles")
-            .select("role")
-            .eq("user_id", user.id)
-            .single();
+      if (profilesError) throw profilesError;
 
-          return {
-            id: user.id,
-            email: user.email,
-            role: roles?.role || "user",
-            created_at: user.created_at,
-          };
-        })
-      );
+      const formattedUsers = profiles.map(profile => ({
+        id: profile.id,
+        email: profile.email,
+        role: profile.user_roles?.[0]?.role || 'user',
+        created_at: profile.created_at
+      }));
 
-      console.log("Users fetched:", usersWithRoles);
-      setUsers(usersWithRoles);
+      console.log("Users fetched:", formattedUsers);
+      setUsers(formattedUsers);
     } catch (error) {
       console.error("Error fetching users:", error);
       toast({
@@ -64,15 +63,15 @@ export function UserManagement() {
   const createUser = async (email: string, role: AppRole) => {
     try {
       console.log("Creating new user...");
-      const { data: { user }, error: createError } = await supabase.auth.admin.createUser({
+      const { data: { user }, error: createError } = await supabase.auth.signUp({
         email,
         password: "tempPassword123!", // Temporary password
-        email_confirm: true,
       });
 
       if (createError) throw createError;
 
       if (user) {
+        // Insert into user_roles
         const { error: roleError } = await supabase
           .from("user_roles")
           .insert({ user_id: user.id, role });
