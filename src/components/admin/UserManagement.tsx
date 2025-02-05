@@ -26,25 +26,30 @@ export function UserManagement() {
   const fetchUsers = async () => {
     try {
       console.log("Fetching users...");
+      // First get all profiles
       const { data: profiles, error: profilesError } = await supabase
         .from('profiles')
-        .select(`
-          id,
-          email,
-          created_at,
-          user_roles (
-            role
-          )
-        `);
+        .select('id, email, created_at');
 
       if (profilesError) throw profilesError;
 
-      const formattedUsers = profiles.map(profile => ({
-        id: profile.id,
-        email: profile.email,
-        role: profile.user_roles?.[0]?.role || 'user',
-        created_at: profile.created_at
-      }));
+      // Then get all user roles
+      const { data: userRoles, error: rolesError } = await supabase
+        .from('user_roles')
+        .select('user_id, role');
+
+      if (rolesError) throw rolesError;
+
+      // Combine the data
+      const formattedUsers = profiles.map(profile => {
+        const userRole = userRoles.find(role => role.user_id === profile.id);
+        return {
+          id: profile.id,
+          email: profile.email,
+          role: userRole?.role || 'user',
+          created_at: profile.created_at
+        };
+      });
 
       console.log("Users fetched:", formattedUsers);
       setUsers(formattedUsers);
