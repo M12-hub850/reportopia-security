@@ -1,3 +1,4 @@
+
 import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
@@ -10,7 +11,8 @@ import {
   Clipboard, 
   AlertTriangle,
   Car,
-  Users
+  Users,
+  Archive
 } from "lucide-react";
 import { NotificationsDropdown } from "./NotificationsDropdown";
 import { supabase } from "@/integrations/supabase/client";
@@ -115,6 +117,7 @@ export function MainNav() {
     { label: t.supervisorReports, icon: Clipboard, path: "/supervisor-reports" },
     { label: t.eventIncidents, icon: AlertTriangle, path: "/event-incidents" },
     { label: t.carHandovers, icon: Car, path: "/car-handovers/new" },
+    { label: "Reports Archive", icon: Archive, path: "/reports" },
     { label: t.settings, icon: Settings, path: "/settings" },
   ];
 
