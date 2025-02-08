@@ -1,4 +1,3 @@
-
 import { MainNav } from "@/components/MainNav";
 import { SparklesCore } from "@/components/ui/sparkles";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -9,7 +8,7 @@ import { VisitsOverview } from "@/components/VisitsOverview";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import { Loader2, BarChart2 } from "lucide-react";
+import { Loader2, BarChart2, Eye } from "lucide-react";
 
 export default function Index() {
   const { language } = useLanguage();
