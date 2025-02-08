@@ -117,7 +117,7 @@ export function MainNav() {
     { label: t.supervisorReports, icon: Clipboard, path: "/supervisor-reports" },
     { label: t.eventIncidents, icon: AlertTriangle, path: "/event-incidents" },
     { label: t.carHandovers, icon: Car, path: "/car-handovers/new" },
-    { label: "Reports Archive", icon: Archive, path: "/reports" },
+    ...(isAdmin ? [{ label: "Reports Archive", icon: Archive, path: "/reports" }] : []),
     { label: t.settings, icon: Settings, path: "/settings" },
   ];
 

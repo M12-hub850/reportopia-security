@@ -1,3 +1,4 @@
+
 import { MainNav } from "@/components/MainNav";
 import { SparklesCore } from "@/components/ui/sparkles";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -8,13 +9,14 @@ import { VisitsOverview } from "@/components/VisitsOverview";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import { Loader2, BarChart2, Eye } from "lucide-react";
+import { Loader2, BarChart2, Eye, RefreshCw } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 export default function Index() {
   const { language } = useLanguage();
   const t = translations[language].dashboard;
 
-  const { data: reportCounts, isLoading: isLoadingReports } = useQuery({
+  const { data: reportCounts, isLoading: isLoadingReports, refetch: refetchReports } = useQuery({
     queryKey: ['report-counts'],
     queryFn: async () => {
       const startDate = new Date();
@@ -32,6 +34,12 @@ export default function Index() {
       return data;
     }
   });
+
+  const handleRefresh = async () => {
+    await Promise.all([
+      refetchReports()
+    ]);
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -52,9 +60,19 @@ export default function Index() {
 
       <main className="container mx-auto px-4 py-8">
         <div className="relative z-10 space-y-8">
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-center mb-8 bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-blue-600">
-            {t.welcome}
-          </h1>
+          <div className="flex justify-between items-center">
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-center mb-8 bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-blue-600">
+              {t.welcome}
+            </h1>
+            <Button
+              variant="outline"
+              size="icon"
+              onClick={handleRefresh}
+              className="hover:bg-purple-50"
+            >
+              <RefreshCw className="h-4 w-4" />
+            </Button>
+          </div>
           
           <div className="grid gap-6">
             <DashboardStats />

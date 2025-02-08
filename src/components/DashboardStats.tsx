@@ -1,5 +1,6 @@
+
 import { useNavigate } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Clock, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -10,6 +11,7 @@ import { translations } from "@/translations";
 
 export function DashboardStats() {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const { language } = useLanguage();
   const t = translations[language].dashboard;
 
@@ -25,7 +27,7 @@ export function DashboardStats() {
   const currentUserId = userData?.id;
 
   // Fetch pending monthly visits
-  const { data: pendingMonthlyVisits, isLoading: monthlyLoading } = useQuery({
+  const { data: pendingMonthlyVisits, isLoading: monthlyLoading, refetch: refetchMonthlyVisits } = useQuery({
     queryKey: ['pending-monthly-visits', currentUserId],
     queryFn: async () => {
       if (!currentUserId) return 0;
@@ -39,7 +41,7 @@ export function DashboardStats() {
   });
 
   // Fetch pending supervisor visits
-  const { data: pendingSupervisorVisits, isLoading: supervisorLoading } = useQuery({
+  const { data: pendingSupervisorVisits, isLoading: supervisorLoading, refetch: refetchSupervisorVisits } = useQuery({
     queryKey: ['pending-supervisor-visits', currentUserId],
     queryFn: async () => {
       if (!currentUserId) return 0;
