@@ -1,3 +1,4 @@
+
 import { useEffect, useState } from "react";
 import { MainNav } from "@/components/MainNav";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -5,6 +6,7 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { UserManagement } from "@/components/admin/UserManagement";
 import { useToast } from "@/hooks/use-toast";
+import { BackButton } from "@/components/BackButton";
 
 export default function AdminDashboard() {
   const navigate = useNavigate();
@@ -63,7 +65,10 @@ export default function AdminDashboard() {
     <div className="min-h-screen bg-background">
       <MainNav />
       <main className="container mx-auto px-4 py-8">
-        <h1 className="text-4xl font-bold mb-8">Admin Dashboard</h1>
+        <div className="flex items-center gap-4 mb-8">
+          <BackButton />
+          <h1 className="text-4xl font-bold">Admin Dashboard</h1>
+        </div>
         <Card>
           <CardHeader>
             <CardTitle>User Management</CardTitle>

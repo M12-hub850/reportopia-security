@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -74,8 +75,10 @@ export function CreateUserDialog({ onCreateUser }: CreateUserDialogProps) {
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
+                <SelectItem value="supervisor">Supervisor</SelectItem>
+                <SelectItem value="manager">Manager</SelectItem>
+                <SelectItem value="management">Management</SelectItem>
                 <SelectItem value="admin">Admin</SelectItem>
-                <SelectItem value="user">User</SelectItem>
               </SelectContent>
             </Select>
           </div>

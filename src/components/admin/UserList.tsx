@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import {
@@ -56,8 +57,10 @@ export function UserList({ users, onUpdateRole }: UserListProps) {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
+                  <SelectItem value="supervisor">Supervisor</SelectItem>
+                  <SelectItem value="manager">Manager</SelectItem>
+                  <SelectItem value="management">Management</SelectItem>
                   <SelectItem value="admin">Admin</SelectItem>
-                  <SelectItem value="user">User</SelectItem>
                 </SelectContent>
               </Select>
             </TableCell>
