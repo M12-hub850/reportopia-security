@@ -13,6 +13,7 @@ import { BackButton } from "@/components/BackButton";
 import { generateReportPDF } from "@/utils/pdfGenerator";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { translations } from "@/translations";
+import { Card } from "@/components/ui/card";
 
 const staffEntrySchema = z.object({
   staffName: z.string().min(1, "Staff name is required"),

@@ -139,6 +139,7 @@ export default function ReportView() {
   const renderReportContent = (report: ReportFile) => {
     switch (report.report_type) {
       case 'supervisor_weekly':
+      case 'manager_monthly':
         return (
           <SupervisorReportDisplay
             staffEntries={report.report.staff_entries || []}
