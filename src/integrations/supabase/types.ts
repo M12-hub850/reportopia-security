@@ -402,6 +402,7 @@ export type Database = {
     Enums: {
       app_role: "admin" | "manager" | "user"
       notification_type: "report_submitted" | "report_updated" | "new_report"
+      rating_type: "Excellent" | "Good" | "Fair" | "Poor"
       report_type:
         | "supervisor_weekly"
         | "manager_monthly"
