@@ -18,6 +18,8 @@ export function VisitsOverview() {
       
       return data?.[0]?.count || 0;
     },
+    refetchInterval: 5000, // Refetch every 5 seconds
+    refetchOnWindowFocus: true,
   });
 
   return (

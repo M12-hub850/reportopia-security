@@ -26,8 +26,8 @@ export function DashboardStats() {
 
   const currentUserId = userData?.id;
 
-  // Fetch pending monthly visits
-  const { data: pendingMonthlyVisits, isLoading: monthlyLoading, refetch: refetchMonthlyVisits } = useQuery({
+  // Fetch pending monthly visits with automatic refetch
+  const { data: pendingMonthlyVisits, isLoading: monthlyLoading } = useQuery({
     queryKey: ['pending-monthly-visits', currentUserId],
     queryFn: async () => {
       if (!currentUserId) return 0;
@@ -38,10 +38,12 @@ export function DashboardStats() {
       return data?.[0]?.count || 0;
     },
     enabled: !!currentUserId,
+    refetchInterval: 5000, // Refetch every 5 seconds to keep data fresh
+    refetchOnWindowFocus: true,
   });
 
-  // Fetch pending supervisor visits
-  const { data: pendingSupervisorVisits, isLoading: supervisorLoading, refetch: refetchSupervisorVisits } = useQuery({
+  // Fetch pending supervisor visits with automatic refetch
+  const { data: pendingSupervisorVisits, isLoading: supervisorLoading } = useQuery({
     queryKey: ['pending-supervisor-visits', currentUserId],
     queryFn: async () => {
       if (!currentUserId) return 0;
@@ -52,6 +54,8 @@ export function DashboardStats() {
       return data?.[0]?.count || 0;
     },
     enabled: !!currentUserId,
+    refetchInterval: 5000, // Refetch every 5 seconds to keep data fresh
+    refetchOnWindowFocus: true,
   });
 
   const handleMonthlyVisitClick = () => {
