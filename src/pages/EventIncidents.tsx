@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -45,22 +46,31 @@ export default function EventIncidents() {
         throw new Error("No authenticated user found");
       }
 
-      const { data: reportData, error } = await supabase.from("reports").insert({
-        type: "event_incident",
-        staff_name: data.guardName,
-        shift: data.shift,
-        location: data.location,
-        incident_date: data.incidentDate.toISOString(),
-        description: data.description,
-        reporting_time: data.reportingTime.toISOString(),
-        action_taken: data.actionTaken,
-        reporting_person: data.reportingPerson,
-        photo_url: data.photoUrl,
-        user_id: user.id,
-      }).select().single();
+      // Insert the report data
+      const { data: reportData, error } = await supabase
+        .from("reports")
+        .insert({
+          type: "event_incident",
+          staff_name: data.guardName,
+          shift: data.shift,
+          location: data.location,
+          incident_date: data.incidentDate.toISOString(),
+          description: data.description,
+          reporting_time: data.reportingTime.toISOString(),
+          action_taken: data.actionTaken,
+          reporting_person: data.reportingPerson,
+          photo_url: data.photoUrl,
+          user_id: user.id,
+        })
+        .select()
+        .single();
 
-      if (error) throw error;
+      if (error) {
+        console.error("Error inserting report:", error);
+        throw error;
+      }
 
+      // Generate PDF for the report
       const pdfUrl = await generateReportPDF(
         data,
         "event_incident",
@@ -72,12 +82,28 @@ export default function EventIncidents() {
         console.error("Failed to generate PDF");
       }
 
+      // Create a notification
+      const { error: notificationError } = await supabase
+        .from("notifications")
+        .insert({
+          user_id: user.id,
+          type: "report_submitted",
+          title: "Incident Report Submitted",
+          message: `An incident report has been submitted by ${data.guardName}`,
+          report_id: reportData.id
+        });
+
+      if (notificationError) {
+        console.error("Error creating notification:", notificationError);
+      }
+
       toast({
         title: translations[language].common.success,
         description: t.successMessage,
       });
 
-      form.reset();
+      // Navigate to reports page after successful submission
+      navigate("/reports");
     } catch (error) {
       console.error("Error submitting report:", error);
       toast({
