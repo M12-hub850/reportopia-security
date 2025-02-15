@@ -57,9 +57,8 @@ export function UserList({ users, onUpdateRole }: UserListProps) {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="supervisor">Supervisor</SelectItem>
+                  <SelectItem value="user">User</SelectItem>
                   <SelectItem value="manager">Manager</SelectItem>
-                  <SelectItem value="management">Management</SelectItem>
                   <SelectItem value="admin">Admin</SelectItem>
                 </SelectContent>
               </Select>
