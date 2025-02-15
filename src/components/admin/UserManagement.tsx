@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -76,7 +77,17 @@ export function UserManagement() {
       if (createError) throw createError;
 
       if (user) {
-        // Insert into user_roles
+        // Delete any existing role for this user first
+        const { error: deleteError } = await supabase
+          .from("user_roles")
+          .delete()
+          .eq('user_id', user.id);
+
+        if (deleteError) {
+          console.error("Error deleting existing role:", deleteError);
+        }
+
+        // Insert new role
         const { error: roleError } = await supabase
           .from("user_roles")
           .insert({ user_id: user.id, role });
@@ -105,11 +116,23 @@ export function UserManagement() {
   const updateUserRole = async (userId: string, newRole: AppRole) => {
     try {
       console.log("Updating user role...", { userId, newRole });
-      const { error } = await supabase
+      
+      // First delete any existing role
+      const { error: deleteError } = await supabase
         .from("user_roles")
-        .upsert({ user_id: userId, role: newRole });
+        .delete()
+        .eq('user_id', userId);
 
-      if (error) throw error;
+      if (deleteError) {
+        console.error("Error deleting existing role:", deleteError);
+      }
+
+      // Then insert the new role
+      const { error: insertError } = await supabase
+        .from("user_roles")
+        .insert({ user_id: userId, role: newRole });
+
+      if (insertError) throw insertError;
 
       console.log("Role updated successfully");
       toast({
