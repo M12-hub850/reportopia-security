@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
@@ -34,14 +35,14 @@ export default function SupervisorReports() {
         throw new Error('Photo evidence is required');
       }
 
-      // Create the report
+      // First create the main report
       const { data: report, error: reportError } = await supabase
         .from('reports')
         .insert({
-          type: 'supervisor_weekly' as ReportType,
-          description: formData.description,
-          photo_url: formData.photoUrl,
           user_id: user.id,
+          type: 'supervisor_weekly',
+          description: formData.description,
+          photo_url: formData.photoUrl
         })
         .select()
         .single();
@@ -53,7 +54,7 @@ export default function SupervisorReports() {
 
       console.log('Report created successfully:', report);
 
-      // Create staff entries
+      // Then create staff entries if they exist
       if (formData.staffEntries && formData.staffEntries.length > 0) {
         const staffEntriesData = formData.staffEntries.map((entry: any) => ({
           report_id: report.id,
@@ -77,6 +78,22 @@ export default function SupervisorReports() {
         console.log('Staff entries created successfully');
       }
 
+      // Create a report file record
+      const { error: fileError } = await supabase
+        .from('report_files')
+        .insert({
+          user_id: user.id,
+          report_type: 'supervisor_weekly',
+          file_name: `supervisor_weekly_${report.id}.pdf`,
+          file_path: `/reports/${user.id}/supervisor_weekly_${report.id}.pdf`,
+          report_id: report.id
+        });
+
+      if (fileError) {
+        console.error('Error creating report file record:', fileError);
+        throw fileError;
+      }
+
       // Create a visit record with completed status
       const { error: visitError } = await supabase
         .from('visits')
@@ -91,8 +108,6 @@ export default function SupervisorReports() {
         console.error('Error creating visit record:', visitError);
         throw visitError;
       }
-
-      console.log('Visit record created successfully');
 
       // Create notification
       const { error: notificationError } = await supabase
@@ -110,14 +125,11 @@ export default function SupervisorReports() {
         throw notificationError;
       }
 
-      console.log('Notification created successfully');
-
-      // Invalidate relevant queries to trigger refetch
+      // Invalidate relevant queries
       await queryClient.invalidateQueries({ queryKey: ['weekly-visits'] });
       await queryClient.invalidateQueries({ queryKey: ['reports'] });
       await queryClient.invalidateQueries({ queryKey: ['notifications'] });
 
-      // Show success toast with icon
       toast.success('Report Submitted Successfully', {
         description: 'Your supervisor weekly report has been submitted and saved. You can view it in the reports archive.',
         duration: 5000,
