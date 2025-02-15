@@ -9,6 +9,7 @@ import { Database } from "@/types/supabase";
 import { BackButton } from "@/components/BackButton";
 import { useQueryClient } from "@tanstack/react-query";
 import { CheckCircle2 } from "lucide-react";
+import { generateReportPDF } from "@/utils/pdfGenerator";
 
 type ReportType = Database['public']['Enums']['report_type'];
 type VisitStatus = Database['public']['Enums']['visit_status'];
@@ -78,6 +79,22 @@ export default function SupervisorReports() {
         console.log('Staff entries created successfully');
       }
 
+      // Generate and upload PDF
+      const pdfUrl = await generateReportPDF(
+        {
+          ...formData,
+          id: report.id,
+          created_at: new Date().toISOString(),
+        },
+        'supervisor_weekly',
+        report.id,
+        user.id
+      );
+
+      if (!pdfUrl) {
+        throw new Error('Failed to generate PDF report');
+      }
+
       // Create a report file record
       const { error: fileError } = await supabase
         .from('report_files')
@@ -85,7 +102,7 @@ export default function SupervisorReports() {
           user_id: user.id,
           report_type: 'supervisor_weekly',
           file_name: `supervisor_weekly_${report.id}.pdf`,
-          file_path: `/reports/${user.id}/supervisor_weekly_${report.id}.pdf`,
+          file_path: `${user.id}/supervisor_weekly_${report.id}.pdf`,
           report_id: report.id
         });
 
