@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Bell } from "lucide-react";
 import {
@@ -11,6 +12,7 @@ import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { supabase } from "@/integrations/supabase/client";
 import { format } from "date-fns";
+import { useToast } from "@/hooks/use-toast";
 
 interface Notification {
   id: string;
@@ -24,23 +26,37 @@ interface Notification {
 export function NotificationsDropdown() {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
+  const { toast } = useToast();
 
   useEffect(() => {
     // Fetch initial notifications
     const fetchNotifications = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (!user) return;
 
-      const { data } = await supabase
-        .from('notifications')
-        .select('*')
-        .eq('user_id', user.id)
-        .order('created_at', { ascending: false })
-        .limit(10);
+        const { data, error } = await supabase
+          .from('notifications')
+          .select('*')
+          .order('created_at', { ascending: false })
+          .limit(10);
 
-      if (data) {
-        setNotifications(data);
-        setUnreadCount(data.filter(n => !n.read).length);
+        if (error) {
+          console.error('Error fetching notifications:', error);
+          throw error;
+        }
+
+        if (data) {
+          setNotifications(data);
+          setUnreadCount(data.filter(n => !n.read).length);
+        }
+      } catch (error) {
+        console.error('Error in fetchNotifications:', error);
+        toast({
+          variant: "destructive",
+          title: "Error",
+          description: "Failed to load notifications",
+        });
       }
     };
 
@@ -55,7 +71,6 @@ export function NotificationsDropdown() {
           event: 'INSERT',
           schema: 'public',
           table: 'notifications',
-          filter: `user_id=eq.${supabase.auth.getUser().then(({ data }) => data.user?.id)}`,
         },
         (payload) => {
           console.log('New notification received:', payload);
@@ -68,19 +83,31 @@ export function NotificationsDropdown() {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, []);
+  }, [toast]);
 
   const markAsRead = async (id: string) => {
-    const { error } = await supabase
-      .from('notifications')
-      .update({ read: true })
-      .eq('id', id);
+    try {
+      const { error } = await supabase
+        .from('notifications')
+        .update({ read: true })
+        .eq('id', id);
 
-    if (!error) {
+      if (error) {
+        console.error('Error marking notification as read:', error);
+        throw error;
+      }
+
       setNotifications(prev =>
         prev.map(n => (n.id === id ? { ...n, read: true } : n))
       );
       setUnreadCount(prev => Math.max(0, prev - 1));
+    } catch (error) {
+      console.error('Error in markAsRead:', error);
+      toast({
+        variant: "destructive",
+        title: "Error",
+        description: "Failed to mark notification as read",
+      });
     }
   };
 
