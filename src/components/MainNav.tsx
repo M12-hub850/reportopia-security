@@ -117,7 +117,7 @@ export function MainNav() {
     { label: t.supervisorReports, icon: Clipboard, path: "/supervisor-reports" },
     { label: t.eventIncidents, icon: AlertTriangle, path: "/event-incidents" },
     { label: t.carHandovers, icon: Car, path: "/car-handovers/new" },
-    ...(isAdmin ? [{ label: "Reports Archive", icon: Archive, path: "/reports" }] : []),
+    { label: "Reports Archive", icon: Archive, path: "/reports" }, // Made visible for all users
     { label: t.settings, icon: Settings, path: "/settings" },
   ];
 
@@ -187,3 +187,4 @@ export function MainNav() {
     </div>
   );
 }
+
