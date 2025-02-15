@@ -49,6 +49,15 @@ export default function ManagerReports() {
   });
 
   const onSubmit = async (data: FormValues) => {
+    if (!form.formState.isValid) {
+      toast({
+        variant: "destructive",
+        title: translations[language].common.error,
+        description: "Please fill in all required fields",
+      });
+      return;
+    }
+
     try {
       setIsSubmitting(true);
       console.log("Submitting manager report:", data);
@@ -59,18 +68,24 @@ export default function ManagerReports() {
         throw new Error("No authenticated user found");
       }
 
-      const { data: reportData, error: reportError } = await supabase.from("reports").insert({
-        type: "manager_monthly",
-        description: data.description,
-        photo_url: data.photoUrl,
-        user_id: user.id,
-      }).select().single();
+      // First create the report
+      const { data: reportData, error: reportError } = await supabase
+        .from("reports")
+        .insert({
+          type: "manager_monthly",
+          description: data.description,
+          photo_url: data.photoUrl,
+          user_id: user.id,
+        })
+        .select()
+        .single();
 
       if (reportError) {
         console.error("Error creating report:", reportError);
         throw reportError;
       }
 
+      // Then create the staff entries
       const staffEntriesData = data.staffEntries.map(entry => ({
         report_id: reportData.id,
         staff_name: entry.staffName,
@@ -90,6 +105,7 @@ export default function ManagerReports() {
         throw staffEntriesError;
       }
 
+      // Generate PDF
       const pdfUrl = await generateReportPDF(
         { ...data, id: reportData.id },
         "manager_monthly",
@@ -102,25 +118,31 @@ export default function ManagerReports() {
         throw new Error("Failed to generate PDF");
       }
 
-      const { error: visitError } = await supabase.from("visits").insert({
-        user_id: user.id,
-        status: 'completed',
-        type: 'manager_monthly',
-        visit_date: new Date().toISOString(),
-      });
+      // Create visit record
+      const { error: visitError } = await supabase
+        .from("visits")
+        .insert({
+          user_id: user.id,
+          status: 'completed',
+          type: 'manager_monthly',
+          visit_date: new Date().toISOString(),
+        });
 
       if (visitError) {
         console.error("Error creating visit record:", visitError);
         throw visitError;
       }
 
-      const { error: notificationError } = await supabase.from("notifications").insert({
-        user_id: user.id,
-        type: "report_submitted",
-        title: t.notificationTitle,
-        message: t.notificationMessage.replace('{count}', data.staffEntries.length.toString()),
-        report_id: reportData.id
-      });
+      // Create notification
+      const { error: notificationError } = await supabase
+        .from("notifications")
+        .insert({
+          user_id: user.id,
+          type: "report_submitted",
+          title: t.notificationTitle,
+          message: t.notificationMessage.replace('{count}', data.staffEntries.length.toString()),
+          report_id: reportData.id
+        });
 
       if (notificationError) {
         console.error("Error creating notification:", notificationError);
@@ -162,11 +184,15 @@ export default function ManagerReports() {
             <Button
               type="button"
               variant="outline"
-              onClick={() => navigate("/")}
+              onClick={() => navigate("/reports")}
+              disabled={isSubmitting}
             >
               {translations[language].common.cancel}
             </Button>
-            <Button type="submit" disabled={isSubmitting}>
+            <Button 
+              type="submit" 
+              disabled={isSubmitting}
+            >
               {isSubmitting ? translations[language].common.loading : translations[language].common.submit}
             </Button>
           </div>
