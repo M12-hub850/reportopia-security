@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -5,6 +6,7 @@ import { formSchema, FormSchema } from "@/types/carHandover";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useQueryClient } from "@tanstack/react-query";
+import { createCompositeImage } from "@/utils/imageComposite";
 
 export function useVehicleHandover(onClose: () => void) {
   const { toast } = useToast();
@@ -46,7 +48,7 @@ export function useVehicleHandover(onClose: () => void) {
   });
 
   const captureImage = async (
-    fieldName: keyof Pick<FormSchema, 'carImages'>
+    fieldName: keyof Pick<FormSchema, 'carImages' | 'receiverIdImage' | 'drivingLicenseImage'>
   ) => {
     try {
       const input = document.createElement('input');
@@ -81,6 +83,8 @@ export function useVehicleHandover(onClose: () => void) {
         if (fieldName === "carImages") {
           const currentImages = form.getValues("carImages");
           form.setValue("carImages", [...currentImages, publicUrl]);
+        } else {
+          form.setValue(fieldName, publicUrl);
         }
       }
     } catch (error) {
@@ -102,6 +106,10 @@ export function useVehicleHandover(onClose: () => void) {
         throw new Error("No authenticated user found");
       }
 
+      // Create a composite image for the mileage
+      const mileageImage = data.carImages[0]; // Use the first car image as mileage image
+      
+      // Create the vehicle report
       const { error } = await supabase
         .from('vehicle_reports')
         .insert({
@@ -120,7 +128,7 @@ export function useVehicleHandover(onClose: () => void) {
           car_images: data.carImages,
           receiver_id_image: data.receiverIdImage,
           driving_license_image: data.drivingLicenseImage,
-          mileage_image: data.carImages[0] // Use the first car image as mileage image
+          mileage_image: mileageImage
         });
 
       if (error) throw error;
@@ -128,12 +136,13 @@ export function useVehicleHandover(onClose: () => void) {
       toast({
         title: "Success!",
         description: "Vehicle handover report has been submitted successfully.",
-        variant: "default",
       });
 
+      // Reset form and close modal
       form.reset();
       onClose();
 
+      // Invalidate queries to refresh the data
       await queryClient.invalidateQueries({ queryKey: ['vehicleReports'] });
     } catch (error) {
       console.error('Error submitting report:', error);

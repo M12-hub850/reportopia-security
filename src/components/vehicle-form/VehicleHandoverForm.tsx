@@ -1,3 +1,4 @@
+
 import { UseFormReturn } from "react-hook-form";
 import { FormSchema } from "@/types/carHandover";
 import { Form } from "@/components/ui/form";
@@ -10,7 +11,7 @@ interface VehicleHandoverFormProps {
   isSubmitting: boolean;
   onSubmit: (data: FormSchema) => Promise<void>;
   onClose: () => void;
-  onCaptureImage: (fieldName: keyof Pick<FormSchema, 'carImages'>) => Promise<void>;
+  onCaptureImage: (fieldName: keyof Pick<FormSchema, 'carImages' | 'receiverIdImage' | 'drivingLicenseImage'>) => Promise<void>;
 }
 
 export function VehicleHandoverForm({ 
@@ -20,9 +21,15 @@ export function VehicleHandoverForm({
   onClose,
   onCaptureImage 
 }: VehicleHandoverFormProps) {
+  const handleSubmit = async (data: FormSchema) => {
+    if (form.formState.isValid) {
+      await onSubmit(data);
+    }
+  };
+
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+      <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
         <VehicleDetailsForm form={form} />
         <VehicleImageCapture form={form} onCaptureImage={onCaptureImage} />
         <div className="flex gap-4">
@@ -38,7 +45,7 @@ export function VehicleHandoverForm({
           <Button 
             type="submit" 
             className="w-full"
-            disabled={isSubmitting}
+            disabled={isSubmitting || !form.formState.isValid}
           >
             {isSubmitting ? "Submitting..." : "Submit Report"}
           </Button>
