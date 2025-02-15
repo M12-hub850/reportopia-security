@@ -49,15 +49,6 @@ export default function ManagerReports() {
   });
 
   const onSubmit = async (data: FormValues) => {
-    if (!form.formState.isValid) {
-      toast({
-        variant: "destructive",
-        title: translations[language].common.error,
-        description: "Please fill in all required fields",
-      });
-      return;
-    }
-
     try {
       setIsSubmitting(true);
       console.log("Submitting manager report:", data);
@@ -146,6 +137,7 @@ export default function ManagerReports() {
 
       if (notificationError) {
         console.error("Error creating notification:", notificationError);
+        // Don't throw here as this is not critical
       }
 
       toast({
