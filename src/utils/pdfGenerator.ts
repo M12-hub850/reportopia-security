@@ -20,52 +20,73 @@ export async function generateReportPDF(
       format: 'a4'
     });
     
-    // Set up document styling
-    pdf.setFont('helvetica');
-    
-    // Add header with title
-    pdf.setFontSize(24);
-    pdf.setTextColor(44, 62, 80);
+    // Add company logo or header (you can add a logo image here)
+    pdf.setFontSize(28);
+    pdf.setFont('helvetica', 'bold');
+    pdf.setTextColor(0, 51, 102); // Dark blue color
     const title = reportType.replace(/_/g, ' ').toUpperCase();
-    pdf.text(title, MARGIN, 30);
+    pdf.text(title, MARGIN, 30, { align: 'left' });
     
-    // Add date
+    // Add report ID and date
     pdf.setFontSize(12);
-    pdf.setTextColor(127, 140, 141);
-    const date = new Date().toLocaleDateString();
-    pdf.text(`Date: ${date}`, MARGIN, 40);
+    pdf.setFont('helvetica', 'normal');
+    pdf.setTextColor(102, 102, 102); // Gray color
+    const date = new Date().toLocaleDateString('en-US', {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
+    pdf.text(`Report ID: ${reportId}`, MARGIN, 45);
+    pdf.text(`Date: ${date}`, MARGIN, 52);
     
-    // Add horizontal line
-    pdf.setDrawColor(189, 195, 199);
-    pdf.line(MARGIN, 45, A4_WIDTH - MARGIN, 45);
+    // Add decorative line
+    pdf.setDrawColor(0, 51, 102); // Dark blue color
+    pdf.setLineWidth(0.5);
+    pdf.line(MARGIN, 60, A4_WIDTH - MARGIN, 60);
     
-    // Add report content
-    pdf.setFontSize(12);
-    pdf.setTextColor(52, 73, 94);
-    let yPosition = 60;
+    let yPosition = 75;
 
     // Handle staff entries if they exist
     if (reportData.staffEntries && reportData.staffEntries.length > 0) {
+      pdf.setFontSize(16);
       pdf.setFont('helvetica', 'bold');
-      pdf.text('Staff Evaluations:', MARGIN, yPosition);
-      yPosition += 10;
-      pdf.setFont('helvetica', 'normal');
+      pdf.setTextColor(0, 51, 102);
+      pdf.text('Staff Evaluations', MARGIN, yPosition);
+      yPosition += 12;
 
       reportData.staffEntries.forEach((entry: any) => {
-        // Add staff entry details
-        pdf.text(`Staff Name: ${entry.staffName}`, MARGIN, yPosition);
-        yPosition += 6;
-        pdf.text(`Shift: ${entry.shift}`, MARGIN, yPosition);
-        yPosition += 6;
-        pdf.text(`Ratings:`, MARGIN, yPosition);
-        yPosition += 6;
-        pdf.text(`• Attendance: ${entry.attendanceRating}`, MARGIN + 5, yPosition);
-        yPosition += 6;
-        pdf.text(`• Duties: ${entry.dutiesRating}`, MARGIN + 5, yPosition);
-        yPosition += 6;
-        pdf.text(`• Uniform: ${entry.uniformRating}`, MARGIN + 5, yPosition);
-        yPosition += 6;
-        pdf.text(`• Presence: ${entry.presenceRating}`, MARGIN + 5, yPosition);
+        // Staff name and shift header
+        pdf.setFontSize(14);
+        pdf.setFont('helvetica', 'bold');
+        pdf.setTextColor(51, 51, 51);
+        pdf.text(`${entry.staffName}`, MARGIN, yPosition);
+        yPosition += 7;
+        
+        pdf.setFontSize(12);
+        pdf.setFont('helvetica', 'italic');
+        pdf.setTextColor(102, 102, 102);
+        pdf.text(`Shift: ${entry.shift}`, MARGIN + 5, yPosition);
+        yPosition += 10;
+
+        // Ratings section
+        pdf.setFont('helvetica', 'normal');
+        pdf.setTextColor(51, 51, 51);
+        const ratings = [
+          { label: 'Attendance', value: entry.attendanceRating },
+          { label: 'Duties Performance', value: entry.dutiesRating },
+          { label: 'Uniform Compliance', value: entry.uniformRating },
+          { label: 'Overall Presence', value: entry.presenceRating }
+        ];
+
+        ratings.forEach(rating => {
+          pdf.text(`• ${rating.label}: `, MARGIN + 5, yPosition);
+          pdf.setFont('helvetica', 'bold');
+          pdf.text(rating.value, MARGIN + 45, yPosition);
+          pdf.setFont('helvetica', 'normal');
+          yPosition += 7;
+        });
+
         yPosition += 10;
 
         // Check if we need a new page
@@ -82,12 +103,17 @@ export async function generateReportPDF(
         pdf.addPage();
         yPosition = MARGIN;
       }
-      pdf.setFont('helvetica', 'bold');
-      pdf.text('Description:', MARGIN, yPosition);
-      yPosition += 8;
-      pdf.setFont('helvetica', 'normal');
 
-      // Split description into lines that fit the page width
+      pdf.setFontSize(16);
+      pdf.setFont('helvetica', 'bold');
+      pdf.setTextColor(0, 51, 102);
+      pdf.text('Description', MARGIN, yPosition);
+      yPosition += 10;
+
+      pdf.setFontSize(12);
+      pdf.setFont('helvetica', 'normal');
+      pdf.setTextColor(51, 51, 51);
+
       const descriptionLines = pdf.splitTextToSize(
         reportData.description,
         A4_WIDTH - (2 * MARGIN)
@@ -105,13 +131,13 @@ export async function generateReportPDF(
 
     // Handle photo evidence if it exists
     if (reportData.photoUrl) {
-      // Always start photo on a new page
       pdf.addPage();
+      pdf.setFontSize(16);
       pdf.setFont('helvetica', 'bold');
-      pdf.text('Photo Evidence:', MARGIN, MARGIN);
+      pdf.setTextColor(0, 51, 102);
+      pdf.text('Photo Evidence', MARGIN, MARGIN);
 
       try {
-        // Create an Image element to load the photo
         const img = new Image();
         await new Promise((resolve, reject) => {
           img.onload = resolve;
@@ -119,25 +145,22 @@ export async function generateReportPDF(
           img.src = reportData.photoUrl;
         });
 
-        // Calculate dimensions to fit A4 while maintaining aspect ratio
         const imgAspectRatio = img.width / img.height;
         let imgWidth = A4_WIDTH - (2 * MARGIN);
         let imgHeight = imgWidth / imgAspectRatio;
 
-        // If height exceeds page height, scale down
         if (imgHeight > A4_HEIGHT - (3 * MARGIN)) {
           imgHeight = A4_HEIGHT - (3 * MARGIN);
           imgWidth = imgHeight * imgAspectRatio;
         }
 
-        // Center the image horizontally
         const xPosition = (A4_WIDTH - imgWidth) / 2;
         
         pdf.addImage(
           reportData.photoUrl,
           'JPEG',
           xPosition,
-          MARGIN + 10,
+          MARGIN + 15,
           imgWidth,
           imgHeight,
           undefined,
@@ -150,58 +173,28 @@ export async function generateReportPDF(
       }
     }
 
-    // Add vehicle-specific content if it exists
-    if (reportType === 'vehicle_handover') {
-      // Handle vehicle details
-      if (reportData.carImages && reportData.carImages.length > 0) {
-        reportData.carImages.forEach((imageUrl: string) => {
-          pdf.addPage();
-          pdf.setFont('helvetica', 'bold');
-          pdf.text('Vehicle Photo:', MARGIN, MARGIN);
-          
-          try {
-            const img = new Image();
-            img.src = imageUrl;
-            
-            const imgAspectRatio = img.width / img.height;
-            let imgWidth = A4_WIDTH - (2 * MARGIN);
-            let imgHeight = imgWidth / imgAspectRatio;
-
-            if (imgHeight > A4_HEIGHT - (3 * MARGIN)) {
-              imgHeight = A4_HEIGHT - (3 * MARGIN);
-              imgWidth = imgHeight * imgAspectRatio;
-            }
-
-            const xPosition = (A4_WIDTH - imgWidth) / 2;
-            
-            pdf.addImage(
-              imageUrl,
-              'JPEG',
-              xPosition,
-              MARGIN + 10,
-              imgWidth,
-              imgHeight,
-              undefined,
-              'MEDIUM'
-            );
-          } catch (error) {
-            console.error('Error adding vehicle image to PDF:', error);
-            pdf.setTextColor(255, 0, 0);
-            pdf.text('Error loading vehicle image', MARGIN, MARGIN + 20);
-          }
-        });
-      }
-    }
-
     // Add footer to all pages
     const pageCount = pdf.getNumberOfPages();
     for (let i = 1; i <= pageCount; i++) {
       pdf.setPage(i);
       pdf.setFontSize(10);
-      pdf.setTextColor(127, 140, 141);
-      pdf.text(`Page ${i} of ${pageCount}`, MARGIN, 290);
-      const timestamp = new Date().toLocaleString();
-      pdf.text(`Generated on: ${timestamp}`, 105, 290, { align: 'center' });
+      pdf.setFont('helvetica', 'italic');
+      pdf.setTextColor(128, 128, 128);
+      
+      // Add page numbers
+      pdf.text(`Page ${i} of ${pageCount}`, MARGIN, A4_HEIGHT - 15);
+      
+      // Add timestamp
+      const timestamp = new Date().toLocaleString('en-US', {
+        dateStyle: 'medium',
+        timeStyle: 'short'
+      });
+      pdf.text(`Generated: ${timestamp}`, A4_WIDTH - MARGIN - 50, A4_HEIGHT - 15, { align: 'right' });
+      
+      // Add a line above the footer
+      pdf.setDrawColor(200, 200, 200);
+      pdf.setLineWidth(0.1);
+      pdf.line(MARGIN, A4_HEIGHT - 20, A4_WIDTH - MARGIN, A4_HEIGHT - 20);
     }
 
     // Generate PDF file
@@ -225,22 +218,7 @@ export async function generateReportPDF(
 
     console.log('PDF uploaded successfully:', uploadData);
 
-    // Store reference in report_files table
-    const { error: dbError } = await supabase
-      .from('report_files')
-      .insert({
-        user_id: userId,
-        report_type: reportType,
-        file_name: fileName.split('/').pop() || '',
-        file_path: fileName,
-        report_id: reportId
-      });
-
-    if (dbError) {
-      console.error('Error storing PDF reference:', dbError);
-      return null;
-    }
-
+    // Get the public URL
     const { data: { publicUrl } } = supabase.storage
       .from('report_pdfs')
       .getPublicUrl(fileName);
