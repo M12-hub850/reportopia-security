@@ -13,7 +13,6 @@ import { BackButton } from "@/components/BackButton";
 import { generateReportPDF } from "@/utils/pdfGenerator";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { translations } from "@/translations";
-import { Card } from "@/components/ui/card";
 
 const staffEntrySchema = z.object({
   staffName: z.string().min(1, "Staff name is required"),
@@ -49,15 +48,6 @@ export default function ManagerReports() {
   });
 
   const onSubmit = async (data: FormValues) => {
-    if (!form.formState.isValid) {
-      toast({
-        variant: "destructive",
-        title: translations[language].common.error,
-        description: "Please fill in all required fields",
-      });
-      return;
-    }
-
     try {
       setIsSubmitting(true);
       console.log("Submitting manager report:", data);
@@ -192,7 +182,7 @@ export default function ManagerReports() {
             </Button>
             <Button 
               type="submit" 
-              disabled={isSubmitting}
+              disabled={isSubmitting || !form.formState.isValid}
             >
               {isSubmitting ? translations[language].common.loading : translations[language].common.submit}
             </Button>
