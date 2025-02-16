@@ -57,13 +57,16 @@ interface VehicleReportDetails {
   driving_license_image: string | null;
 }
 
-interface SupabaseResponse {
+interface DatabaseReportFile {
   id: string;
   report_type: string;
   file_name: string;
   file_path: string;
   created_at: string;
-  report: ReportDetails | null;
+  report_id: string;
+  vehicle_report_id: string;
+  user_id: string;
+  report: ReportDetails & { staff_entries: StaffEntry[] | null };
   vehicle_report: VehicleReportDetails | null;
 }
 
@@ -139,8 +142,12 @@ export default function ReportView() {
 
         console.log('Fetched reports:', data);
 
-        return (data as SupabaseResponse[]).map(item => ({
-          ...item,
+        return (data as DatabaseReportFile[]).map(item => ({
+          id: item.id,
+          report_type: item.report_type,
+          file_name: item.file_name,
+          file_path: item.file_path,
+          created_at: item.created_at,
           report: {
             ...(item.report || {}),
             ...(item.vehicle_report || {}),
@@ -201,10 +208,10 @@ export default function ReportView() {
             mileage={report.report.mileage || 0}
             project={report.report.project || ''}
             condition={report.report.condition || ''}
-            carImages={report.report.car_images}
-            mileageImage={report.report.mileage_image}
-            receiverIdImage={report.report.receiver_id_image}
-            drivingLicenseImage={report.report.driving_license_image}
+            carImages={report.report.car_images || []}
+            mileageImage={report.report.mileage_image || ''}
+            receiverIdImage={report.report.receiver_id_image || null}
+            drivingLicenseImage={report.report.driving_license_image || null}
             description={report.report.description}
           />
         );
