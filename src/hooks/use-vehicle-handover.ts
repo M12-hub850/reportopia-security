@@ -116,7 +116,7 @@ export function useVehicleHandover(onClose: () => void) {
           car_model: data.model,
           plate_number: data.plateNumber,
           mileage: parseInt(data.mileage),
-          project: data.location, // Map location to project field
+          Location: data.location, // Changed from project to Location
           condition: JSON.stringify({
             type: data.type,
             brand: data.brand,

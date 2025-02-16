@@ -49,7 +49,6 @@ export default function ManagerReports() {
     },
   });
 
-  // Add session check on component mount
   useEffect(() => {
     const checkSession = async () => {
       const { data: { session }, error } = await supabase.auth.getSession();
@@ -62,7 +61,6 @@ export default function ManagerReports() {
     
     checkSession();
 
-    // Listen for auth state changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       console.log("Auth state changed:", event);
       if (event === 'SIGNED_OUT' || event === 'TOKEN_REFRESHED' && !session) {
