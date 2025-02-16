@@ -19,19 +19,21 @@ export default function SignIn() {
   const [password, setPassword] = useState("");
 
   useEffect(() => {
-    // Clear any existing sessions when component mounts
-    if (typeof window !== 'undefined') {
-      window.localStorage?.removeItem('supabase.auth.token');
-    }
-
     const checkSession = async () => {
-      const { data: { session }, error } = await supabase.auth.getSession();
-      if (error) {
+      try {
+        // Clear any existing sessions first
+        await supabase.auth.signOut();
+        
+        const { data: { session }, error } = await supabase.auth.getSession();
+        if (error) {
+          console.error("Session check error:", error);
+          return;
+        }
+        if (session) {
+          navigate("/dashboard");
+        }
+      } catch (error) {
         console.error("Session check error:", error);
-        return;
-      }
-      if (session) {
-        navigate("/dashboard");
       }
     };
     
@@ -40,11 +42,7 @@ export default function SignIn() {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       console.log("Auth state changed:", event, !!session);
       if (event === 'SIGNED_IN' && session) {
-        // Ensure we have a valid session before redirecting
-        const { data: currentSession } = await supabase.auth.getSession();
-        if (currentSession.session) {
-          navigate("/dashboard");
-        }
+        navigate("/dashboard");
       }
     });
 
@@ -55,11 +53,16 @@ export default function SignIn() {
 
   const handleEmailSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!email || !password) {
+      setError("Please enter both email and password");
+      return;
+    }
+
     setLoading(true);
     setError(null);
 
     try {
-      // First clear any existing sessions
+      // Clear any existing sessions first
       await supabase.auth.signOut();
 
       const { data, error: signInError } = await supabase.auth.signInWithPassword({
@@ -69,26 +72,19 @@ export default function SignIn() {
 
       if (signInError) {
         console.error("Sign in error:", signInError);
-        if (signInError.message === 'Invalid login credentials') {
-          throw new Error('Invalid email or password. Please try again.');
-        }
-        throw signInError;
+        throw new Error('Invalid email or password. Please try again.');
       }
 
-      if (data?.session) {
-        // Verify the session is valid
-        const { data: sessionCheck } = await supabase.auth.getSession();
-        if (sessionCheck.session) {
-          toast({
-            title: "Success!",
-            description: "Signed in successfully.",
-          });
-          navigate("/dashboard");
-        } else {
-          throw new Error("Failed to establish session. Please try again.");
-        }
+      if (!data?.session) {
+        throw new Error("No session created. Please try again.");
       }
 
+      toast({
+        title: "Success!",
+        description: "Signed in successfully.",
+      });
+      
+      navigate("/dashboard");
     } catch (error: any) {
       console.error("Sign in error:", error);
       setError(error.message);
@@ -111,6 +107,10 @@ export default function SignIn() {
         provider,
         options: {
           redirectTo: `${window.location.origin}/dashboard`,
+          queryParams: {
+            access_type: 'offline',
+            prompt: 'consent',
+          },
         }
       });
       
