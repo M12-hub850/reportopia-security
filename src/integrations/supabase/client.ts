@@ -27,7 +27,38 @@ export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABL
   global: {
     headers: {
       'X-Client-Info': 'supabase-js-web',
-      'Access-Control-Allow-Origin': origin
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Methods': 'GET, POST, PUT, PATCH, DELETE, OPTIONS',
+      'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type'
+    },
+    fetch: (url, options) => {
+      const headers = new Headers(options?.headers || {});
+      headers.set('Access-Control-Allow-Origin', '*');
+      
+      return fetch(url, {
+        ...options,
+        headers,
+        credentials: 'include'
+      }).then(async response => {
+        if (!response.ok) {
+          const error = await response.json();
+          console.error('Supabase request failed:', {
+            url,
+            status: response.status,
+            error,
+            timestamp: new Date().toISOString()
+          });
+          throw new Error(error.message || 'An error occurred with the request');
+        }
+        return response;
+      }).catch(error => {
+        console.error('Supabase fetch error:', {
+          url,
+          error: error.message,
+          timestamp: new Date().toISOString()
+        });
+        throw error;
+      });
     }
   }
 });
@@ -72,3 +103,33 @@ if (typeof window !== 'undefined') {
     }
   });
 }
+
+// Add a custom method to handle role checks more reliably
+export const checkUserRole = async (userId: string, role: string) => {
+  try {
+    const { data, error } = await supabase.rpc('has_role', {
+      user_id: userId,
+      required_role: role
+    });
+
+    if (error) {
+      console.error('Role check error:', {
+        error,
+        userId,
+        role,
+        timestamp: new Date().toISOString()
+      });
+      return false;
+    }
+
+    return data || false;
+  } catch (error) {
+    console.error('Role check failed:', {
+      error,
+      userId,
+      role,
+      timestamp: new Date().toISOString()
+    });
+    return false;
+  }
+};
