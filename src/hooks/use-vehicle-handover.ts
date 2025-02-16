@@ -133,6 +133,19 @@ export function useVehicleHandover(onClose: () => void) {
 
       if (vehicleError) throw vehicleError;
 
+      // Create report file entry
+      const { error: reportFileError } = await supabase
+        .from('report_files')
+        .insert({
+          user_id: user.id,
+          report_type: 'vehicle_handover',
+          file_name: `Vehicle Handover - ${data.model} (${data.plateNumber})`,
+          file_path: data.carImages[0], // Use first car image as main image
+          vehicle_report_id: vehicleReport.id
+        });
+
+      if (reportFileError) throw reportFileError;
+
       // Create notification for the vehicle handover
       const { error: notificationError } = await supabase
         .from('notifications')
@@ -157,6 +170,7 @@ export function useVehicleHandover(onClose: () => void) {
 
       // Invalidate queries to refresh the data
       await queryClient.invalidateQueries({ queryKey: ['vehicleReports'] });
+      await queryClient.invalidateQueries({ queryKey: ['reports'] });
       await queryClient.invalidateQueries({ queryKey: ['notifications'] });
     } catch (error) {
       console.error('Error submitting report:', error);
