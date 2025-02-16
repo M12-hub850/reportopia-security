@@ -109,7 +109,7 @@ export function useVehicleHandover(onClose: () => void) {
       const mileageImage = data.carImages[0]; // Use the first car image as mileage image
       
       // Create the vehicle report
-      const { error } = await supabase
+      const { data: vehicleReport, error: vehicleError } = await supabase
         .from('vehicle_reports')
         .insert({
           user_id: user.id,
@@ -127,9 +127,24 @@ export function useVehicleHandover(onClose: () => void) {
           car_images: data.carImages,
           receiver_id_image: data.receiverIdImage,
           mileage_image: mileageImage
+        })
+        .select()
+        .single();
+
+      if (vehicleError) throw vehicleError;
+
+      // Create notification for the vehicle handover
+      const { error: notificationError } = await supabase
+        .from('notifications')
+        .insert({
+          user_id: user.id,
+          type: 'report_submitted',
+          title: 'Vehicle Handover Report Submitted',
+          message: `Vehicle handover report for ${data.model} (${data.plateNumber}) has been submitted successfully.`,
+          vehicle_report_id: vehicleReport.id
         });
 
-      if (error) throw error;
+      if (notificationError) throw notificationError;
 
       toast({
         title: "Success!",
@@ -142,6 +157,7 @@ export function useVehicleHandover(onClose: () => void) {
 
       // Invalidate queries to refresh the data
       await queryClient.invalidateQueries({ queryKey: ['vehicleReports'] });
+      await queryClient.invalidateQueries({ queryKey: ['notifications'] });
     } catch (error) {
       console.error('Error submitting report:', error);
       toast({
