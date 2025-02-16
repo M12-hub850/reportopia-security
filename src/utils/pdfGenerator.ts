@@ -20,7 +20,7 @@ export async function generateReportPDF(
       format: 'a4'
     });
     
-    // Add company logo or header (you can add a logo image here)
+    // Add company logo or header
     pdf.setFontSize(28);
     pdf.setFont('helvetica', 'bold');
     pdf.setTextColor(0, 51, 102); // Dark blue color
@@ -55,23 +55,29 @@ export async function generateReportPDF(
       pdf.text('Staff Evaluations', MARGIN, yPosition);
       yPosition += 12;
 
-      reportData.staffEntries.forEach((entry: any) => {
-        // Staff name and shift header
+      reportData.staffEntries.forEach((entry: any, index: number) => {
+        // Check if we need a new page
+        if (yPosition > A4_HEIGHT - 60) {
+          pdf.addPage();
+          yPosition = MARGIN;
+        }
+
+        // Staff entry header
         pdf.setFontSize(14);
         pdf.setFont('helvetica', 'bold');
         pdf.setTextColor(51, 51, 51);
-        pdf.text(`${entry.staffName}`, MARGIN, yPosition);
-        yPosition += 7;
-        
-        pdf.setFontSize(12);
-        pdf.setFont('helvetica', 'italic');
-        pdf.setTextColor(102, 102, 102);
-        pdf.text(`Shift: ${entry.shift}`, MARGIN + 5, yPosition);
-        yPosition += 10;
+        pdf.text(`Staff Member ${index + 1}:`, MARGIN, yPosition);
+        yPosition += 8;
 
-        // Ratings section
+        // Staff details
+        pdf.setFontSize(12);
         pdf.setFont('helvetica', 'normal');
-        pdf.setTextColor(51, 51, 51);
+        pdf.text(`Name: ${entry.staffName}`, MARGIN + 5, yPosition);
+        yPosition += 6;
+        pdf.text(`Shift: ${entry.shift}`, MARGIN + 5, yPosition);
+        yPosition += 8;
+
+        // Ratings
         const ratings = [
           { label: 'Attendance', value: entry.attendanceRating },
           { label: 'Duties Performance', value: entry.dutiesRating },
@@ -80,24 +86,15 @@ export async function generateReportPDF(
         ];
 
         ratings.forEach(rating => {
-          pdf.text(`• ${rating.label}: `, MARGIN + 5, yPosition);
-          pdf.setFont('helvetica', 'bold');
-          pdf.text(rating.value, MARGIN + 45, yPosition);
-          pdf.setFont('helvetica', 'normal');
-          yPosition += 7;
+          pdf.text(`${rating.label}: ${rating.value}`, MARGIN + 5, yPosition);
+          yPosition += 6;
         });
 
-        yPosition += 10;
-
-        // Check if we need a new page
-        if (yPosition > A4_HEIGHT - MARGIN) {
-          pdf.addPage();
-          yPosition = MARGIN;
-        }
+        yPosition += 10; // Add space between entries
       });
     }
 
-    // Add description if it exists
+    // Add description section
     if (reportData.description) {
       if (yPosition > A4_HEIGHT - 60) {
         pdf.addPage();
@@ -131,13 +128,13 @@ export async function generateReportPDF(
 
     // Handle photo evidence if it exists
     if (reportData.photoUrl) {
-      pdf.addPage();
-      pdf.setFontSize(16);
-      pdf.setFont('helvetica', 'bold');
-      pdf.setTextColor(0, 51, 102);
-      pdf.text('Photo Evidence', MARGIN, MARGIN);
-
       try {
+        pdf.addPage();
+        pdf.setFontSize(16);
+        pdf.setFont('helvetica', 'bold');
+        pdf.setTextColor(0, 51, 102);
+        pdf.text('Photo Evidence', MARGIN, MARGIN);
+
         const img = new Image();
         await new Promise((resolve, reject) => {
           img.onload = resolve;
