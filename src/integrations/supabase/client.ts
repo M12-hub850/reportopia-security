@@ -1,3 +1,4 @@
+
 import { createClient } from '@supabase/supabase-js';
 import type { Database } from './types';
 
@@ -16,15 +17,17 @@ export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABL
     detectSessionInUrl: true,
     storage: typeof window !== 'undefined' ? window.localStorage : undefined,
     flowType: 'pkce',
-    debug: true
+    debug: true,
+    // Add CORS headers for auth requests
+    headers: {
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type'
+    }
   },
   global: {
     headers: {
       'X-Client-Info': 'supabase-js-web',
     }
-  },
-  db: {
-    schema: 'public'
   },
   realtime: {
     params: {
