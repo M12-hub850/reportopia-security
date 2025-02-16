@@ -26,39 +26,37 @@ export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABL
   },
   global: {
     headers: {
-      'X-Client-Info': 'supabase-js-web',
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Methods': 'GET, POST, PUT, PATCH, DELETE, OPTIONS',
-      'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type'
+      'X-Client-Info': 'supabase-js-web'
     },
-    fetch: (url, options) => {
-      const headers = new Headers(options?.headers || {});
-      headers.set('Access-Control-Allow-Origin', '*');
-      
-      return fetch(url, {
+    fetch: async (url, options = {}) => {
+      // Get the current session token
+      const { data: { session } } = await supabase.auth.getSession();
+      const token = session?.access_token;
+
+      // Add authorization header if we have a token
+      const headers = new Headers(options.headers);
+      if (token) {
+        headers.set('Authorization', `Bearer ${token}`);
+      }
+
+      // Make the request
+      const response = await fetch(url, {
         ...options,
         headers,
-        credentials: 'include'
-      }).then(async response => {
-        if (!response.ok) {
-          const error = await response.json();
-          console.error('Supabase request failed:', {
-            url,
-            status: response.status,
-            error,
-            timestamp: new Date().toISOString()
-          });
-          throw new Error(error.message || 'An error occurred with the request');
-        }
-        return response;
-      }).catch(error => {
-        console.error('Supabase fetch error:', {
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        console.error('Supabase request failed:', {
           url,
-          error: error.message,
+          status: response.status,
+          error,
           timestamp: new Date().toISOString()
         });
-        throw error;
-      });
+        throw new Error(error.message || 'An error occurred with the request');
+      }
+
+      return response;
     }
   }
 });
@@ -104,9 +102,17 @@ if (typeof window !== 'undefined') {
   });
 }
 
+type UserRole = 'admin' | 'manager' | 'user';
+
 // Add a custom method to handle role checks more reliably
-export const checkUserRole = async (userId: string, role: string) => {
+export const checkUserRole = async (userId: string, role: UserRole) => {
   try {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) {
+      console.error('No active session for role check');
+      return false;
+    }
+
     const { data, error } = await supabase.rpc('has_role', {
       user_id: userId,
       required_role: role
