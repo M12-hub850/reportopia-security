@@ -1,3 +1,4 @@
+
 import { FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
@@ -67,24 +68,6 @@ export function HandoverDetails({ form }: HandoverDetailsProps) {
           render={({ field }) => (
             <FormItem>
               <FormLabel>{t.receiverIdImage}</FormLabel>
-              <FormControl>
-                <ImageUpload
-                  value={field.value}
-                  onChange={field.onChange}
-                  bucket="vehicle_images"
-                />
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        <FormField
-          control={form.control}
-          name="drivingLicenseImage"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>{t.drivingLicenseImage}</FormLabel>
               <FormControl>
                 <ImageUpload
                   value={field.value}

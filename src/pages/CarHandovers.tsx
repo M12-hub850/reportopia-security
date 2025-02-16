@@ -1,3 +1,4 @@
+
 import { Button } from "@/components/ui/button";
 import { Form } from "@/components/ui/form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -24,11 +25,14 @@ const CarHandovers = () => {
         safetyKit: false,
         fireExtinguisher: false,
         dashCam: false,
+        other: false,
+        otherSpecification: "",
       },
       observations: [],
       receiverName: "",
       receiverPhone: "",
       receiverId: "",
+      receiverIdImage: "",
       supervisorName: "",
       date: new Date().toISOString().split('T')[0],
       time: new Date().toTimeString().split(' ')[0].slice(0, 5),
