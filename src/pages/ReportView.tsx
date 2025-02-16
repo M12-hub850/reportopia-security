@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { BackButton } from '@/components/BackButton';
 import { Card } from '@/components/ui/card';
@@ -19,6 +19,15 @@ import { IncidentReportDisplay } from '@/components/reports/IncidentReportDispla
 import { VehicleReportDisplay } from '@/components/reports/VehicleReportDisplay';
 import { useQuery } from '@tanstack/react-query';
 
+interface StaffEntry {
+  staff_name: string;
+  shift: string;
+  attendance_rating: string | null;
+  duties_rating: string | null;
+  uniform_rating: string | null;
+  presence_rating: string | null;
+}
+
 interface ReportDetails {
   description: string;
   photo_url: string;
@@ -33,16 +42,29 @@ interface ReportDetails {
   reporting_time?: string | null;
   action_taken?: string | null;
   reporting_person?: string | null;
-  staff_entries?: any[];
-  car_model?: string;
-  plate_number?: string;
-  mileage?: number;
-  project?: string;
-  condition?: string;
-  car_images?: string[];
-  mileage_image?: string;
-  receiver_id_image?: string;
-  driving_license_image?: string;
+  staff_entries?: StaffEntry[];
+}
+
+interface VehicleReportDetails {
+  car_model: string;
+  plate_number: string;
+  mileage: number;
+  project: string;
+  condition: string;
+  car_images: string[];
+  mileage_image: string;
+  receiver_id_image: string | null;
+  driving_license_image: string | null;
+}
+
+interface SupabaseResponse {
+  id: string;
+  report_type: string;
+  file_name: string;
+  file_path: string;
+  created_at: string;
+  report: ReportDetails | null;
+  vehicle_report: VehicleReportDetails | null;
 }
 
 interface ReportFile {
@@ -51,7 +73,7 @@ interface ReportFile {
   file_name: string;
   file_path: string;
   created_at: string;
-  report: ReportDetails;
+  report: ReportDetails & Partial<VehicleReportDetails>;
 }
 
 export default function ReportView() {
@@ -117,11 +139,11 @@ export default function ReportView() {
 
         console.log('Fetched reports:', data);
 
-        return data.map(item => ({
+        return (data as SupabaseResponse[]).map(item => ({
           ...item,
           report: {
-            ...item.report,
-            ...(item.vehicle_report || {}), // Only spread if vehicle_report exists
+            ...(item.report || {}),
+            ...(item.vehicle_report || {}),
             staff_entries: item.report?.staff_entries || []
           }
         })) as ReportFile[];
