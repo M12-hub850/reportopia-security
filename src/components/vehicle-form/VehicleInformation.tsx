@@ -1,11 +1,9 @@
+
 import { FormField, FormItem, FormLabel, FormControl, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { MapPin } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { UseFormReturn } from "react-hook-form";
 import { FormSchema } from "@/types/carHandover";
-import { useToast } from "@/hooks/use-toast";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { translations } from "@/translations";
 import { Switch } from "@/components/ui/switch";
@@ -15,40 +13,8 @@ interface VehicleInformationProps {
 }
 
 export function VehicleInformation({ form }: VehicleInformationProps) {
-  const { toast } = useToast();
   const { language } = useLanguage();
   const t = translations[language].reports.vehicles;
-
-  const getCurrentLocation = () => {
-    if ("geolocation" in navigator) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          const { latitude, longitude } = position.coords;
-          const locationString = `${latitude.toFixed(6)}, ${longitude.toFixed(6)}`;
-          form.setValue("location", locationString);
-          
-          toast({
-            title: t.locationUpdated,
-            description: t.locationUpdatedDesc,
-          });
-        },
-        (error) => {
-          console.error("Error getting location:", error);
-          toast({
-            title: t.locationError,
-            description: t.locationErrorDesc,
-            variant: "destructive",
-          });
-        }
-      );
-    } else {
-      toast({
-        title: t.locationNotSupported,
-        description: t.locationNotSupportedDesc,
-        variant: "destructive",
-      });
-    }
-  };
 
   const isDelegated = form.watch("isDelegated");
 
@@ -132,20 +98,9 @@ export function VehicleInformation({ form }: VehicleInformationProps) {
           render={({ field }) => (
             <FormItem>
               <FormLabel>{t.location}</FormLabel>
-              <div className="flex gap-2">
-                <FormControl>
-                  <Input placeholder={t.locationPlaceholder} {...field} />
-                </FormControl>
-                <Button 
-                  type="button" 
-                  variant="outline" 
-                  size="icon"
-                  onClick={getCurrentLocation}
-                  title={t.getCurrentLocation}
-                >
-                  <MapPin className="h-4 w-4" />
-                </Button>
-              </div>
+              <FormControl>
+                <Input placeholder={t.locationPlaceholder} {...field} />
+              </FormControl>
               <FormMessage />
             </FormItem>
           )}
