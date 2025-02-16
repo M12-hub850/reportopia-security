@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { BackButton } from '@/components/BackButton';
@@ -136,6 +137,16 @@ export default function ReportView() {
     },
   });
 
+  const getReportTitle = (type: string) => {
+    const titles: Record<string, string> = {
+      'supervisor_weekly': 'SUPERVISOR WEEKLY REPORT',
+      'manager_monthly': 'MANAGER MONTHLY REPORT',
+      'event_incident': 'INCIDENT REPORT',
+      'vehicle_handover': 'VEHICLE HANDOVER REPORT'
+    };
+    return titles[type] || type.toUpperCase().replace(/_/g, ' ');
+  };
+
   const renderReportContent = (report: ReportFile) => {
     switch (report.report_type) {
       case 'supervisor_weekly':
@@ -213,7 +224,7 @@ export default function ReportView() {
                   <FileIcon className="h-6 w-6 text-blue-500" />
                   <div>
                     <h3 className="font-semibold">
-                      {report.report_type.replace(/_/g, ' ').toUpperCase()}
+                      {getReportTitle(report.report_type)}
                     </h3>
                     <p className="text-sm text-muted-foreground">
                       {format(new Date(report.created_at), 'PPP')}
@@ -230,7 +241,7 @@ export default function ReportView() {
         <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>
-              {selectedReport?.report_type.replace(/_/g, ' ').toUpperCase()}
+              {selectedReport && getReportTitle(selectedReport.report_type)}
             </DialogTitle>
           </DialogHeader>
           {selectedReport && renderReportContent(selectedReport)}
