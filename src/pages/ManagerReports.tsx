@@ -146,7 +146,7 @@ export default function ManagerReports() {
 
       if (notificationError) {
         console.error("Error creating notification:", notificationError);
-        throw notificationError; // Now we throw this error since it's part of the core functionality
+        throw notificationError;
       }
 
       toast({

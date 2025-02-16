@@ -354,6 +354,13 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      check_user_role: {
+        Args: {
+          user_id: string
+          role_name: string
+        }
+        Returns: boolean
+      }
       get_pending_monthly_visits: {
         Args: {
           user_id: string
