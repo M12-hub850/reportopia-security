@@ -108,7 +108,7 @@ export function useVehicleHandover(onClose: () => void) {
       // Create a composite image for the mileage
       const mileageImage = data.carImages[0]; // Use the first car image as mileage image
       
-      // Create the vehicle report
+      // Create the vehicle report with all form data
       const { data: vehicleReport, error: vehicleError } = await supabase
         .from('vehicle_reports')
         .insert({
@@ -116,13 +116,21 @@ export function useVehicleHandover(onClose: () => void) {
           car_model: data.model,
           plate_number: data.plateNumber,
           mileage: parseInt(data.mileage),
-          project: data.location,
+          project: data.location, // Map location to project field
           condition: JSON.stringify({
+            type: data.type,
+            brand: data.brand,
             contents: data.contents,
             observations: data.observations,
             isDelegated: data.isDelegated,
             delegationNumber: data.delegationNumber,
             nonDelegationReason: data.nonDelegationReason,
+            receiverName: data.receiverName,
+            receiverPhone: data.receiverPhone,
+            receiverId: data.receiverId,
+            supervisorName: data.supervisorName,
+            date: data.date,
+            time: data.time
           }),
           car_images: data.carImages,
           receiver_id_image: data.receiverIdImage,
