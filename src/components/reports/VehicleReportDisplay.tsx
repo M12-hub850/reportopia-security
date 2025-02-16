@@ -1,3 +1,4 @@
+
 import { ReportImage } from "@/components/ui/report-image";
 
 interface VehicleReportProps {

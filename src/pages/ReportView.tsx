@@ -48,7 +48,7 @@ interface VehicleReportDetails {
   car_model: string;
   plate_number: string;
   mileage: number;
-  location: string;
+  project: string;
   condition: string;
   car_images: string[];
   mileage_image: string;
@@ -125,7 +125,7 @@ export default function ReportView() {
               car_model,
               plate_number,
               mileage,
-              location,
+              project,
               condition,
               car_images,
               mileage_image,
@@ -205,7 +205,7 @@ export default function ReportView() {
             carModel={report.report.car_model || ''}
             plateNumber={report.report.plate_number || ''}
             mileage={report.report.mileage || 0}
-            location={report.report.location || ''}
+            project={report.report.project || ''}
             condition={report.report.condition || ''}
             carImages={report.report.car_images || []}
             mileageImage={report.report.mileage_image || ''}

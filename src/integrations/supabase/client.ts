@@ -28,13 +28,13 @@ export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABL
     headers: {
       'X-Client-Info': 'supabase-js-web'
     },
-    fetch: async (url, options = {}) => {
+    fetch: async (url, options: RequestInit = {}) => {
       // Get the current session token
       const { data: { session } } = await supabase.auth.getSession();
       const token = session?.access_token;
 
       // Add authorization header if we have a token
-      const headers = new Headers(options.headers);
+      const headers = new Headers(options.headers || {});
       if (token) {
         headers.set('Authorization', `Bearer ${token}`);
       }
