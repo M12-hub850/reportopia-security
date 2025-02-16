@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -78,11 +79,11 @@ export default function ManagerReports() {
           user_id: user.id,
         })
         .select()
-        .single();
+        .maybeSingle();
 
-      if (reportError) {
+      if (reportError || !reportData) {
         console.error("Error creating report:", reportError);
-        throw reportError;
+        throw reportError || new Error("Failed to create report");
       }
 
       // Then create the staff entries
@@ -106,16 +107,21 @@ export default function ManagerReports() {
       }
 
       // Generate PDF
-      const pdfUrl = await generateReportPDF(
-        { ...data, id: reportData.id },
-        "manager_monthly",
-        reportData.id,
-        user.id
-      );
+      try {
+        const pdfUrl = await generateReportPDF(
+          { ...data, id: reportData.id },
+          "manager_monthly",
+          reportData.id,
+          user.id
+        );
 
-      if (!pdfUrl) {
-        console.error("Failed to generate PDF");
-        throw new Error("Failed to generate PDF");
+        if (!pdfUrl) {
+          console.error("Failed to generate PDF");
+          // Don't throw here, continue with the process
+        }
+      } catch (pdfError) {
+        console.error("Error generating PDF:", pdfError);
+        // Don't throw here, continue with the process
       }
 
       // Create visit record
@@ -130,7 +136,7 @@ export default function ManagerReports() {
 
       if (visitError) {
         console.error("Error creating visit record:", visitError);
-        throw visitError;
+        // Don't throw here, continue with the process
       }
 
       // Create notification
@@ -146,7 +152,7 @@ export default function ManagerReports() {
 
       if (notificationError) {
         console.error("Error creating notification:", notificationError);
-        throw notificationError;
+        // Don't throw here, continue with the process
       }
 
       toast({
