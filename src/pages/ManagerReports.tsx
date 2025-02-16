@@ -119,7 +119,22 @@ export default function ManagerReports() {
           user.id
         );
 
-        if (!pdfUrl) {
+        if (pdfUrl) {
+          // Create report file entry
+          const { error: fileError } = await supabase
+            .from("report_files")
+            .insert({
+              user_id: user.id,
+              report_id: reportData.id,
+              report_type: "manager_monthly",
+              file_name: `manager_monthly_${reportData.id}.pdf`,
+              file_path: pdfUrl,
+            });
+
+          if (fileError) {
+            console.error("Error creating report file entry:", fileError);
+          }
+        } else {
           console.warn("PDF generation failed but continuing with submission");
         }
       } catch (pdfError) {
