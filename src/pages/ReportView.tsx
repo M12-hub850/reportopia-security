@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { BackButton } from '@/components/BackButton';
@@ -49,7 +48,7 @@ interface VehicleReportDetails {
   car_model: string;
   plate_number: string;
   mileage: number;
-  project: string;
+  Location: string;
   condition: string;
   car_images: string[];
   mileage_image: string;
@@ -126,7 +125,7 @@ export default function ReportView() {
               car_model,
               plate_number,
               mileage,
-              project,
+              Location,
               condition,
               car_images,
               mileage_image,
@@ -140,26 +139,20 @@ export default function ReportView() {
 
         if (error) throw error;
 
-        const processedData = (data as unknown as DatabaseReportFile[]).map(item => {
-          const staffEntries = Array.isArray(item.report?.staff_entries) 
-            ? item.report.staff_entries 
-            : [];
-
-          return {
-            id: item.id,
-            report_type: item.report_type,
-            file_name: item.file_name,
-            file_path: item.file_path,
-            created_at: item.created_at,
-            report: {
-              ...(item.report || { description: '', photo_url: '' }),
-              ...(item.vehicle_report || {}),
-              staff_entries: staffEntries
-            }
-          };
-        });
-
-        return processedData;
+        return (data as unknown as DatabaseReportFile[]).map(item => ({
+          id: item.id,
+          report_type: item.report_type,
+          file_name: item.file_name,
+          file_path: item.file_path,
+          created_at: item.created_at,
+          report: {
+            ...(item.report || { description: '', photo_url: '' }),
+            ...(item.vehicle_report || {}),
+            staff_entries: Array.isArray(item.report?.staff_entries) 
+              ? item.report.staff_entries 
+              : []
+          }
+        }));
       } catch (error) {
         console.error('Error fetching reports:', error);
         toast({
@@ -212,7 +205,7 @@ export default function ReportView() {
             carModel={report.report.car_model || ''}
             plateNumber={report.report.plate_number || ''}
             mileage={report.report.mileage || 0}
-            project={report.report.project || ''}
+            Location={report.report.Location || ''}
             condition={report.report.condition || ''}
             carImages={report.report.car_images || []}
             mileageImage={report.report.mileage_image || ''}
