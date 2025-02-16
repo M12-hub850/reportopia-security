@@ -121,7 +121,7 @@ export default function ReportView() {
           ...item,
           report: {
             ...item.report,
-            ...(item.vehicle_report || {}),
+            ...(item.vehicle_report || {}), // Only spread if vehicle_report exists
             staff_entries: item.report?.staff_entries || []
           }
         })) as ReportFile[];
