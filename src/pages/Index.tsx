@@ -30,9 +30,21 @@ export default function Index() {
         p_end_date: new Date().toISOString()
       });
 
-      if (error) throw error;
-      return data;
-    }
+      if (error) {
+        console.error('Error fetching report counts:', error);
+        throw error;
+      }
+
+      // Transform the data to be more readable
+      const transformedData = (data || []).map(item => ({
+        report_type: item.report_type.replace(/_/g, ' ').toUpperCase(),
+        count: Number(item.count) || 0
+      }));
+
+      console.log('Transformed report counts:', transformedData);
+      return transformedData;
+    },
+    refetchInterval: 30000 // Refetch every 30 seconds
   });
 
   const handleRefresh = async () => {
@@ -106,7 +118,7 @@ export default function Index() {
                     <div className="h-full flex items-center justify-center">
                       <Loader2 className="h-8 w-8 animate-spin text-purple-600" />
                     </div>
-                  ) : (
+                  ) : reportCounts && reportCounts.length > 0 ? (
                     <ResponsiveContainer width="100%" height="100%">
                       <BarChart data={reportCounts}>
                         <CartesianGrid strokeDasharray="3 3" className="opacity-50" />
@@ -114,6 +126,9 @@ export default function Index() {
                           dataKey="report_type" 
                           tick={{ fill: '#6B46C1' }}
                           axisLine={{ stroke: '#6B46C1' }}
+                          angle={-45}
+                          textAnchor="end"
+                          height={70}
                         />
                         <YAxis 
                           tick={{ fill: '#6B46C1' }}
@@ -139,6 +154,10 @@ export default function Index() {
                         </defs>
                       </BarChart>
                     </ResponsiveContainer>
+                  ) : (
+                    <div className="h-full flex items-center justify-center text-muted-foreground">
+                      No reports data available
+                    </div>
                   )}
                 </CardContent>
               </Card>
