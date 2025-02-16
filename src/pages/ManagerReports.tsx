@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -14,6 +13,7 @@ import { generateReportPDF } from "@/utils/pdfGenerator";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { translations } from "@/translations";
 import { Card } from "@/components/ui/card";
+import { Loader2 } from "lucide-react";
 
 const staffEntrySchema = z.object({
   staffName: z.string().min(1, "Staff name is required"),
@@ -193,8 +193,16 @@ export default function ManagerReports() {
             <Button 
               type="submit" 
               disabled={isSubmitting || !form.formState.isValid}
+              className="min-w-[120px]"
             >
-              {isSubmitting ? translations[language].common.loading : translations[language].common.submit}
+              {isSubmitting ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  {translations[language].common.loading}
+                </>
+              ) : (
+                translations[language].common.submit
+              )}
             </Button>
           </div>
         </form>
