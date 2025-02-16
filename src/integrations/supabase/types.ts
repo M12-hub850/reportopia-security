@@ -354,6 +354,13 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      check_role: {
+        Args: {
+          target_user_id: string
+          required_role: string
+        }
+        Returns: boolean
+      }
       check_user_role: {
         Args: {
           user_id: string
