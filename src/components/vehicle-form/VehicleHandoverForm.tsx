@@ -11,7 +11,7 @@ interface VehicleHandoverFormProps {
   isSubmitting: boolean;
   onSubmit: (data: FormSchema) => Promise<void>;
   onClose: () => void;
-  onCaptureImage: (fieldName: keyof Pick<FormSchema, 'carImages' | 'receiverIdImage' | 'drivingLicenseImage'>) => Promise<void>;
+  onCaptureImage: (fieldName: keyof Pick<FormSchema, 'carImages' | 'receiverIdImage'>) => Promise<void>;
 }
 
 export function VehicleHandoverForm({ 

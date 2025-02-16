@@ -39,7 +39,6 @@ export function useVehicleHandover(onClose: () => void) {
       receiverPhone: "",
       receiverId: "",
       receiverIdImage: "",
-      drivingLicenseImage: "",
       supervisorName: "",
       date: new Date().toISOString().split('T')[0],
       time: new Date().toTimeString().split(' ')[0].slice(0, 5),
@@ -48,7 +47,7 @@ export function useVehicleHandover(onClose: () => void) {
   });
 
   const captureImage = async (
-    fieldName: keyof Pick<FormSchema, 'carImages' | 'receiverIdImage' | 'drivingLicenseImage'>
+    fieldName: keyof Pick<FormSchema, 'carImages' | 'receiverIdImage'>
   ) => {
     try {
       const input = document.createElement('input');
@@ -127,7 +126,6 @@ export function useVehicleHandover(onClose: () => void) {
           }),
           car_images: data.carImages,
           receiver_id_image: data.receiverIdImage,
-          driving_license_image: data.drivingLicenseImage,
           mileage_image: mileageImage
         });
 
