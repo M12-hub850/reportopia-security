@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
@@ -49,13 +49,48 @@ export default function ManagerReports() {
     },
   });
 
+  // Add session check on component mount
+  useEffect(() => {
+    const checkSession = async () => {
+      const { data: { session }, error } = await supabase.auth.getSession();
+      if (error || !session) {
+        console.log("No valid session found:", error);
+        navigate("/sign-in");
+        return;
+      }
+    };
+    
+    checkSession();
+
+    // Listen for auth state changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      console.log("Auth state changed:", event);
+      if (event === 'SIGNED_OUT' || event === 'TOKEN_REFRESHED' && !session) {
+        navigate("/sign-in");
+      }
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, [navigate]);
+
   const onSubmit = async (data: FormValues) => {
     try {
       setIsSubmitting(true);
       console.log("Starting manager report submission:", data);
 
-      const { data: { user } } = await supabase.auth.getUser();
+      const { data: { user }, error: userError } = await supabase.auth.getUser();
       
+      if (userError) {
+        console.error("Auth error:", userError);
+        if (userError.message.includes("invalid JWT")) {
+          navigate("/sign-in");
+          return;
+        }
+        throw userError;
+      }
+
       if (!user) {
         throw new Error("Authentication required");
       }
