@@ -19,6 +19,11 @@ export default function SignIn() {
   const [password, setPassword] = useState("");
 
   useEffect(() => {
+    // Clear any existing sessions when component mounts
+    if (typeof window !== 'undefined') {
+      window.localStorage?.removeItem('supabase.auth.token');
+    }
+
     const checkSession = async () => {
       const { data: { session }, error } = await supabase.auth.getSession();
       if (error) {
@@ -35,7 +40,11 @@ export default function SignIn() {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       console.log("Auth state changed:", event, !!session);
       if (event === 'SIGNED_IN' && session) {
-        navigate("/dashboard");
+        // Ensure we have a valid session before redirecting
+        const { data: currentSession } = await supabase.auth.getSession();
+        if (currentSession.session) {
+          navigate("/dashboard");
+        }
       }
     });
 
@@ -50,22 +59,34 @@ export default function SignIn() {
     setError(null);
 
     try {
+      // First clear any existing sessions
+      await supabase.auth.signOut();
+
       const { data, error: signInError } = await supabase.auth.signInWithPassword({
-        email,
-        password,
+        email: email.trim(),
+        password: password.trim(),
       });
 
       if (signInError) {
         console.error("Sign in error:", signInError);
+        if (signInError.message === 'Invalid login credentials') {
+          throw new Error('Invalid email or password. Please try again.');
+        }
         throw signInError;
       }
 
       if (data?.session) {
-        toast({
-          title: "Success!",
-          description: "Signed in successfully.",
-        });
-        navigate("/dashboard");
+        // Verify the session is valid
+        const { data: sessionCheck } = await supabase.auth.getSession();
+        if (sessionCheck.session) {
+          toast({
+            title: "Success!",
+            description: "Signed in successfully.",
+          });
+          navigate("/dashboard");
+        } else {
+          throw new Error("Failed to establish session. Please try again.");
+        }
       }
 
     } catch (error: any) {
@@ -81,17 +102,21 @@ export default function SignIn() {
     }
   };
 
-  const handleGoogleSignIn = async () => {
+  const handleOAuthSignIn = async (provider: 'google' | 'github') => {
     try {
+      // Clear any existing sessions first
+      await supabase.auth.signOut();
+
       const { error } = await supabase.auth.signInWithOAuth({
-        provider: "google",
+        provider,
         options: {
           redirectTo: `${window.location.origin}/dashboard`,
         }
       });
+      
       if (error) throw error;
     } catch (error: any) {
-      console.error("Google sign in error:", error);
+      console.error(`${provider} sign in error:`, error);
       setError(error.message);
       toast({
         variant: "destructive",
@@ -101,25 +126,8 @@ export default function SignIn() {
     }
   };
 
-  const handleGithubSignIn = async () => {
-    try {
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider: "github",
-        options: {
-          redirectTo: `${window.location.origin}/dashboard`,
-        }
-      });
-      if (error) throw error;
-    } catch (error: any) {
-      console.error("Github sign in error:", error);
-      setError(error.message);
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: error.message,
-      });
-    }
-  };
+  const handleGoogleSignIn = () => handleOAuthSignIn('google');
+  const handleGithubSignIn = () => handleOAuthSignIn('github');
 
   return (
     <div className="min-h-screen bg-[#F1F1F1] flex items-center justify-center p-4">
