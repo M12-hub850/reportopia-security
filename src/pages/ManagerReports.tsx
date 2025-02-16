@@ -79,11 +79,15 @@ export default function ManagerReports() {
           user_id: user.id,
         })
         .select()
-        .maybeSingle();
+        .single();
 
-      if (reportError || !reportData) {
+      if (reportError) {
         console.error("Error creating report:", reportError);
-        throw reportError || new Error("Failed to create report");
+        throw reportError;
+      }
+
+      if (!reportData) {
+        throw new Error("Failed to create report - no data returned");
       }
 
       // Then create the staff entries
