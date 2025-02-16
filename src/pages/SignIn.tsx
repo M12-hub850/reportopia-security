@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -19,20 +20,28 @@ export default function SignIn() {
 
   useEffect(() => {
     const checkSession = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
+      const { data: { session }, error } = await supabase.auth.getSession();
+      if (error) {
+        console.error("Session check error:", error);
+        return;
+      }
       if (session) {
         navigate("/dashboard");
       }
     };
+    
     checkSession();
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
+      console.log("Auth state changed:", event, !!session);
       if (event === 'SIGNED_IN' && session) {
         navigate("/dashboard");
       }
     });
 
-    return () => subscription.unsubscribe();
+    return () => {
+      subscription.unsubscribe();
+    };
   }, [navigate]);
 
   const handleEmailSignIn = async (e: React.FormEvent) => {
@@ -41,17 +50,23 @@ export default function SignIn() {
     setError(null);
 
     try {
-      const { error: signInError } = await supabase.auth.signInWithPassword({
+      const { data, error: signInError } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
 
-      if (signInError) throw signInError;
+      if (signInError) {
+        console.error("Sign in error:", signInError);
+        throw signInError;
+      }
 
-      toast({
-        title: "Success!",
-        description: "Signed in successfully.",
-      });
+      if (data?.session) {
+        toast({
+          title: "Success!",
+          description: "Signed in successfully.",
+        });
+        navigate("/dashboard");
+      }
 
     } catch (error: any) {
       console.error("Sign in error:", error);
