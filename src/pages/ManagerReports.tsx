@@ -50,24 +50,17 @@ export default function ManagerReports() {
   });
 
   const onSubmit = async (data: FormValues) => {
-    if (!form.formState.isValid) {
-      toast({
-        variant: "destructive",
-        title: translations[language].common.error,
-        description: "Please fill in all required fields",
-      });
-      return;
-    }
-
     try {
       setIsSubmitting(true);
-      console.log("Submitting manager report:", data);
+      console.log("Starting manager report submission:", data);
 
       const { data: { user } } = await supabase.auth.getUser();
       
       if (!user) {
-        throw new Error("No authenticated user found");
+        throw new Error("Authentication required");
       }
+
+      console.log("Creating report with user:", user.id);
 
       // First create the report
       const { data: reportData, error: reportError } = await supabase
@@ -83,12 +76,14 @@ export default function ManagerReports() {
 
       if (reportError) {
         console.error("Error creating report:", reportError);
-        throw reportError;
+        throw new Error(reportError.message);
       }
 
       if (!reportData) {
         throw new Error("Failed to create report - no data returned");
       }
+
+      console.log("Report created successfully:", reportData.id);
 
       // Then create the staff entries
       const staffEntriesData = data.staffEntries.map(entry => ({
@@ -101,17 +96,22 @@ export default function ManagerReports() {
         presence_rating: entry.presenceRating,
       }));
 
+      console.log("Creating staff entries:", staffEntriesData);
+
       const { error: staffEntriesError } = await supabase
         .from("staff_entries")
         .insert(staffEntriesData);
 
       if (staffEntriesError) {
         console.error("Error creating staff entries:", staffEntriesError);
-        throw staffEntriesError;
+        throw new Error(staffEntriesError.message);
       }
+
+      console.log("Staff entries created successfully");
 
       // Generate PDF
       try {
+        console.log("Generating PDF for report:", reportData.id);
         const pdfUrl = await generateReportPDF(
           { ...data, id: reportData.id },
           "manager_monthly",
@@ -120,15 +120,15 @@ export default function ManagerReports() {
         );
 
         if (!pdfUrl) {
-          console.error("Failed to generate PDF");
-          // Don't throw here, continue with the process
+          console.warn("PDF generation failed but continuing with submission");
         }
       } catch (pdfError) {
-        console.error("Error generating PDF:", pdfError);
-        // Don't throw here, continue with the process
+        console.error("PDF generation error:", pdfError);
+        // Continue with the process
       }
 
       // Create visit record
+      console.log("Creating visit record");
       const { error: visitError } = await supabase
         .from("visits")
         .insert({
@@ -140,10 +140,11 @@ export default function ManagerReports() {
 
       if (visitError) {
         console.error("Error creating visit record:", visitError);
-        // Don't throw here, continue with the process
+        // Continue with the process
       }
 
       // Create notification
+      console.log("Creating notification");
       const { error: notificationError } = await supabase
         .from("notifications")
         .insert({
@@ -156,7 +157,7 @@ export default function ManagerReports() {
 
       if (notificationError) {
         console.error("Error creating notification:", notificationError);
-        // Don't throw here, continue with the process
+        // Continue with the process
       }
 
       toast({
@@ -166,11 +167,11 @@ export default function ManagerReports() {
 
       navigate("/reports");
     } catch (error) {
-      console.error("Error submitting report:", error);
+      console.error("Error in report submission:", error);
       toast({
         variant: "destructive",
         title: translations[language].common.error,
-        description: t.errorMessage,
+        description: error instanceof Error ? error.message : t.errorMessage,
       });
     } finally {
       setIsSubmitting(false);
