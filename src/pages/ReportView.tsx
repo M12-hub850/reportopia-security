@@ -66,7 +66,7 @@ interface DatabaseReportFile {
   report_id: string;
   vehicle_report_id: string;
   user_id: string;
-  report: ReportDetails & { staff_entries: StaffEntry[] | null };
+  report: (ReportDetails & { staff_entries: any }) | null;
   vehicle_report: VehicleReportDetails | null;
 }
 
@@ -140,20 +140,26 @@ export default function ReportView() {
 
         if (error) throw error;
 
-        console.log('Fetched reports:', data);
+        const processedData = (data as unknown as DatabaseReportFile[]).map(item => {
+          const staffEntries = Array.isArray(item.report?.staff_entries) 
+            ? item.report.staff_entries 
+            : [];
 
-        return (data as DatabaseReportFile[]).map(item => ({
-          id: item.id,
-          report_type: item.report_type,
-          file_name: item.file_name,
-          file_path: item.file_path,
-          created_at: item.created_at,
-          report: {
-            ...(item.report || {}),
-            ...(item.vehicle_report || {}),
-            staff_entries: item.report?.staff_entries || []
-          }
-        })) as ReportFile[];
+          return {
+            id: item.id,
+            report_type: item.report_type,
+            file_name: item.file_name,
+            file_path: item.file_path,
+            created_at: item.created_at,
+            report: {
+              ...(item.report || { description: '', photo_url: '' }),
+              ...(item.vehicle_report || {}),
+              staff_entries: staffEntries
+            }
+          };
+        });
+
+        return processedData;
       } catch (error) {
         console.error('Error fetching reports:', error);
         toast({
