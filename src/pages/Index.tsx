@@ -1,4 +1,3 @@
-
 import { MainNav } from "@/components/MainNav";
 import { SparklesCore } from "@/components/ui/sparkles";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -11,21 +10,63 @@ import { supabase } from "@/integrations/supabase/client";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { Loader2, BarChart2, Eye, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { useToast } from "@/hooks/use-toast";
 
 export default function Index() {
   const { language } = useLanguage();
   const t = translations[language].dashboard;
+  const navigate = useNavigate();
+  const { toast } = useToast();
+
+  useEffect(() => {
+    const checkAuth = async () => {
+      const { data: { session }, error } = await supabase.auth.getSession();
+      if (error) {
+        console.error('Error checking auth status:', error);
+        toast({
+          variant: "destructive",
+          title: "Authentication Error",
+          description: "Please sign in again",
+        });
+        navigate('/sign-in');
+        return;
+      }
+      
+      if (!session) {
+        console.log('No active session found, redirecting to sign-in');
+        navigate('/sign-in');
+        return;
+      }
+    };
+
+    checkAuth();
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === 'SIGNED_OUT' || !session) {
+        navigate('/sign-in');
+      }
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, [navigate, toast]);
 
   const { data: reportCounts, isLoading: isLoadingReports, refetch: refetchReports } = useQuery({
     queryKey: ['report-counts'],
     queryFn: async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        throw new Error('Not authenticated');
+      }
+
       const startDate = new Date();
       startDate.setMonth(startDate.getMonth() - 1);
-      const { data: user } = await supabase.auth.getUser();
-      if (!user.user) throw new Error('Not authenticated');
 
       const { data, error } = await supabase.rpc('get_report_counts', {
-        p_user_id: user.user.id,
+        p_user_id: session.user.id,
         p_start_date: startDate.toISOString(),
         p_end_date: new Date().toISOString()
       });
@@ -35,7 +76,6 @@ export default function Index() {
         throw error;
       }
 
-      // Transform the data to be more readable
       const transformedData = (data || []).map(item => ({
         report_type: item.report_type.replace(/_/g, ' ').toUpperCase(),
         count: Number(item.count) || 0
@@ -44,7 +84,8 @@ export default function Index() {
       console.log('Transformed report counts:', transformedData);
       return transformedData;
     },
-    refetchInterval: 30000 // Refetch every 30 seconds
+    enabled: true,
+    refetchInterval: 30000
   });
 
   const handleRefresh = async () => {
