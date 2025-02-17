@@ -22,7 +22,7 @@ export function ImageUpload({ value, onChange, bucket, required = true }: ImageU
 
     try {
       setIsUploading(true);
-      console.log("Starting upload process for bucket:", bucket);
+      console.log("Starting upload process:", { bucket, fileType: file.type, fileSize: file.size });
 
       // Validate file type
       if (!file.type.startsWith('image/')) {
@@ -35,32 +35,43 @@ export function ImageUpload({ value, onChange, bucket, required = true }: ImageU
       }
 
       // Check authentication
-      const { data: { session } } = await supabase.auth.getSession();
+      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+      if (sessionError) {
+        console.error("Session error:", sessionError);
+        throw new Error('Authentication error. Please try signing in again.');
+      }
       if (!session) {
         throw new Error('You must be logged in to upload files');
       }
+      console.log("User authenticated successfully");
 
       const fileExt = file.name.split(".").pop()?.toLowerCase() || 'png';
       const fileName = `${Date.now()}_${Math.random().toString(36).substring(2, 9)}.${fileExt}`;
-      console.log("Preparing to upload file:", { fileName, bucket });
+      console.log("Preparing to upload file:", { fileName, bucket, fileExt });
 
       const { data: uploadData, error: uploadError } = await supabase.storage
         .from(bucket)
         .upload(fileName, file, {
           cacheControl: '3600',
-          upsert: true
+          upsert: true,
+          contentType: file.type
         });
 
       if (uploadError) {
         console.error("Upload error:", uploadError);
-        throw new Error(uploadError.message);
+        throw new Error(`Upload failed: ${uploadError.message}`);
       }
 
       console.log("File uploaded successfully:", uploadData);
 
-      const { data: { publicUrl } } = supabase.storage
+      const { data: { publicUrl }, error: urlError } = supabase.storage
         .from(bucket)
         .getPublicUrl(fileName);
+
+      if (urlError) {
+        console.error("Error getting public URL:", urlError);
+        throw new Error('Failed to get public URL for uploaded file');
+      }
 
       console.log("Generated public URL:", publicUrl);
 
@@ -76,7 +87,12 @@ export function ImageUpload({ value, onChange, bucket, required = true }: ImageU
       if (input) input.value = '';
 
     } catch (error: any) {
-      console.error("Error uploading image:", error);
+      console.error("Error uploading image:", {
+        error,
+        message: error.message,
+        stack: error.stack,
+        bucket,
+      });
       toast({
         variant: "destructive",
         title: "Error",
