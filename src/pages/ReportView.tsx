@@ -123,9 +123,23 @@ export default function ReportView() {
           file_path: item.file_path,
           created_at: item.created_at,
           report: {
-            ...(item.report || {}),
-            ...(item.vehicle_report || {}),
-            staff_entries: item.report?.staff_entries || []
+            // Ensure required ReportDetails properties are present
+            description: item.report?.description || '',
+            photo_url: item.report?.photo_url || '',
+            staff_name: item.report?.staff_name || null,
+            shift: item.report?.shift || null,
+            attendance_rating: item.report?.attendance_rating || null,
+            duties_rating: item.report?.duties_rating || null,
+            uniform_rating: item.report?.uniform_rating || null,
+            presence_rating: item.report?.presence_rating || null,
+            location: item.report?.location || null,
+            incident_date: item.report?.incident_date || null,
+            reporting_time: item.report?.reporting_time || null,
+            action_taken: item.report?.action_taken || null,
+            reporting_person: item.report?.reporting_person || null,
+            staff_entries: item.report?.staff_entries || [],
+            // Add vehicle report properties as optional
+            ...(item.vehicle_report || {})
           }
         }));
       } catch (error) {
