@@ -50,15 +50,10 @@ export function ImageUpload({ value, onChange, bucket, required = true }: ImageU
         throw new Error(uploadError.message);
       }
 
-      // Get public URL
-      const { data: { publicUrl }, error: urlError } = supabase.storage
+      // Get public URL - note that getPublicUrl doesn't return an error
+      const { data: { publicUrl } } = supabase.storage
         .from(bucket)
         .getPublicUrl(filePath);
-
-      if (urlError) {
-        console.error("URL error:", urlError);
-        throw new Error("Failed to get public URL");
-      }
 
       console.log('Upload successful, public URL:', publicUrl);
       onChange(publicUrl);
