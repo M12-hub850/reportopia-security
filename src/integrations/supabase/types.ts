@@ -9,6 +9,224 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      notifications: {
+        Row: {
+          created_at: string | null
+          id: string
+          message: string
+          read: boolean | null
+          report_id: string | null
+          title: string
+          type: string
+          user_id: string
+          vehicle_report_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          message: string
+          read?: boolean | null
+          report_id?: string | null
+          title: string
+          type: string
+          user_id: string
+          vehicle_report_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          message?: string
+          read?: boolean | null
+          report_id?: string | null
+          title?: string
+          type?: string
+          user_id?: string
+          vehicle_report_id?: string | null
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          created_at: string | null
+          email: string
+          full_name: string | null
+          id: string
+          phone: string | null
+          preferred_language: string | null
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string | null
+          email: string
+          full_name?: string | null
+          id: string
+          phone?: string | null
+          preferred_language?: string | null
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string | null
+          email?: string
+          full_name?: string | null
+          id?: string
+          phone?: string | null
+          preferred_language?: string | null
+        }
+        Relationships: []
+      }
+      report_files: {
+        Row: {
+          created_at: string | null
+          file_name: string
+          file_path: string
+          id: string
+          report_id: string | null
+          report_type: string
+          user_id: string
+          vehicle_report_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          file_name: string
+          file_path: string
+          id?: string
+          report_id?: string | null
+          report_type: string
+          user_id: string
+          vehicle_report_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          file_name?: string
+          file_path?: string
+          id?: string
+          report_id?: string | null
+          report_type?: string
+          user_id?: string
+          vehicle_report_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "report_files_report_id_fkey"
+            columns: ["report_id"]
+            isOneToOne: false
+            referencedRelation: "reports"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "report_files_vehicle_report_id_fkey"
+            columns: ["vehicle_report_id"]
+            isOneToOne: false
+            referencedRelation: "vehicle_reports"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      reports: {
+        Row: {
+          action_taken: string | null
+          attendance_rating: string | null
+          created_at: string | null
+          description: string | null
+          duties_rating: string | null
+          id: string
+          incident_date: string | null
+          location: string | null
+          photo_url: string | null
+          presence_rating: string | null
+          reporting_person: string | null
+          reporting_time: string | null
+          shift: string | null
+          staff_name: string | null
+          type: string
+          uniform_rating: string | null
+          user_id: string
+        }
+        Insert: {
+          action_taken?: string | null
+          attendance_rating?: string | null
+          created_at?: string | null
+          description?: string | null
+          duties_rating?: string | null
+          id?: string
+          incident_date?: string | null
+          location?: string | null
+          photo_url?: string | null
+          presence_rating?: string | null
+          reporting_person?: string | null
+          reporting_time?: string | null
+          shift?: string | null
+          staff_name?: string | null
+          type: string
+          uniform_rating?: string | null
+          user_id: string
+        }
+        Update: {
+          action_taken?: string | null
+          attendance_rating?: string | null
+          created_at?: string | null
+          description?: string | null
+          duties_rating?: string | null
+          id?: string
+          incident_date?: string | null
+          location?: string | null
+          photo_url?: string | null
+          presence_rating?: string | null
+          reporting_person?: string | null
+          reporting_time?: string | null
+          shift?: string | null
+          staff_name?: string | null
+          type?: string
+          uniform_rating?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      staff_entries: {
+        Row: {
+          attendance_rating: string | null
+          created_at: string | null
+          duties_rating: string | null
+          id: string
+          presence_rating: string | null
+          report_id: string | null
+          shift: string
+          staff_name: string
+          uniform_rating: string | null
+        }
+        Insert: {
+          attendance_rating?: string | null
+          created_at?: string | null
+          duties_rating?: string | null
+          id?: string
+          presence_rating?: string | null
+          report_id?: string | null
+          shift: string
+          staff_name: string
+          uniform_rating?: string | null
+        }
+        Update: {
+          attendance_rating?: string | null
+          created_at?: string | null
+          duties_rating?: string | null
+          id?: string
+          presence_rating?: string | null
+          report_id?: string | null
+          shift?: string
+          staff_name?: string
+          uniform_rating?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "staff_entries_report_id_fkey"
+            columns: ["report_id"]
+            isOneToOne: false
+            referencedRelation: "reports"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_roles: {
         Row: {
           created_at: string
@@ -26,6 +244,51 @@ export type Database = {
           created_at?: string
           id?: string
           role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
+      vehicle_reports: {
+        Row: {
+          car_images: string[]
+          car_model: string
+          condition: string
+          created_at: string | null
+          driving_license_image: string | null
+          id: string
+          mileage: number
+          mileage_image: string
+          plate_number: string
+          project: string
+          receiver_id_image: string | null
+          user_id: string
+        }
+        Insert: {
+          car_images: string[]
+          car_model: string
+          condition: string
+          created_at?: string | null
+          driving_license_image?: string | null
+          id?: string
+          mileage: number
+          mileage_image: string
+          plate_number: string
+          project: string
+          receiver_id_image?: string | null
+          user_id: string
+        }
+        Update: {
+          car_images?: string[]
+          car_model?: string
+          condition?: string
+          created_at?: string | null
+          driving_license_image?: string | null
+          id?: string
+          mileage?: number
+          mileage_image?: string
+          plate_number?: string
+          project?: string
+          receiver_id_image?: string | null
           user_id?: string
         }
         Relationships: []
@@ -75,6 +338,17 @@ export type Database = {
           user_id: string
         }
         Returns: {
+          count: number
+        }[]
+      }
+      get_report_counts: {
+        Args: {
+          p_user_id: string
+          p_start_date: string
+          p_end_date: string
+        }
+        Returns: {
+          report_type: string
           count: number
         }[]
       }
