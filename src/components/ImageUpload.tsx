@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
@@ -20,19 +21,44 @@ export function ImageUpload({ value, onChange, bucket, required = true }: ImageU
 
     try {
       setIsUploading(true);
+      console.log("Starting file upload to bucket:", bucket);
+
+      // Validate file type
+      if (!file.type.startsWith('image/')) {
+        throw new Error('Please upload an image file');
+      }
+
+      // Validate file size (5MB limit)
+      if (file.size > 5 * 1024 * 1024) {
+        throw new Error('File size must be less than 5MB');
+      }
+
       const fileExt = file.name.split(".").pop();
       const fileName = `${Math.random()}.${fileExt}`;
       const filePath = `${fileName}`;
 
+      console.log("Uploading file:", { fileName, fileExt, bucket });
+
       const { error: uploadError, data } = await supabase.storage
         .from(bucket)
-        .upload(filePath, file);
+        .upload(filePath, file, {
+          cacheControl: '3600',
+          upsert: false,
+          contentType: file.type
+        });
 
-      if (uploadError) throw uploadError;
+      if (uploadError) {
+        console.error("Upload error:", uploadError);
+        throw uploadError;
+      }
+
+      console.log("File uploaded successfully, getting public URL");
 
       const { data: { publicUrl } } = supabase.storage
         .from(bucket)
         .getPublicUrl(filePath);
+
+      console.log("Got public URL:", publicUrl);
 
       onChange(publicUrl);
       
@@ -40,15 +66,18 @@ export function ImageUpload({ value, onChange, bucket, required = true }: ImageU
         title: "Success",
         description: "Image uploaded successfully",
       });
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error uploading image:", error);
       toast({
         variant: "destructive",
         title: "Error",
-        description: "Failed to upload image. Please try again.",
+        description: error.message || "Failed to upload image. Please try again.",
       });
     } finally {
       setIsUploading(false);
+      // Reset the input value so the same file can be uploaded again if needed
+      const input = document.getElementById('image-upload') as HTMLInputElement;
+      if (input) input.value = '';
     }
   };
 
@@ -68,7 +97,7 @@ export function ImageUpload({ value, onChange, bucket, required = true }: ImageU
           variant={value ? "outline" : "default"}
           onClick={() => document.getElementById("image-upload")?.click()}
           disabled={isUploading}
-          className={!value && required ? "border-red-500" : ""}
+          className={`${!value && required ? "border-red-500" : ""} min-w-[120px]`}
         >
           {isUploading ? "Uploading..." : value ? "Change Image" : "Upload Image"}
           {required && !value && " (Required)"}
