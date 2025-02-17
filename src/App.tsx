@@ -1,3 +1,4 @@
+
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import Index from "./pages/Index";
 import SignIn from "./pages/SignIn";
@@ -20,6 +21,8 @@ const queryClient = new QueryClient({
     queries: {
       staleTime: 1000 * 60 * 5, // Data stays fresh for 5 minutes
       gcTime: 1000 * 60 * 30, // Cache persists for 30 minutes
+      retry: 1, // Only retry failed requests once
+      refetchOnWindowFocus: false, // Disable automatic refetching when window gains focus
     },
   },
 });
@@ -28,29 +31,56 @@ function App() {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
 
   useEffect(() => {
+    let mounted = true;
+
     const checkAuth = async () => {
       try {
+        // Get initial session
         const { data: { session } } = await supabase.auth.getSession();
-        setIsAuthenticated(!!session);
-        
-        const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-          console.log("Auth state changed:", event, !!session);
+        if (mounted) {
           setIsAuthenticated(!!session);
+          console.log("Initial auth state:", !!session);
+        }
+        
+        // Listen for auth changes
+        const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+          if (!mounted) return;
+          
+          console.log("Auth state changed:", event, !!session);
+          if (event === 'SIGNED_IN') {
+            setIsAuthenticated(true);
+          } else if (event === 'SIGNED_OUT') {
+            setIsAuthenticated(false);
+            // Clear any cached data on sign out
+            queryClient.clear();
+          }
         });
 
-        return () => subscription.unsubscribe();
+        return () => {
+          subscription.unsubscribe();
+        };
       } catch (error) {
         console.error("Error in auth check:", error);
-        setIsAuthenticated(false);
+        if (mounted) {
+          setIsAuthenticated(false);
+        }
       }
     };
 
     checkAuth();
+
+    return () => {
+      mounted = false;
+    };
   }, []);
 
   // Show loading state while checking authentication
   if (isAuthenticated === null) {
-    return <div>Loading...</div>;
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900" />
+      </div>
+    );
   }
 
   return (
