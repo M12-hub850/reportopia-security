@@ -33,12 +33,25 @@ export function ImageUpload({ value, onChange, bucket, required = true }: ImageU
         throw new Error('File size must be less than 5MB');
       }
 
-      const fileExt = file.name.split(".").pop();
-      const fileName = `${Math.random()}.${fileExt}`;
-      const filePath = `${fileName}`;
+      // Generate a unique filename to avoid conflicts
+      const timestamp = new Date().getTime();
+      const random = Math.random().toString(36).substring(2, 15);
+      const fileExt = file.name.split(".").pop()?.toLowerCase() || 'png';
+      const filePath = `${timestamp}_${random}.${fileExt}`;
 
-      console.log("Uploading file:", { fileName, fileExt, bucket });
+      console.log("Uploading file:", { filePath, fileType: file.type, bucket });
 
+      // First, check if we can access the bucket
+      const { data: bucketExists, error: bucketError } = await supabase.storage
+        .from(bucket)
+        .list();
+
+      if (bucketError) {
+        console.error("Bucket access error:", bucketError);
+        throw new Error(`Cannot access bucket ${bucket}. Please check permissions.`);
+      }
+
+      // Attempt the upload
       const { error: uploadError, data } = await supabase.storage
         .from(bucket)
         .upload(filePath, file, {
@@ -49,7 +62,7 @@ export function ImageUpload({ value, onChange, bucket, required = true }: ImageU
 
       if (uploadError) {
         console.error("Upload error:", uploadError);
-        throw uploadError;
+        throw new Error(uploadError.message);
       }
 
       console.log("File uploaded successfully, getting public URL");
@@ -66,6 +79,11 @@ export function ImageUpload({ value, onChange, bucket, required = true }: ImageU
         title: "Success",
         description: "Image uploaded successfully",
       });
+
+      // Reset the input to allow uploading the same file again
+      const input = document.getElementById('image-upload') as HTMLInputElement;
+      if (input) input.value = '';
+
     } catch (error: any) {
       console.error("Error uploading image:", error);
       toast({
@@ -75,9 +93,6 @@ export function ImageUpload({ value, onChange, bucket, required = true }: ImageU
       });
     } finally {
       setIsUploading(false);
-      // Reset the input value so the same file can be uploaded again if needed
-      const input = document.getElementById('image-upload') as HTMLInputElement;
-      if (input) input.value = '';
     }
   };
 
