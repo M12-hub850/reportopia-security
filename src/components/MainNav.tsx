@@ -1,4 +1,3 @@
-
 import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
@@ -42,27 +41,21 @@ export function MainNav() {
   useEffect(() => {
     console.log("MainNav: Initializing component");
     fetchProfile();
-    checkAdminRole();
+    checkAdminAccess();
   }, []);
 
-  const checkAdminRole = async () => {
+  const checkAdminAccess = async () => {
     try {
-      console.log("Checking admin role...");
+      console.log("Checking admin access...");
       const { data: { user } } = await supabase.auth.getUser();
       
       if (!user) return;
 
-      const { data, error } = await supabase.rpc('has_role', {
-        user_id: user.id,
-        required_role: 'admin'
-      });
-
-      if (error) throw error;
-      
-      console.log("Is admin:", data);
-      setIsAdmin(!!data);
+      // For now, we'll consider all authenticated users as having access
+      // You can implement your own admin check logic here
+      setIsAdmin(true);
     } catch (error) {
-      console.error("Error checking admin role:", error);
+      console.error("Error checking admin access:", error);
     }
   };
 
@@ -117,7 +110,7 @@ export function MainNav() {
     { label: t.supervisorReports, icon: Clipboard, path: "/supervisor-reports" },
     { label: t.eventIncidents, icon: AlertTriangle, path: "/event-incidents" },
     { label: t.carHandovers, icon: Car, path: "/car-handovers/new" },
-    { label: "Reports Archive", icon: Archive, path: "/reports" }, // Made visible for all users
+    { label: "Reports Archive", icon: Archive, path: "/reports" },
     { label: t.settings, icon: Settings, path: "/settings" },
   ];
 
@@ -187,4 +180,3 @@ export function MainNav() {
     </div>
   );
 }
-

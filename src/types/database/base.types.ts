@@ -1,3 +1,4 @@
+
 export type Json =
   | string
   | number
@@ -15,9 +16,9 @@ export interface DatabaseFunctions {
     Args: { user_id: string };
     Returns: { count: number }[];
   };
-  has_role: {
-    Args: { user_id: string; required_role: 'user' | 'manager' | 'admin' };
-    Returns: boolean;
+  schedule_weekly_visits: {
+    Args: Record<string, never>;
+    Returns: void;
   };
   get_report_counts: {
     Args: {
@@ -30,7 +31,6 @@ export interface DatabaseFunctions {
 }
 
 export interface DatabaseEnums {
-  app_role: 'user' | 'manager' | 'admin';
   visit_status: 'completed' | 'pending' | 'missed' | 'other';
   rating_type: 'Excellent' | 'Good' | 'Fair' | 'Poor';
   notification_type: 'report_submitted' | 'report_updated' | 'new_report';
