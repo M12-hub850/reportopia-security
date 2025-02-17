@@ -64,12 +64,12 @@ export function ImageUpload({ value, onChange, bucket, required = true }: ImageU
 
       console.log("File uploaded successfully:", uploadData);
 
-      const { data: { publicUrl }, error: urlError } = supabase.storage
+      // Get public URL - this method doesn't return an error
+      const { data: { publicUrl } } = supabase.storage
         .from(bucket)
         .getPublicUrl(fileName);
 
-      if (urlError) {
-        console.error("Error getting public URL:", urlError);
+      if (!publicUrl) {
         throw new Error('Failed to get public URL for uploaded file');
       }
 
