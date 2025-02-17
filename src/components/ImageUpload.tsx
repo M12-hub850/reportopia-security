@@ -3,6 +3,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { Loader2 } from "lucide-react";
 
 interface ImageUploadProps {
   value: string;
@@ -21,19 +22,48 @@ export function ImageUpload({ value, onChange, bucket, required = true }: ImageU
 
     try {
       setIsUploading(true);
+      console.log("Starting file upload to bucket:", bucket);
+
+      // Validate file type and size
+      if (!file.type.startsWith('image/')) {
+        throw new Error('Please upload an image file');
+      }
+
+      if (file.size > 5 * 1024 * 1024) { // 5MB limit
+        throw new Error('File size must be less than 5MB');
+      }
+
       const fileExt = file.name.split(".").pop();
       const fileName = `${Math.random()}.${fileExt}`;
       const filePath = `${fileName}`;
 
+      console.log("Uploading file:", {
+        bucket,
+        filePath,
+        type: file.type,
+        size: file.size
+      });
+
       const { error: uploadError, data } = await supabase.storage
         .from(bucket)
-        .upload(filePath, file);
+        .upload(filePath, file, {
+          cacheControl: '3600',
+          contentType: file.type,
+          upsert: false
+        });
 
-      if (uploadError) throw uploadError;
+      if (uploadError) {
+        console.error("Upload error:", uploadError);
+        throw uploadError;
+      }
+
+      console.log("File uploaded successfully, getting public URL");
 
       const { data: { publicUrl } } = supabase.storage
         .from(bucket)
         .getPublicUrl(filePath);
+
+      console.log("Public URL generated:", publicUrl);
 
       onChange(publicUrl);
       
@@ -46,7 +76,7 @@ export function ImageUpload({ value, onChange, bucket, required = true }: ImageU
       toast({
         variant: "destructive",
         title: "Error",
-        description: "Failed to upload image. Please try again.",
+        description: error.message || "Failed to upload image. Please try again.",
       });
     } finally {
       setIsUploading(false);
@@ -69,10 +99,18 @@ export function ImageUpload({ value, onChange, bucket, required = true }: ImageU
           variant={value ? "outline" : "default"}
           onClick={() => document.getElementById("image-upload")?.click()}
           disabled={isUploading}
-          className={!value && required ? "border-red-500" : ""}
+          className={`${!value && required ? "border-red-500" : ""} min-w-[120px]`}
         >
-          {isUploading ? "Uploading..." : value ? "Change Image" : "Upload Image"}
-          {required && !value && " (Required)"}
+          {isUploading ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              Uploading...
+            </>
+          ) : value ? (
+            "Change Image"
+          ) : (
+            <>Upload Image{required && !value && " (Required)"}</>
+          )}
         </Button>
         {value && (
           <img
