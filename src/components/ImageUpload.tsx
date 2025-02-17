@@ -22,7 +22,6 @@ export function ImageUpload({ value, onChange, bucket, required = true }: ImageU
 
     try {
       setIsUploading(true);
-      console.log("Starting file upload to bucket:", bucket);
 
       // Validate file type
       if (!file.type.startsWith('image/')) {
@@ -37,34 +36,17 @@ export function ImageUpload({ value, onChange, bucket, required = true }: ImageU
       const fileExt = file.name.split(".").pop()?.toLowerCase() || 'png';
       const fileName = `${Date.now()}_${Math.random().toString(36).substring(2, 9)}.${fileExt}`;
 
-      console.log("Uploading file:", { fileName, fileType: file.type, bucket });
-
-      // Check if user is authenticated
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) {
-        throw new Error('You must be logged in to upload files');
-      }
-
       const { error: uploadError } = await supabase.storage
         .from(bucket)
-        .upload(fileName, file, {
-          cacheControl: '3600',
-          upsert: true,
-          contentType: file.type
-        });
+        .upload(fileName, file);
 
       if (uploadError) {
-        console.error("Upload error:", uploadError);
         throw new Error(uploadError.message);
       }
-
-      console.log("File uploaded successfully, getting public URL");
 
       const { data: { publicUrl } } = supabase.storage
         .from(bucket)
         .getPublicUrl(fileName);
-
-      console.log("Got public URL:", publicUrl);
 
       onChange(publicUrl);
       
@@ -73,7 +55,7 @@ export function ImageUpload({ value, onChange, bucket, required = true }: ImageU
         description: "Image uploaded successfully",
       });
 
-      // Reset the input to allow uploading the same file again
+      // Reset the input
       const input = document.getElementById('image-upload') as HTMLInputElement;
       if (input) input.value = '';
 
