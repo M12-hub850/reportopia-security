@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
@@ -25,49 +24,28 @@ export function ImageUpload({ value, onChange, bucket, required = true }: ImageU
       const fileName = `${Math.random()}.${fileExt}`;
       const filePath = `${fileName}`;
 
-      console.log('Starting upload to bucket:', bucket);
-
-      // First, check if bucket exists
-      const { data: bucketExists, error: bucketError } = await supabase.storage
-        .getBucket(bucket);
-
-      if (bucketError) {
-        console.error("Bucket error:", bucketError);
-        throw new Error(`Bucket ${bucket} not found or inaccessible`);
-      }
-
-      // Attempt upload
       const { error: uploadError, data } = await supabase.storage
         .from(bucket)
-        .upload(filePath, file, {
-          cacheControl: '3600',
-          upsert: false,
-          contentType: file.type
-        });
+        .upload(filePath, file);
 
-      if (uploadError) {
-        console.error("Upload error:", uploadError);
-        throw new Error(uploadError.message);
-      }
+      if (uploadError) throw uploadError;
 
-      // Get public URL - note that getPublicUrl doesn't return an error
       const { data: { publicUrl } } = supabase.storage
         .from(bucket)
         .getPublicUrl(filePath);
 
-      console.log('Upload successful, public URL:', publicUrl);
       onChange(publicUrl);
       
       toast({
         title: "Success",
         description: "Image uploaded successfully",
       });
-    } catch (error: any) {
+    } catch (error) {
       console.error("Error uploading image:", error);
       toast({
         variant: "destructive",
         title: "Error",
-        description: error.message || "Failed to upload image. Please try again.",
+        description: "Failed to upload image. Please try again.",
       });
     } finally {
       setIsUploading(false);
@@ -100,11 +78,6 @@ export function ImageUpload({ value, onChange, bucket, required = true }: ImageU
             src={value}
             alt="Uploaded"
             className="w-20 h-20 object-cover rounded"
-            onError={(e) => {
-              console.error("Image load error:", e);
-              const img = e.target as HTMLImageElement;
-              img.src = 'https://via.placeholder.com/80?text=Error';
-            }}
           />
         )}
       </div>

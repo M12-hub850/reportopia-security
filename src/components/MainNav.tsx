@@ -1,3 +1,4 @@
+
 import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
@@ -103,12 +104,7 @@ export function MainNav() {
   const handleSignOut = async () => {
     try {
       console.log("MainNav: Signing out user");
-      const { error } = await supabase.auth.signOut();
-      if (error) throw error;
-      
-      setAvatarUrl("");
-      setIsAdmin(false);
-      
+      await supabase.auth.signOut();
       navigate("/sign-in");
     } catch (error) {
       console.error("MainNav: Error signing out:", error);
@@ -121,7 +117,7 @@ export function MainNav() {
     { label: t.supervisorReports, icon: Clipboard, path: "/supervisor-reports" },
     { label: t.eventIncidents, icon: AlertTriangle, path: "/event-incidents" },
     { label: t.carHandovers, icon: Car, path: "/car-handovers/new" },
-    { label: "Reports Archive", icon: Archive, path: "/reports" },
+    { label: "Reports Archive", icon: Archive, path: "/reports" }, // Made visible for all users
     { label: t.settings, icon: Settings, path: "/settings" },
   ];
 
@@ -191,3 +187,4 @@ export function MainNav() {
     </div>
   );
 }
+
