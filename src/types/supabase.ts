@@ -1,3 +1,4 @@
+
 import { Database, DatabaseEnums } from './database/base.types';
 import type { 
   NotificationTable,
@@ -53,6 +54,7 @@ export type MonthlyVisitsReturn = Array<{
 export type VisitStatus = DatabaseEnums['visit_status'];
 export type ReportType = DatabaseEnums['report_type'];
 export type NotificationType = DatabaseEnums['notification_type'];
+export type AppRole = DatabaseEnums['app_role'];
 
 // Helper type for database function returns
 export type DatabaseFunctionReturn<T> = T[];

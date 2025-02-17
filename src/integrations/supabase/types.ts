@@ -9,19 +9,91 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
+      visits: {
+        Row: {
+          created_at: string | null
+          id: string
+          status: Database["public"]["Enums"]["visit_status"]
+          type: string | null
+          user_id: string
+          visit_date: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          status: Database["public"]["Enums"]["visit_status"]
+          type?: string | null
+          user_id: string
+          visit_date?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          status?: Database["public"]["Enums"]["visit_status"]
+          type?: string | null
+          user_id?: string
+          visit_date?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
+      get_pending_monthly_visits: {
+        Args: {
+          user_id: string
+        }
+        Returns: {
+          count: number
+        }[]
+      }
+      get_pending_supervisor_visits: {
+        Args: {
+          user_id: string
+        }
+        Returns: {
+          count: number
+        }[]
+      }
+      has_role: {
+        Args: {
+          user_id: string
+          required_role: Database["public"]["Enums"]["app_role"]
+        }
+        Returns: boolean
+      }
       schedule_weekly_visits: {
         Args: Record<PropertyKey, never>
         Returns: undefined
       }
     }
     Enums: {
+      app_role: "user" | "manager" | "admin"
       rating_type: "Excellent" | "Good" | "Fair" | "Poor"
+      visit_status: "completed" | "pending" | "missed" | "other"
     }
     CompositeTypes: {
       [_ in never]: never
