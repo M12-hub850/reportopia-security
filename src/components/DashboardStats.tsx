@@ -1,7 +1,7 @@
 
 import { useNavigate } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
-import { Clock, Users, RefreshCw } from "lucide-react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { Clock, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -11,6 +11,7 @@ import { translations } from "@/translations";
 
 export function DashboardStats() {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const { language } = useLanguage();
   const t = translations[language].dashboard;
 
@@ -18,7 +19,6 @@ export function DashboardStats() {
   const { data: userData } = useQuery({
     queryKey: ['current-user'],
     queryFn: async () => {
-      console.log("Fetching current user...");
       const { data: { user } } = await supabase.auth.getUser();
       return user;
     },
@@ -27,44 +27,34 @@ export function DashboardStats() {
   const currentUserId = userData?.id;
 
   // Fetch pending monthly visits with automatic refetch
-  const { data: pendingMonthlyVisits, isLoading: monthlyLoading, error: monthlyError, refetch: refetchMonthly } = useQuery({
+  const { data: pendingMonthlyVisits, isLoading: monthlyLoading } = useQuery({
     queryKey: ['pending-monthly-visits', currentUserId],
     queryFn: async () => {
-      console.log("Fetching pending monthly visits...");
       if (!currentUserId) return 0;
       const { data, error } = await supabase.rpc('get_pending_monthly_visits', {
         user_id: currentUserId
       });
-      if (error) {
-        console.error("Error fetching monthly visits:", error);
-        throw error;
-      }
-      console.log("Monthly visits data:", data);
+      if (error) throw error;
       return data?.[0]?.count || 0;
     },
     enabled: !!currentUserId,
-    refetchInterval: 5000,
+    refetchInterval: 5000, // Refetch every 5 seconds to keep data fresh
     refetchOnWindowFocus: true,
   });
 
   // Fetch pending supervisor visits with automatic refetch
-  const { data: pendingSupervisorVisits, isLoading: supervisorLoading, error: supervisorError, refetch: refetchSupervisor } = useQuery({
+  const { data: pendingSupervisorVisits, isLoading: supervisorLoading } = useQuery({
     queryKey: ['pending-supervisor-visits', currentUserId],
     queryFn: async () => {
-      console.log("Fetching pending supervisor visits...");
       if (!currentUserId) return 0;
       const { data, error } = await supabase.rpc('get_pending_supervisor_visits', {
         user_id: currentUserId
       });
-      if (error) {
-        console.error("Error fetching supervisor visits:", error);
-        throw error;
-      }
-      console.log("Supervisor visits data:", data);
+      if (error) throw error;
       return data?.[0]?.count || 0;
     },
     enabled: !!currentUserId,
-    refetchInterval: 5000,
+    refetchInterval: 5000, // Refetch every 5 seconds to keep data fresh
     refetchOnWindowFocus: true,
   });
 
@@ -83,25 +73,19 @@ export function DashboardStats() {
   const stats = [
     {
       title: t.stats.monthlyVisits.title,
-      value: monthlyLoading ? null : pendingMonthlyVisits?.toString() || "0",
+      value: monthlyLoading ? "..." : pendingMonthlyVisits?.toString() || "0",
       icon: Users,
       description: t.stats.monthlyVisits.description,
       onClick: handleMonthlyVisitClick,
-      isPending: pendingMonthlyVisits && pendingMonthlyVisits > 0,
-      error: monthlyError,
-      refetch: refetchMonthly,
-      loading: monthlyLoading
+      isPending: pendingMonthlyVisits && pendingMonthlyVisits > 0
     },
     {
       title: t.stats.weeklyVisits.title,
-      value: supervisorLoading ? null : pendingSupervisorVisits?.toString() || "0",
+      value: supervisorLoading ? "..." : pendingSupervisorVisits?.toString() || "0",
       icon: Clock,
       description: t.stats.weeklyVisits.description,
       onClick: handleSupervisorVisitClick,
-      isPending: pendingSupervisorVisits && pendingSupervisorVisits > 0,
-      error: supervisorError,
-      refetch: refetchSupervisor,
-      loading: supervisorLoading
+      isPending: pendingSupervisorVisits && pendingSupervisorVisits > 0
     }
   ];
 
@@ -127,23 +111,8 @@ export function DashboardStats() {
             }`} />
           </CardHeader>
           <CardContent>
-            {stat.loading ? (
+            {monthlyLoading || supervisorLoading ? (
               <Skeleton className="h-8 w-20" />
-            ) : stat.error ? (
-              <div className="space-y-2">
-                <p className="text-sm text-destructive">Error loading data</p>
-                <Button 
-                  variant="outline" 
-                  size="sm"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    stat.refetch();
-                  }}
-                >
-                  <RefreshCw className="h-4 w-4 mr-2" />
-                  Retry
-                </Button>
-              </div>
             ) : (
               <>
                 <div className="text-2xl font-bold">{stat.value}</div>

@@ -12,8 +12,7 @@ import {
   AlertTriangle,
   Car,
   Users,
-  Archive,
-  Loader2
+  Archive
 } from "lucide-react";
 import { NotificationsDropdown } from "./NotificationsDropdown";
 import { supabase } from "@/integrations/supabase/client";
@@ -32,15 +31,12 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import { useToast } from "@/hooks/use-toast";
 
 export function MainNav() {
   const navigate = useNavigate();
   const [avatarUrl, setAvatarUrl] = useState<string>("");
   const [isAdmin, setIsAdmin] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
   const { language } = useLanguage();
-  const { toast } = useToast();
   const t = translations[language].common;
 
   useEffect(() => {
@@ -67,8 +63,6 @@ export function MainNav() {
       setIsAdmin(!!data);
     } catch (error) {
       console.error("Error checking admin role:", error);
-    } finally {
-      setIsLoading(false);
     }
   };
 
@@ -87,12 +81,11 @@ export function MainNav() {
         return;
       }
 
-      console.log("Fetching profile for user:", user.id);
       const { data: profile, error: profileError } = await supabase
         .from("profiles")
         .select("avatar_url")
         .eq("id", user.id)
-        .single();
+        .maybeSingle();
 
       if (profileError) {
         console.error("MainNav: Error fetching profile:", profileError);
@@ -111,30 +104,10 @@ export function MainNav() {
   const handleSignOut = async () => {
     try {
       console.log("MainNav: Signing out user");
-      setIsLoading(true);
-      const { error } = await supabase.auth.signOut();
-      
-      if (error) throw error;
-      
-      // Clear any stored session data
-      localStorage.removeItem('supabase.auth.token');
-      
-      console.log("Successfully signed out, navigating to sign-in");
+      await supabase.auth.signOut();
       navigate("/sign-in");
-      
-      toast({
-        title: "Success",
-        description: "Successfully signed out",
-      });
     } catch (error) {
       console.error("MainNav: Error signing out:", error);
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "Failed to sign out. Please try again.",
-      });
-    } finally {
-      setIsLoading(false);
     }
   };
 
@@ -144,17 +117,9 @@ export function MainNav() {
     { label: t.supervisorReports, icon: Clipboard, path: "/supervisor-reports" },
     { label: t.eventIncidents, icon: AlertTriangle, path: "/event-incidents" },
     { label: t.carHandovers, icon: Car, path: "/car-handovers/new" },
-    { label: "Reports Archive", icon: Archive, path: "/reports" },
+    { label: "Reports Archive", icon: Archive, path: "/reports" }, // Made visible for all users
     { label: t.settings, icon: Settings, path: "/settings" },
   ];
-
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center p-4">
-        <Loader2 className="h-6 w-6 animate-spin" />
-      </div>
-    );
-  }
 
   return (
     <div className="flex items-center justify-between p-4 border-b">
@@ -222,3 +187,4 @@ export function MainNav() {
     </div>
   );
 }
+
