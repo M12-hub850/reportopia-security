@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -116,7 +115,7 @@ export function useVehicleHandover(onClose: () => void) {
           car_model: data.model,
           plate_number: data.plateNumber,
           mileage: parseInt(data.mileage),
-          Location: data.location, // Changed from project to Location
+          project: data.location, // Changed from Location to project to match the schema
           condition: JSON.stringify({
             type: data.type,
             brand: data.brand,

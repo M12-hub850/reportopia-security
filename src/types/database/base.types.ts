@@ -1,4 +1,3 @@
-
 export type Json =
   | string
   | number
@@ -7,6 +6,37 @@ export type Json =
   | { [key: string]: Json | undefined }
   | Json[];
 
+export interface DatabaseFunctions {
+  get_pending_monthly_visits: {
+    Args: { user_id: string };
+    Returns: { count: number }[];
+  };
+  get_pending_supervisor_visits: {
+    Args: { user_id: string };
+    Returns: { count: number }[];
+  };
+  has_role: {
+    Args: { user_id: string; required_role: 'user' | 'manager' | 'admin' };
+    Returns: boolean;
+  };
+  get_report_counts: {
+    Args: {
+      p_user_id: string;
+      p_start_date: string;
+      p_end_date: string;
+    };
+    Returns: { report_type: string; count: number }[];
+  };
+}
+
+export interface DatabaseEnums {
+  app_role: 'user' | 'manager' | 'admin';
+  visit_status: 'completed' | 'pending' | 'missed' | 'other';
+  rating_type: 'Excellent' | 'Good' | 'Fair' | 'Poor';
+  notification_type: 'report_submitted' | 'report_updated' | 'new_report';
+  report_type: 'supervisor_weekly' | 'manager_monthly' | 'visitor_log' | 'vehicle_handover' | 'full_monthly' | 'event_incident';
+}
+
 export interface Database {
   public: {
     Tables: {
@@ -14,7 +44,7 @@ export interface Database {
         Row: {
           id: string;
           user_id: string;
-          type: string;
+          type: DatabaseEnums['notification_type'];
           title: string;
           message: string;
           read: boolean | null;
@@ -25,7 +55,7 @@ export interface Database {
         Insert: {
           id?: string;
           user_id: string;
-          type: string;
+          type: DatabaseEnums['notification_type'];
           title: string;
           message: string;
           read?: boolean | null;
@@ -36,7 +66,7 @@ export interface Database {
         Update: {
           id?: string;
           user_id?: string;
-          type?: string;
+          type?: DatabaseEnums['notification_type'];
           title?: string;
           message?: string;
           read?: boolean | null;
@@ -291,33 +321,8 @@ export interface Database {
         };
       };
     };
-    Functions: {
-      get_pending_monthly_visits: {
-        Args: { user_id: string };
-        Returns: { count: number }[];
-      };
-      get_pending_supervisor_visits: {
-        Args: { user_id: string };
-        Returns: { count: number }[];
-      };
-      has_role: {
-        Args: { user_id: string; required_role: 'user' | 'manager' | 'admin' };
-        Returns: boolean;
-      };
-      get_report_counts: {
-        Args: {
-          p_user_id: string;
-          p_start_date: string;
-          p_end_date: string;
-        };
-        Returns: { report_type: string; count: number }[];
-      };
-    };
-    Enums: {
-      app_role: 'user' | 'manager' | 'admin';
-      visit_status: 'completed' | 'pending' | 'missed' | 'other';
-      rating_type: 'Excellent' | 'Good' | 'Fair' | 'Poor';
-    };
+    Functions: DatabaseFunctions;
+    Enums: DatabaseEnums;
     CompositeTypes: {
       [_ in never]: never;
     };

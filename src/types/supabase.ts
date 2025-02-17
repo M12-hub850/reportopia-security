@@ -1,5 +1,6 @@
 
-import { Database, DatabaseEnums } from './database/base.types';
+import type { Database } from './database/base.types';
+import type { DatabaseEnums } from './database/base.types';
 import type { 
   NotificationTable,
   ProfileTable,
