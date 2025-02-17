@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { BackButton } from '@/components/BackButton';
 import { Card } from '@/components/ui/card';
@@ -11,22 +11,59 @@ import { ReportList } from '@/components/reports/ReportList';
 import { ReportDialog } from '@/components/reports/ReportDialog';
 import { useQuery } from '@tanstack/react-query';
 import { ReportFile, DatabaseReportFile } from '@/types/reports';
+import { useNavigate } from 'react-router-dom';
+import { Loader2 } from 'lucide-react';
 
 export default function ReportView() {
   const [selectedReport, setSelectedReport] = useState<ReportFile | null>(null);
   const { toast } = useToast();
+  const navigate = useNavigate();
+  const [userId, setUserId] = useState<string | null>(null);
   const [dateRange, setDateRange] = useState<DateRange | undefined>({
     from: startOfDay(addDays(new Date(), -30)),
     to: endOfDay(new Date())
   });
 
-  const { data: reports = [], isLoading } = useQuery({
-    queryKey: ['reports', dateRange?.from, dateRange?.to],
+  // Check authentication and get userId
+  useEffect(() => {
+    const checkAuth = async () => {
+      const { data: { session }, error } = await supabase.auth.getSession();
+      if (error || !session) {
+        console.error('Auth error:', error);
+        toast({
+          variant: "destructive",
+          title: "Authentication Error",
+          description: "Please sign in again",
+        });
+        navigate('/sign-in');
+        return;
+      }
+      setUserId(session.user.id);
+    };
+
+    checkAuth();
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === 'SIGNED_OUT' || !session) {
+        navigate('/sign-in');
+      } else {
+        setUserId(session.user.id);
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, [navigate, toast]);
+
+  const { data: reports = [], isLoading, error } = useQuery({
+    queryKey: ['reports', dateRange?.from, dateRange?.to, userId],
     queryFn: async () => {
       try {
-        if (!dateRange?.from || !dateRange?.to) return [];
+        if (!dateRange?.from || !dateRange?.to || !userId) return [];
 
-        console.log('Fetching reports with date range:', { from: dateRange.from, to: dateRange.to });
+        console.log('Fetching reports with params:', {
+          userId,
+          dateRange: { from: dateRange.from, to: dateRange.to }
+        });
 
         const { data, error } = await supabase
           .from('report_files')
@@ -69,9 +106,15 @@ export default function ReportView() {
           `)
           .gte('created_at', dateRange.from.toISOString())
           .lte('created_at', dateRange.to.toISOString())
+          .eq('user_id', userId)
           .order('created_at', { ascending: false });
 
-        if (error) throw error;
+        if (error) {
+          console.error('Supabase error:', error);
+          throw error;
+        }
+
+        console.log('Received reports data:', data);
 
         return (data as unknown as DatabaseReportFile[]).map(item => ({
           id: item.id,
@@ -80,11 +123,9 @@ export default function ReportView() {
           file_path: item.file_path,
           created_at: item.created_at,
           report: {
-            ...(item.report || { description: '', photo_url: '' }),
+            ...(item.report || {}),
             ...(item.vehicle_report || {}),
-            staff_entries: Array.isArray(item.report?.staff_entries) 
-              ? item.report.staff_entries 
-              : []
+            staff_entries: item.report?.staff_entries || []
           }
         }));
       } catch (error) {
@@ -97,6 +138,7 @@ export default function ReportView() {
         return [];
       }
     },
+    enabled: !!userId && !!dateRange?.from && !!dateRange?.to
   });
 
   const getReportTitle = (type: string) => {
@@ -108,6 +150,17 @@ export default function ReportView() {
     };
     return titles[type] || type.toUpperCase().replace(/_/g, ' ');
   };
+
+  if (error) {
+    return (
+      <div className="container max-w-4xl py-6">
+        <BackButton />
+        <Card className="mt-6 p-6 text-center text-red-600">
+          Error loading reports. Please try refreshing the page.
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className="container max-w-4xl py-6">
@@ -124,7 +177,9 @@ export default function ReportView() {
       </div>
 
       {isLoading ? (
-        <div className="text-center py-8">Loading reports...</div>
+        <div className="flex justify-center items-center py-8">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        </div>
       ) : reports.length === 0 ? (
         <Card className="p-8 text-center text-muted-foreground">
           No reports found in the selected date range
