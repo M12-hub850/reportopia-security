@@ -33,31 +33,16 @@ export function ImageUpload({ value, onChange, bucket, required = true }: ImageU
         throw new Error('File size must be less than 5MB');
       }
 
-      // Generate a unique filename to avoid conflicts
-      const timestamp = new Date().getTime();
-      const random = Math.random().toString(36).substring(2, 15);
       const fileExt = file.name.split(".").pop()?.toLowerCase() || 'png';
-      const filePath = `${timestamp}_${random}.${fileExt}`;
+      const fileName = `${Date.now()}_${Math.random().toString(36).substring(2, 9)}.${fileExt}`;
 
-      console.log("Uploading file:", { filePath, fileType: file.type, bucket });
+      console.log("Uploading file:", { fileName, fileType: file.type, bucket });
 
-      // First, check if we can access the bucket
-      const { data: bucketExists, error: bucketError } = await supabase.storage
+      const { error: uploadError } = await supabase.storage
         .from(bucket)
-        .list();
-
-      if (bucketError) {
-        console.error("Bucket access error:", bucketError);
-        throw new Error(`Cannot access bucket ${bucket}. Please check permissions.`);
-      }
-
-      // Attempt the upload
-      const { error: uploadError, data } = await supabase.storage
-        .from(bucket)
-        .upload(filePath, file, {
+        .upload(fileName, file, {
           cacheControl: '3600',
-          upsert: false,
-          contentType: file.type
+          upsert: true
         });
 
       if (uploadError) {
@@ -69,7 +54,7 @@ export function ImageUpload({ value, onChange, bucket, required = true }: ImageU
 
       const { data: { publicUrl } } = supabase.storage
         .from(bucket)
-        .getPublicUrl(filePath);
+        .getPublicUrl(fileName);
 
       console.log("Got public URL:", publicUrl);
 
