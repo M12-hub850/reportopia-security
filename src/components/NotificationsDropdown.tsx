@@ -13,6 +13,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { supabase } from "@/integrations/supabase/client";
 import { format } from "date-fns";
 import { useToast } from "@/hooks/use-toast";
+import { NotificationType } from "@/types/supabase";
 
 interface Notification {
   id: string;
@@ -20,7 +21,10 @@ interface Notification {
   message: string;
   created_at: string;
   read: boolean;
-  type: 'report_submitted' | 'report_updated' | 'new_report';
+  type: NotificationType;
+  report_id: string | null;
+  vehicle_report_id: string | null;
+  user_id: string;
 }
 
 export function NotificationsDropdown() {
@@ -47,7 +51,7 @@ export function NotificationsDropdown() {
         }
 
         if (data) {
-          setNotifications(data);
+          setNotifications(data as Notification[]);
           setUnreadCount(data.filter(n => !n.read).length);
         }
       } catch (error) {
@@ -74,7 +78,8 @@ export function NotificationsDropdown() {
         },
         (payload) => {
           console.log('New notification received:', payload);
-          setNotifications(prev => [payload.new as Notification, ...prev]);
+          const newNotification = payload.new as Notification;
+          setNotifications(prev => [newNotification, ...prev]);
           setUnreadCount(prev => prev + 1);
         }
       )
