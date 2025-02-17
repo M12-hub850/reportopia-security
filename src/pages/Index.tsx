@@ -1,3 +1,4 @@
+
 import { MainNav } from "@/components/MainNav";
 import { SparklesCore } from "@/components/ui/sparkles";
 import { useLanguage } from "@/contexts/LanguageContext";
@@ -10,7 +11,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { Loader2, BarChart2, Eye, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 
@@ -19,6 +20,7 @@ export default function Index() {
   const t = translations[language].dashboard;
   const navigate = useNavigate();
   const { toast } = useToast();
+  const [userId, setUserId] = useState<string | null>(null);
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -39,6 +41,8 @@ export default function Index() {
         navigate('/sign-in');
         return;
       }
+
+      setUserId(session.user.id);
     };
 
     checkAuth();
@@ -46,6 +50,8 @@ export default function Index() {
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (event === 'SIGNED_OUT' || !session) {
         navigate('/sign-in');
+      } else if (session) {
+        setUserId(session.user.id);
       }
     });
 
@@ -54,19 +60,18 @@ export default function Index() {
     };
   }, [navigate, toast]);
 
-  const { data: reportCounts, isLoading: isLoadingReports, refetch: refetchReports } = useQuery({
-    queryKey: ['report-counts'],
+  const { data: reportCounts, isLoading: isLoadingReports, error: reportsError, refetch: refetchReports } = useQuery({
+    queryKey: ['report-counts', userId],
     queryFn: async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) {
-        throw new Error('Not authenticated');
-      }
+      if (!userId) throw new Error('No user ID available');
 
       const startDate = new Date();
       startDate.setMonth(startDate.getMonth() - 1);
 
+      console.log('Fetching report counts for user:', userId);
+
       const { data, error } = await supabase.rpc('get_report_counts', {
-        p_user_id: session.user.id,
+        p_user_id: userId,
         p_start_date: startDate.toISOString(),
         p_end_date: new Date().toISOString()
       });
@@ -81,17 +86,40 @@ export default function Index() {
         count: Number(item.count) || 0
       }));
 
+      console.log('Received report counts:', data);
       console.log('Transformed report counts:', transformedData);
       return transformedData;
     },
-    enabled: true,
+    enabled: !!userId, // Only run query when we have a userId
     refetchInterval: 30000
   });
 
+  // Show error toast if report fetching fails
+  useEffect(() => {
+    if (reportsError) {
+      toast({
+        variant: "destructive",
+        title: "Error fetching reports",
+        description: "Failed to load report data. Please try refreshing.",
+      });
+    }
+  }, [reportsError, toast]);
+
   const handleRefresh = async () => {
-    await Promise.all([
-      refetchReports()
-    ]);
+    try {
+      await refetchReports();
+      toast({
+        title: "Dashboard Refreshed",
+        description: "The report data has been updated.",
+      });
+    } catch (error) {
+      console.error('Error refreshing data:', error);
+      toast({
+        variant: "destructive",
+        title: "Refresh Failed",
+        description: "Could not refresh the dashboard data.",
+      });
+    }
   };
 
   return (
@@ -158,6 +186,10 @@ export default function Index() {
                   {isLoadingReports ? (
                     <div className="h-full flex items-center justify-center">
                       <Loader2 className="h-8 w-8 animate-spin text-purple-600" />
+                    </div>
+                  ) : reportsError ? (
+                    <div className="h-full flex items-center justify-center text-muted-foreground">
+                      Error loading report data. Please refresh.
                     </div>
                   ) : reportCounts && reportCounts.length > 0 ? (
                     <ResponsiveContainer width="100%" height="100%">
