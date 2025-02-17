@@ -22,6 +22,7 @@ export function ImageUpload({ value, onChange, bucket, required = true }: ImageU
 
     try {
       setIsUploading(true);
+      console.log("Starting upload process for bucket:", bucket);
 
       // Validate file type
       if (!file.type.startsWith('image/')) {
@@ -33,20 +34,35 @@ export function ImageUpload({ value, onChange, bucket, required = true }: ImageU
         throw new Error('File size must be less than 5MB');
       }
 
+      // Check authentication
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        throw new Error('You must be logged in to upload files');
+      }
+
       const fileExt = file.name.split(".").pop()?.toLowerCase() || 'png';
       const fileName = `${Date.now()}_${Math.random().toString(36).substring(2, 9)}.${fileExt}`;
+      console.log("Preparing to upload file:", { fileName, bucket });
 
-      const { error: uploadError } = await supabase.storage
+      const { data: uploadData, error: uploadError } = await supabase.storage
         .from(bucket)
-        .upload(fileName, file);
+        .upload(fileName, file, {
+          cacheControl: '3600',
+          upsert: true
+        });
 
       if (uploadError) {
+        console.error("Upload error:", uploadError);
         throw new Error(uploadError.message);
       }
+
+      console.log("File uploaded successfully:", uploadData);
 
       const { data: { publicUrl } } = supabase.storage
         .from(bucket)
         .getPublicUrl(fileName);
+
+      console.log("Generated public URL:", publicUrl);
 
       onChange(publicUrl);
       
