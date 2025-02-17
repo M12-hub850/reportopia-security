@@ -62,8 +62,7 @@ export default function ManagerReports() {
     checkSession();
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      console.log("Auth state changed:", event);
-      if (event === 'SIGNED_OUT' || event === 'TOKEN_REFRESHED' && !session) {
+      if (event === 'SIGNED_OUT' || (event === 'TOKEN_REFRESHED' && !session)) {
         navigate("/sign-in");
       }
     });
@@ -166,18 +165,17 @@ export default function ManagerReports() {
 
           if (fileError) {
             console.error("Error creating report file entry:", fileError);
+            // Continue with the process even if file entry creation fails
           }
-        } else {
-          console.warn("PDF generation failed but continuing with submission");
         }
       } catch (pdfError) {
         console.error("PDF generation error:", pdfError);
-        // Continue with the process
+        // Continue with the process even if PDF generation fails
       }
 
       // Create visit record
       console.log("Creating visit record");
-      const { error: visitError } = await supabase
+      await supabase
         .from("visits")
         .insert({
           user_id: user.id,
@@ -186,14 +184,9 @@ export default function ManagerReports() {
           visit_date: new Date().toISOString(),
         });
 
-      if (visitError) {
-        console.error("Error creating visit record:", visitError);
-        // Continue with the process
-      }
-
       // Create notification
       console.log("Creating notification");
-      const { error: notificationError } = await supabase
+      await supabase
         .from("notifications")
         .insert({
           user_id: user.id,
@@ -202,11 +195,6 @@ export default function ManagerReports() {
           message: t.notificationMessage.replace('{count}', data.staffEntries.length.toString()),
           report_id: reportData.id
         });
-
-      if (notificationError) {
-        console.error("Error creating notification:", notificationError);
-        // Continue with the process
-      }
 
       toast({
         title: translations[language].common.success,
@@ -251,7 +239,7 @@ export default function ManagerReports() {
             </Button>
             <Button 
               type="submit" 
-              disabled={isSubmitting || !form.formState.isValid}
+              disabled={isSubmitting}
               className="min-w-[120px]"
             >
               {isSubmitting ? (
