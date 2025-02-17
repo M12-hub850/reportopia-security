@@ -207,7 +207,7 @@ export default function SignIn() {
                 variant="link"
                 className="text-gray-900 hover:text-gray-800 p-0"
                 onClick={() => navigate("/sign-up")}
-              >
+              > LOG IN
                 Sign up
               </Button>
             </p>
