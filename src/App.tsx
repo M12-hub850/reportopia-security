@@ -1,3 +1,4 @@
+
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import Index from "./pages/Index";
 import SignIn from "./pages/SignIn";
@@ -13,24 +14,34 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { Loader2 } from "lucide-react";
 
-// Configure the query client with caching
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      staleTime: 1000 * 60 * 5, // Data stays fresh for 5 minutes
-      gcTime: 1000 * 60 * 30, // Cache persists for 30 minutes
+      staleTime: 1000 * 60 * 5,
+      gcTime: 1000 * 60 * 30,
+      retry: 2,
     },
   },
 });
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const checkAuth = async () => {
       try {
-        const { data: { session } } = await supabase.auth.getSession();
+        console.log("Checking authentication status...");
+        const { data: { session }, error } = await supabase.auth.getSession();
+        
+        if (error) {
+          console.error("Error checking session:", error);
+          throw error;
+        }
+
+        console.log("Session status:", !!session);
         setIsAuthenticated(!!session);
         
         const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
@@ -42,15 +53,20 @@ function App() {
       } catch (error) {
         console.error("Error in auth check:", error);
         setIsAuthenticated(false);
+      } finally {
+        setIsLoading(false);
       }
     };
 
     checkAuth();
   }, []);
 
-  // Show loading state while checking authentication
-  if (isAuthenticated === null) {
-    return <div>Loading...</div>;
+  if (isLoading) {
+    return (
+      <div className="h-screen w-screen flex items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin" />
+      </div>
+    );
   }
 
   return (

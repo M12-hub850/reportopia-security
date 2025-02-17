@@ -1,7 +1,9 @@
+
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { Loader2 } from "lucide-react";
 
 interface ImageUploadProps {
   value: string;
@@ -24,16 +26,22 @@ export function ImageUpload({ value, onChange, bucket, required = true }: ImageU
       const fileName = `${Math.random()}.${fileExt}`;
       const filePath = `${fileName}`;
 
+      console.log("Uploading to bucket:", bucket);
       const { error: uploadError, data } = await supabase.storage
         .from(bucket)
         .upload(filePath, file);
 
-      if (uploadError) throw uploadError;
+      if (uploadError) {
+        console.error("Upload error:", uploadError);
+        throw uploadError;
+      }
 
+      console.log("Upload successful, getting public URL");
       const { data: { publicUrl } } = supabase.storage
         .from(bucket)
         .getPublicUrl(filePath);
 
+      console.log("Public URL:", publicUrl);
       onChange(publicUrl);
       
       toast({
@@ -70,7 +78,14 @@ export function ImageUpload({ value, onChange, bucket, required = true }: ImageU
           disabled={isUploading}
           className={!value && required ? "border-red-500" : ""}
         >
-          {isUploading ? "Uploading..." : value ? "Change Image" : "Upload Image"}
+          {isUploading ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              Uploading...
+            </>
+          ) : (
+            value ? "Change Image" : "Upload Image"
+          )}
           {required && !value && " (Required)"}
         </Button>
         {value && (
