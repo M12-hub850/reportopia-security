@@ -5,13 +5,10 @@ import { useToast } from "@/hooks/use-toast";
 import { UserList } from "./UserList";
 import { CreateUserDialog } from "./CreateUserDialog";
 import { Loader2 } from "lucide-react";
-import type { Database } from "@/integrations/supabase/types";
 
-type AppRole = Database["public"]["Enums"]["app_role"];
 type User = {
   id: string;
   email: string;
-  role?: AppRole;
   created_at: string;
 };
 
@@ -27,33 +24,14 @@ export function UserManagement() {
   const fetchUsers = async () => {
     try {
       console.log("Fetching users...");
-      // First get all profiles
       const { data: profiles, error: profilesError } = await supabase
         .from('profiles')
         .select('id, email, created_at');
 
       if (profilesError) throw profilesError;
 
-      // Then get all user roles
-      const { data: userRoles, error: rolesError } = await supabase
-        .from('user_roles')
-        .select('user_id, role');
-
-      if (rolesError) throw rolesError;
-
-      // Combine the data
-      const formattedUsers = profiles.map(profile => {
-        const userRole = userRoles.find(role => role.user_id === profile.id);
-        return {
-          id: profile.id,
-          email: profile.email,
-          role: userRole?.role || 'user',
-          created_at: profile.created_at
-        };
-      });
-
-      console.log("Users fetched:", formattedUsers);
-      setUsers(formattedUsers);
+      console.log("Users fetched:", profiles);
+      setUsers(profiles);
     } catch (error) {
       console.error("Error fetching users:", error);
       toast({
@@ -66,7 +44,7 @@ export function UserManagement() {
     }
   };
 
-  const createUser = async (email: string, role: AppRole) => {
+  const createUser = async (email: string) => {
     try {
       console.log("Creating new user...");
       const { data: { user }, error: createError } = await supabase.auth.signUp({
@@ -75,25 +53,6 @@ export function UserManagement() {
       });
 
       if (createError) throw createError;
-
-      if (user) {
-        // Delete any existing role for this user first
-        const { error: deleteError } = await supabase
-          .from("user_roles")
-          .delete()
-          .eq('user_id', user.id);
-
-        if (deleteError) {
-          console.error("Error deleting existing role:", deleteError);
-        }
-
-        // Insert new role
-        const { error: roleError } = await supabase
-          .from("user_roles")
-          .insert({ user_id: user.id, role });
-
-        if (roleError) throw roleError;
-      }
 
       console.log("User created successfully");
       toast({
@@ -113,44 +72,6 @@ export function UserManagement() {
     }
   };
 
-  const updateUserRole = async (userId: string, newRole: AppRole) => {
-    try {
-      console.log("Updating user role...", { userId, newRole });
-      
-      // First delete any existing role
-      const { error: deleteError } = await supabase
-        .from("user_roles")
-        .delete()
-        .eq('user_id', userId);
-
-      if (deleteError) {
-        console.error("Error deleting existing role:", deleteError);
-      }
-
-      // Then insert the new role
-      const { error: insertError } = await supabase
-        .from("user_roles")
-        .insert({ user_id: userId, role: newRole });
-
-      if (insertError) throw insertError;
-
-      console.log("Role updated successfully");
-      toast({
-        title: "Success",
-        description: "User role updated successfully.",
-      });
-      
-      fetchUsers();
-    } catch (error) {
-      console.error("Error updating role:", error);
-      toast({
-        variant: "destructive",
-        title: "Error",
-        description: "Failed to update user role.",
-      });
-    }
-  };
-
   if (loading) {
     return (
       <div className="flex items-center justify-center p-8">
@@ -164,7 +85,7 @@ export function UserManagement() {
       <div className="flex justify-end">
         <CreateUserDialog onCreateUser={createUser} />
       </div>
-      <UserList users={users} onUpdateRole={updateUserRole} />
+      <UserList users={users} />
     </div>
   );
 }
