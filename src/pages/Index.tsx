@@ -11,115 +11,34 @@ import { supabase } from "@/integrations/supabase/client";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { Loader2, BarChart2, Eye, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { useToast } from "@/hooks/use-toast";
 
 export default function Index() {
   const { language } = useLanguage();
   const t = translations[language].dashboard;
-  const navigate = useNavigate();
-  const { toast } = useToast();
-  const [userId, setUserId] = useState<string | null>(null);
 
-  useEffect(() => {
-    const checkAuth = async () => {
-      const { data: { session }, error } = await supabase.auth.getSession();
-      if (error) {
-        console.error('Error checking auth status:', error);
-        toast({
-          variant: "destructive",
-          title: "Authentication Error",
-          description: "Please sign in again",
-        });
-        navigate('/sign-in');
-        return;
-      }
-      
-      if (!session) {
-        console.log('No active session found, redirecting to sign-in');
-        navigate('/sign-in');
-        return;
-      }
-
-      setUserId(session.user.id);
-    };
-
-    checkAuth();
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      if (event === 'SIGNED_OUT' || !session) {
-        navigate('/sign-in');
-      } else if (session) {
-        setUserId(session.user.id);
-      }
-    });
-
-    return () => {
-      subscription.unsubscribe();
-    };
-  }, [navigate, toast]);
-
-  const { data: reportCounts, isLoading: isLoadingReports, error: reportsError, refetch: refetchReports } = useQuery({
-    queryKey: ['report-counts', userId],
+  const { data: reportCounts, isLoading: isLoadingReports, refetch: refetchReports } = useQuery({
+    queryKey: ['report-counts'],
     queryFn: async () => {
-      if (!userId) throw new Error('No user ID available');
-
       const startDate = new Date();
       startDate.setMonth(startDate.getMonth() - 1);
-
-      console.log('Fetching report counts for user:', userId);
+      const { data: user } = await supabase.auth.getUser();
+      if (!user.user) throw new Error('Not authenticated');
 
       const { data, error } = await supabase.rpc('get_report_counts', {
-        p_user_id: userId,
+        p_user_id: user.user.id,
         p_start_date: startDate.toISOString(),
         p_end_date: new Date().toISOString()
       });
 
-      if (error) {
-        console.error('Error fetching report counts:', error);
-        throw error;
-      }
-
-      const transformedData = (data || []).map(item => ({
-        report_type: item.report_type.replace(/_/g, ' ').toUpperCase(),
-        count: Number(item.count) || 0
-      }));
-
-      console.log('Received report counts:', data);
-      console.log('Transformed report counts:', transformedData);
-      return transformedData;
-    },
-    enabled: !!userId, // Only run query when we have a userId
-    refetchInterval: 30000
+      if (error) throw error;
+      return data;
+    }
   });
 
-  // Show error toast if report fetching fails
-  useEffect(() => {
-    if (reportsError) {
-      toast({
-        variant: "destructive",
-        title: "Error fetching reports",
-        description: "Failed to load report data. Please try refreshing.",
-      });
-    }
-  }, [reportsError, toast]);
-
   const handleRefresh = async () => {
-    try {
-      await refetchReports();
-      toast({
-        title: "Dashboard Refreshed",
-        description: "The report data has been updated.",
-      });
-    } catch (error) {
-      console.error('Error refreshing data:', error);
-      toast({
-        variant: "destructive",
-        title: "Refresh Failed",
-        description: "Could not refresh the dashboard data.",
-      });
-    }
+    await Promise.all([
+      refetchReports()
+    ]);
   };
 
   return (
@@ -187,11 +106,7 @@ export default function Index() {
                     <div className="h-full flex items-center justify-center">
                       <Loader2 className="h-8 w-8 animate-spin text-purple-600" />
                     </div>
-                  ) : reportsError ? (
-                    <div className="h-full flex items-center justify-center text-muted-foreground">
-                      Error loading report data. Please refresh.
-                    </div>
-                  ) : reportCounts && reportCounts.length > 0 ? (
+                  ) : (
                     <ResponsiveContainer width="100%" height="100%">
                       <BarChart data={reportCounts}>
                         <CartesianGrid strokeDasharray="3 3" className="opacity-50" />
@@ -199,9 +114,6 @@ export default function Index() {
                           dataKey="report_type" 
                           tick={{ fill: '#6B46C1' }}
                           axisLine={{ stroke: '#6B46C1' }}
-                          angle={-45}
-                          textAnchor="end"
-                          height={70}
                         />
                         <YAxis 
                           tick={{ fill: '#6B46C1' }}
@@ -227,10 +139,6 @@ export default function Index() {
                         </defs>
                       </BarChart>
                     </ResponsiveContainer>
-                  ) : (
-                    <div className="h-full flex items-center justify-center text-muted-foreground">
-                      No reports data available
-                    </div>
                   )}
                 </CardContent>
               </Card>

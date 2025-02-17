@@ -1,9 +1,7 @@
-
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2 } from "lucide-react";
 
 interface ImageUploadProps {
   value: string;
@@ -22,58 +20,19 @@ export function ImageUpload({ value, onChange, bucket, required = true }: ImageU
 
     try {
       setIsUploading(true);
-      console.log("Starting upload process:", { bucket, fileType: file.type, fileSize: file.size });
+      const fileExt = file.name.split(".").pop();
+      const fileName = `${Math.random()}.${fileExt}`;
+      const filePath = `${fileName}`;
 
-      // Validate file type
-      if (!file.type.startsWith('image/')) {
-        throw new Error('Please upload an image file');
-      }
-
-      // Validate file size (5MB limit)
-      if (file.size > 5 * 1024 * 1024) {
-        throw new Error('File size must be less than 5MB');
-      }
-
-      // Check authentication
-      const { data: { session }, error: sessionError } = await supabase.auth.getSession();
-      if (sessionError) {
-        console.error("Session error:", sessionError);
-        throw new Error('Authentication error. Please try signing in again.');
-      }
-      if (!session) {
-        throw new Error('You must be logged in to upload files');
-      }
-      console.log("User authenticated successfully");
-
-      const fileExt = file.name.split(".").pop()?.toLowerCase() || 'png';
-      const fileName = `${Date.now()}_${Math.random().toString(36).substring(2, 9)}.${fileExt}`;
-      console.log("Preparing to upload file:", { fileName, bucket, fileExt });
-
-      const { data: uploadData, error: uploadError } = await supabase.storage
+      const { error: uploadError, data } = await supabase.storage
         .from(bucket)
-        .upload(fileName, file, {
-          cacheControl: '3600',
-          upsert: true,
-          contentType: file.type
-        });
+        .upload(filePath, file);
 
-      if (uploadError) {
-        console.error("Upload error:", uploadError);
-        throw new Error(`Upload failed: ${uploadError.message}`);
-      }
+      if (uploadError) throw uploadError;
 
-      console.log("File uploaded successfully:", uploadData);
-
-      // Get public URL - this method doesn't return an error
       const { data: { publicUrl } } = supabase.storage
         .from(bucket)
-        .getPublicUrl(fileName);
-
-      if (!publicUrl) {
-        throw new Error('Failed to get public URL for uploaded file');
-      }
-
-      console.log("Generated public URL:", publicUrl);
+        .getPublicUrl(filePath);
 
       onChange(publicUrl);
       
@@ -81,22 +40,12 @@ export function ImageUpload({ value, onChange, bucket, required = true }: ImageU
         title: "Success",
         description: "Image uploaded successfully",
       });
-
-      // Reset the input
-      const input = document.getElementById('image-upload') as HTMLInputElement;
-      if (input) input.value = '';
-
-    } catch (error: any) {
-      console.error("Error uploading image:", {
-        error,
-        message: error.message,
-        stack: error.stack,
-        bucket,
-      });
+    } catch (error) {
+      console.error("Error uploading image:", error);
       toast({
         variant: "destructive",
         title: "Error",
-        description: error.message || "Failed to upload image. Please try again.",
+        description: "Failed to upload image. Please try again.",
       });
     } finally {
       setIsUploading(false);
@@ -119,18 +68,9 @@ export function ImageUpload({ value, onChange, bucket, required = true }: ImageU
           variant={value ? "outline" : "default"}
           onClick={() => document.getElementById("image-upload")?.click()}
           disabled={isUploading}
-          className={`${!value && required ? "border-red-500" : ""} min-w-[120px]`}
+          className={!value && required ? "border-red-500" : ""}
         >
-          {isUploading ? (
-            <>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Uploading...
-            </>
-          ) : value ? (
-            "Change Image"
-          ) : (
-            "Upload Image"
-          )}
+          {isUploading ? "Uploading..." : value ? "Change Image" : "Upload Image"}
           {required && !value && " (Required)"}
         </Button>
         {value && (
