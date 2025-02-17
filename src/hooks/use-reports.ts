@@ -12,7 +12,10 @@ export function useReports(userId: string | null, dateRange: DateRange | undefin
     queryKey: ['reports', dateRange?.from, dateRange?.to, userId],
     queryFn: async () => {
       try {
-        if (!dateRange?.from || !dateRange?.to || !userId) return [];
+        if (!dateRange?.from || !dateRange?.to || !userId) {
+          console.log('Missing required parameters:', { userId, dateRange });
+          return [];
+        }
 
         console.log('Fetching reports with params:', {
           userId,
@@ -68,9 +71,14 @@ export function useReports(userId: string | null, dateRange: DateRange | undefin
           throw error;
         }
 
-        console.log('Received reports data:', data);
+        if (!data) {
+          console.log('No data returned from query');
+          return [];
+        }
 
-        return (data as unknown as DatabaseReportFile[]).map(item => ({
+        console.log('Received raw reports data:', data);
+
+        const transformedData = (data as unknown as DatabaseReportFile[]).map(item => ({
           id: item.id,
           report_type: item.report_type,
           file_name: item.file_name,
@@ -94,6 +102,10 @@ export function useReports(userId: string | null, dateRange: DateRange | undefin
             ...(item.vehicle_report || {})
           }
         }));
+
+        console.log('Transformed reports data:', transformedData);
+        return transformedData;
+
       } catch (error) {
         console.error('Error fetching reports:', error);
         toast({
