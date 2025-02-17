@@ -9,37 +9,78 @@ import { VisitsOverview } from "@/components/VisitsOverview";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import { Loader2, BarChart2, Eye, RefreshCw } from "lucide-react";
+import { BarChart2, Eye, RefreshCw, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export default function Index() {
   const { language } = useLanguage();
   const t = translations[language].dashboard;
 
-  const { data: reportCounts, isLoading: isLoadingReports, refetch: refetchReports } = useQuery({
+  const { data: reportCounts, isLoading: isLoadingReports, refetch: refetchReports, error: reportsError } = useQuery({
     queryKey: ['report-counts'],
     queryFn: async () => {
+      console.log("Fetching report counts...");
       const startDate = new Date();
       startDate.setMonth(startDate.getMonth() - 1);
-      const { data: user } = await supabase.auth.getUser();
-      if (!user.user) throw new Error('Not authenticated');
+      
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        console.error("No authenticated user found");
+        throw new Error('Not authenticated');
+      }
 
       const { data, error } = await supabase.rpc('get_report_counts', {
-        p_user_id: user.user.id,
+        p_user_id: user.id,
         p_start_date: startDate.toISOString(),
         p_end_date: new Date().toISOString()
       });
 
-      if (error) throw error;
-      return data;
-    }
+      if (error) {
+        console.error("Error fetching report counts:", error);
+        throw error;
+      }
+
+      console.log("Report counts data:", data);
+      return data || [];
+    },
+    retry: 1
   });
 
   const handleRefresh = async () => {
-    await Promise.all([
-      refetchReports()
-    ]);
+    console.log("Refreshing dashboard data...");
+    await refetchReports();
   };
+
+  if (isLoadingReports) {
+    return (
+      <div className="min-h-screen bg-background">
+        <MainNav />
+        <div className="container mx-auto px-4 py-8">
+          <div className="flex items-center justify-center h-[60vh]">
+            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (reportsError) {
+    console.error("Dashboard error:", reportsError);
+    return (
+      <div className="min-h-screen bg-background">
+        <MainNav />
+        <div className="container mx-auto px-4 py-8">
+          <div className="flex flex-col items-center justify-center h-[60vh] space-y-4">
+            <p className="text-destructive">Error loading dashboard data</p>
+            <Button onClick={handleRefresh} variant="outline">
+              <RefreshCw className="h-4 w-4 mr-2" />
+              Retry
+            </Button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background">
@@ -102,11 +143,7 @@ export default function Index() {
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="h-[300px]">
-                  {isLoadingReports ? (
-                    <div className="h-full flex items-center justify-center">
-                      <Loader2 className="h-8 w-8 animate-spin text-purple-600" />
-                    </div>
-                  ) : (
+                  {reportCounts && reportCounts.length > 0 ? (
                     <ResponsiveContainer width="100%" height="100%">
                       <BarChart data={reportCounts}>
                         <CartesianGrid strokeDasharray="3 3" className="opacity-50" />
@@ -139,6 +176,10 @@ export default function Index() {
                         </defs>
                       </BarChart>
                     </ResponsiveContainer>
+                  ) : (
+                    <div className="h-full flex items-center justify-center text-muted-foreground">
+                      No reports found for this period
+                    </div>
                   )}
                 </CardContent>
               </Card>

@@ -2,25 +2,54 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { Eye, Calendar } from "lucide-react";
+import { Eye, Calendar, RefreshCw, Loader2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 export function VisitsOverview() {
-  const { data: monthlyData } = useQuery({
+  const { data: monthlyData, isLoading, error, refetch } = useQuery({
     queryKey: ['monthlyVisits'],
     queryFn: async () => {
-      const { data: user } = await supabase.auth.getUser();
-      if (!user.user) throw new Error('Not authenticated');
+      console.log("Fetching monthly visits data...");
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        console.error("No authenticated user found");
+        throw new Error('Not authenticated');
+      }
       
       const { data, error } = await supabase
-        .rpc('get_pending_monthly_visits', { user_id: user.user.id });
+        .rpc('get_pending_monthly_visits', { user_id: user.id });
       
-      if (error) throw error;
-      
+      if (error) {
+        console.error("Error fetching monthly visits:", error);
+        throw error;
+      }
+
+      console.log("Monthly visits data:", data);
       return data?.[0]?.count || 0;
     },
-    refetchInterval: 5000, // Refetch every 5 seconds
+    refetchInterval: 5000,
     refetchOnWindowFocus: true,
   });
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-[200px]">
+        <Loader2 className="h-6 w-6 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex flex-col items-center justify-center h-[200px] space-y-4">
+        <p className="text-destructive">Error loading visits data</p>
+        <Button onClick={() => refetch()} variant="outline" size="sm">
+          <RefreshCw className="h-4 w-4 mr-2" />
+          Retry
+        </Button>
+      </div>
+    );
+  }
 
   return (
     <div className="grid gap-4">
