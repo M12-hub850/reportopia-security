@@ -1,28 +1,12 @@
+
 import { useNavigate } from "react-router-dom";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { 
-  Menu, 
-  Settings, 
-  User, 
-  FileText, 
-  Clipboard, 
-  AlertTriangle,
-  Car,
-  Users,
-  Archive
-} from "lucide-react";
+import { Menu, Settings, FileText, Clipboard, AlertTriangle, Car } from "lucide-react";
 import { NotificationsDropdown } from "./NotificationsDropdown";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { translations } from "@/translations";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 import {
   Sheet,
   SheetContent,
@@ -33,66 +17,9 @@ import {
 
 export function MainNav() {
   const navigate = useNavigate();
-  const [avatarUrl, setAvatarUrl] = useState<string>("");
-  const [isAdmin, setIsAdmin] = useState(false);
   const { language } = useLanguage();
   const t = translations[language].common;
-
-  useEffect(() => {
-    console.log("MainNav: Initializing component");
-    fetchProfile();
-    checkAdminAccess();
-  }, []);
-
-  const checkAdminAccess = async () => {
-    try {
-      console.log("Checking admin access...");
-      const { data: { user } } = await supabase.auth.getUser();
-      
-      if (!user) return;
-
-      // For now, we'll consider all authenticated users as having access
-      // You can implement your own admin check logic here
-      setIsAdmin(true);
-    } catch (error) {
-      console.error("Error checking admin access:", error);
-    }
-  };
-
-  const fetchProfile = async () => {
-    try {
-      console.log("MainNav: Fetching user profile");
-      const { data: { user }, error: userError } = await supabase.auth.getUser();
-      
-      if (userError) {
-        console.error("MainNav: Error fetching user:", userError);
-        return;
-      }
-
-      if (!user) {
-        console.log("MainNav: No authenticated user found");
-        return;
-      }
-
-      const { data: profile, error: profileError } = await supabase
-        .from("profiles")
-        .select("avatar_url")
-        .eq("id", user.id)
-        .maybeSingle();
-
-      if (profileError) {
-        console.error("MainNav: Error fetching profile:", profileError);
-        return;
-      }
-
-      if (profile?.avatar_url) {
-        console.log("MainNav: Avatar URL found:", profile.avatar_url);
-        setAvatarUrl(profile.avatar_url);
-      }
-    } catch (error) {
-      console.error("MainNav: Error in fetchProfile:", error);
-    }
-  };
+  const [isAdmin] = useState(false);
 
   const handleSignOut = async () => {
     try {
@@ -105,12 +32,10 @@ export function MainNav() {
   };
 
   const navigationItems = [
-    ...(isAdmin ? [{ label: "User Management", icon: Users, path: "/admin" }] : []),
     { label: t.managerReports, icon: FileText, path: "/manager-reports" },
     { label: t.supervisorReports, icon: Clipboard, path: "/supervisor-reports" },
     { label: t.eventIncidents, icon: AlertTriangle, path: "/event-incidents" },
     { label: t.carHandovers, icon: Car, path: "/car-handovers/new" },
-    { label: "Reports Archive", icon: Archive, path: "/reports" },
     { label: t.settings, icon: Settings, path: "/settings" },
   ];
 
@@ -156,26 +81,13 @@ export function MainNav() {
 
       <div className="flex items-center gap-4">
         <NotificationsDropdown />
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="ghost" className="relative h-8 w-8 rounded-full">
-              <Avatar className="h-8 w-8">
-                <AvatarImage src={avatarUrl} />
-                <AvatarFallback>
-                  <User className="h-4 w-4" />
-                </AvatarFallback>
-              </Avatar>
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            <DropdownMenuItem onClick={() => navigate("/settings")}>
-              {t.settings}
-            </DropdownMenuItem>
-            <DropdownMenuItem onClick={handleSignOut}>
-              {t.signOut}
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+        <Button 
+          variant="outline" 
+          onClick={handleSignOut}
+          className="text-red-600 hover:text-red-700"
+        >
+          Logout
+        </Button>
       </div>
     </div>
   );
