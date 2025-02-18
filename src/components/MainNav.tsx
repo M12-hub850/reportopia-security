@@ -108,7 +108,7 @@ export function MainNav() {
           disabled={isLoading}
           className="bg-gradient-to-r from-purple-50 to-blue-50 border-2 border-purple-200 hover:bg-gradient-to-r hover:from-purple-100 hover:to-blue-100 text-purple-700 hover:text-purple-800 transition-all duration-300"
         >
-          {isLoading ? "Signing out..." : "Logout"}
+          {isLoading ? "Signing out..." : t.logout}
         </Button>
       </div>
     </div>
