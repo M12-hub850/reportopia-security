@@ -7,6 +7,7 @@ import { NotificationsDropdown } from "./NotificationsDropdown";
 import { supabase } from "@/integrations/supabase/client";
 import { useLanguage } from "@/contexts/LanguageContext";
 import { translations } from "@/translations";
+import { useToast } from "@/hooks/use-toast";
 import {
   Sheet,
   SheetContent,
@@ -20,14 +21,34 @@ export function MainNav() {
   const { language } = useLanguage();
   const t = translations[language].common;
   const [isAdmin] = useState(false);
+  const { toast } = useToast();
+  const [isLoading, setIsLoading] = useState(false);
 
   const handleSignOut = async () => {
     try {
+      setIsLoading(true);
       console.log("MainNav: Signing out user");
-      await supabase.auth.signOut();
-      navigate("/sign-in");
+      const { error } = await supabase.auth.signOut();
+      
+      if (error) {
+        throw error;
+      }
+
+      toast({
+        title: "Signed out successfully",
+        description: "You have been logged out of your account",
+      });
+
+      navigate("/sign-in", { replace: true });
     } catch (error) {
       console.error("MainNav: Error signing out:", error);
+      toast({
+        variant: "destructive",
+        title: "Error signing out",
+        description: "Please try again",
+      });
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -84,9 +105,10 @@ export function MainNav() {
         <Button 
           variant="outline" 
           onClick={handleSignOut}
+          disabled={isLoading}
           className="bg-gradient-to-r from-purple-50 to-blue-50 border-2 border-purple-200 hover:bg-gradient-to-r hover:from-purple-100 hover:to-blue-100 text-purple-700 hover:text-purple-800 transition-all duration-300"
         >
-          Logout
+          {isLoading ? "Signing out..." : "Logout"}
         </Button>
       </div>
     </div>
